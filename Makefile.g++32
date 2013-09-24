@@ -1,0 +1,75 @@
+# Makefile.g++32 --- Makefile for 32-bit GNU C++
+# Usage: make -f Makefile.g++32
+
+DEFS = -m32 -mthreads -DJAPAN -finput-charset=CP932 -fexec-charset=CP932
+
+DEFS2 = -municode -DUNICODE -D_UNICODE
+#DEFS2 = -DMBCS -D_MBCS
+
+OPTIONS = -O9 -Ofast -DNDEBUG $(DEFS) $(DEFS2) -Wall -pedantic
+#OPTIONS = -O0 -D_DEBUG $(DEFS) $(DEFS2) -Wall -pedantic
+
+CPPFLAGS = -std=c++0x
+
+OBJS = codereverse.o dumpfn.o module.o codereverse_res.o \
+	h-ndisasm\disasm.o \
+	h-ndisasm\insnsb.o \
+	h-ndisasm\insnsd.o \
+	h-ndisasm\insnsn.o \
+	h-ndisasm\nasmlib.o \
+	h-ndisasm\regdis.o \
+	h-ndisasm\regs.o \
+	h-ndisasm\ver.o
+
+CR_HEADERS = \
+	codereverse.h \
+	module.h \
+	stdafx.h
+
+H_NDISASM_HEADERS = \
+	h-ndisasm\compiler.h \
+	h-ndisasm\nasm.h \
+	h-ndisasm\pri.h \
+	h-ndisasm\disasm.h \
+	h-ndisasm\insns.h \
+	h-ndisasm\tables.h \
+	h-ndisasm\regdis.h
+
+RCFLAGS = -F pe-i386
+
+all: cr.exe
+
+cr.exe: $(OBJS)
+	g++ -mconsole -o cr.exe $(OPTIONS) $(OBJS)
+
+codereverse.o: $(CR_HEADERS) codereverse.cpp
+	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o codereverse.o codereverse.cpp
+dumpfn.o: $(CR_HEADERS) dumpfn.cpp
+	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o dumpfn.o dumpfn.cpp
+module.o: $(CR_HEADERS) module.cpp
+	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o module.o module.cpp
+
+h-ndisasm\disasm.o: h-ndisasm\disasm.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\disasm.o h-ndisasm\disasm.c
+h-ndisasm\insnsb.o: h-ndisasm\insnsb.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\insnsb.o h-ndisasm\insnsb.c
+h-ndisasm\insnsd.o: h-ndisasm\insnsd.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\insnsd.o h-ndisasm\insnsd.c
+h-ndisasm\insnsn.o: h-ndisasm\insnsn.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\insnsn.o h-ndisasm\insnsn.c
+h-ndisasm\nasmlib.o: h-ndisasm\nasmlib.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\nasmlib.o h-ndisasm\nasmlib.c
+h-ndisasm\regdis.o: h-ndisasm\regdis.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\regdis.o h-ndisasm\regdis.c
+h-ndisasm\regs.o: h-ndisasm\regs.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\regs.o h-ndisasm\regs.c
+h-ndisasm\ver.o: h-ndisasm\ver.c $(H_NDISASM_HEADERS)
+	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\ver.o h-ndisasm\ver.c
+
+codereverse_res.o: codereverse.rc codereverse.ico
+	windres $(RCFLAGS) -i codereverse.rc -o codereverse_res.o
+
+clean:
+	if exist *.o del *.o
+	if exist h-ndisasm\*.o del h-ndisasm\*.o
+	if exist *.res del *.res
