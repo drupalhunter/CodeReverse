@@ -1,1 +1,1 @@
-PE format dumper, disassembler and discompiler
+PE format dumper, disassembler and wanna be discompiler
