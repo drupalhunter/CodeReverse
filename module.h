@@ -1,8 +1,25 @@
+////////////////////////////////////////////////////////////////////////////
 // module.h
 // Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+//
+// CodeReverse is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeReverse is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
-// REAL_IMAGE_SECTION_HEADER
+// REAL_IMAGE_SECTION_HEADER, REAL_IMAGE_DATA_DIRECTORY
 
 #include <pshpack1.h>
 typedef struct _REAL_IMAGE_SECTION_HEADER {
@@ -20,6 +37,13 @@ typedef struct _REAL_IMAGE_SECTION_HEADER {
     WORD    NumberOfLinenumbers;
     DWORD   Characteristics;
 } REAL_IMAGE_SECTION_HEADER, *PREAL_IMAGE_SECTION_HEADER;
+#include <poppack.h>
+
+#include <pshpack1.h>
+typedef struct _REAL_IMAGE_DATA_DIRECTORY {
+    DWORD RVA;  // Not VirtualAddress!
+    DWORD Size;
+} REAL_IMAGE_DATA_DIRECTORY, *PREAL_IMAGE_DATA_DIRECTORY;
 #include <poppack.h>
 
 ////////////////////////////////////////////////////////////////////////////
@@ -84,6 +108,7 @@ public:
     VOID DumpImportSymbols();
     VOID DumpExportSymbols();
     VOID DumpResource();
+    VOID DumpDelayLoad();
 
     DWORD GetFileSize() const;
     DWORD GetLastError() const;
@@ -117,23 +142,42 @@ public:
 
     BOOL LoadImportTables();
     BOOL LoadExportTable();
+    BOOL LoadDelayLoad();
 
-    const IMPORT_SYMBOL *FindImportSymbolByRVA(DWORD RVA) const;
+    const IMPORT_SYMBOL *FindImportSymbolByRVA(DWORD rva) const;
     const IMPORT_SYMBOL *FindImportSymbolByName(LPCSTR Name) const;
-    const EXPORT_SYMBOL *FindExportSymbolByRVA(DWORD RVA) const;
+    const EXPORT_SYMBOL *FindExportSymbolByRVA(DWORD rva) const;
     const EXPORT_SYMBOL *FindExportSymbolByName(LPCSTR Name) const;
-    const SYMBOL *FindSymbolByRVA(DWORD RVA) const;
+    const SYMBOL *FindSymbolByRVA(DWORD rva) const;
     const SYMBOL *FindSymbolByName(LPCSTR Name) const;
+    const SYMBOL *FindSymbolByAddr32(ADDR32 addr) const;
+    const SYMBOL *FindSymbolByAddr64(ADDR64 addr) const;
 
-    BOOL AddressInCode32(ADDRESS32 VA) const;
-    BOOL AddressInData32(ADDRESS32 VA) const;
-    BOOL AddressInCode64(ADDRESS64 VA) const;
-    BOOL AddressInData64(ADDRESS64 VA) const;
+    BOOL AddressInCode32(ADDR32 va) const;
+    BOOL AddressInData32(ADDR32 va) const;
+    BOOL AddressInCode64(ADDR64 va) const;
+    BOOL AddressInData64(ADDR64 va) const;
 
+    BOOL DisAsmAddr32(ADDR32 func, ADDR32 va);
+    BOOL DisAsmAddr64(ADDR64 func, ADDR64 va);
     BOOL DisAsm32();
     BOOL DisAsm64();
     BOOL DisAsm();
     BOOL DumpDisAsm();
+    BOOL DumpDisAsmFunc32(ADDR32 func);
+    BOOL DumpDisAsmFunc64(ADDR64 func);
+
+    BOOL DecompileAddr32(ADDR32 va);
+    BOOL DecompileAddr64(ADDR64 va);
+    BOOL Decompile32();
+    BOOL Decompile64();
+    BOOL Decompile();
+    BOOL DumpDecompile();
+
+    VOID ParseOperand(OPERAND& opr, INT bits, bool jump = false);
+
+    BOOL AnalyseCF32(CODEFUNC& cf);
+    BOOL AnalyseCF64(CODEFUNC& cf);
 
 protected:
     LPCTSTR     m_pszFileName;
@@ -144,6 +188,7 @@ protected:
     DWORD       m_dwLastError;
     BOOL        m_bModuleLoaded;
     BOOL        m_bDisAsmed;
+    BOOL        m_bDecompiled;
 
     PIMAGE_DOS_HEADER           m_pDosHeader;
     union
@@ -166,14 +211,14 @@ protected:
     DWORD   m_dwNumberOfSections;
 
     PIMAGE_SECTION_HEADER       m_pSectionHeaders;
-    PIMAGE_DATA_DIRECTORY       m_pDataDirectories;
+    PREAL_IMAGE_DATA_DIRECTORY  m_pDataDirectories;
 
-    // import
-    vector<string> m_vImportDllNames;
+    // import symbols
+    vector<string>              m_vImportDllNames;
     map<DWORD, IMPORT_SYMBOL>   m_mRVAToImportSymbol;
     map<string, IMPORT_SYMBOL>  m_mNameToImportSymbol;
 
-    // export
+    // export symbols
     vector<EXPORT_SYMBOL>       m_vExportSymbols;
     map<DWORD, EXPORT_SYMBOL>   m_mRVAToExportSymbol;
     map<string, EXPORT_SYMBOL>  m_mNameToExportSymbol;
@@ -182,9 +227,20 @@ protected:
     map<DWORD, SYMBOL>          m_mRVAToSymbol;
     map<string, SYMBOL>         m_mNameToSymbol;
 
-    // map address to codepoint
-    map<DWORD, CODEPOINT32>     m_mapAddrToCodePoint32;
-    map<ULONGLONG, CODEPOINT64> m_mapAddrToCodePoint64;
+    // map virtual address to asm code
+    map<ADDR32, ASMCODE32>      m_mAddrToAsmCode32;
+    map<ADDR64, ASMCODE64>      m_mAddrToAsmCode64;
+
+    // entrances
+    set<ADDR32>                 m_sEntrances32;
+    set<ADDR64>                 m_sEntrances64;
+
+    // delay loading
+    vector<ImgDelayDescr>       m_vImgDelayDescrs;
+
+    // map addr to code function
+    map<ADDR32, CODEFUNC>       m_mAddrToCF32;
+    map<ADDR64, CODEFUNC>       m_mAddrToCF64;
 
     BOOL _LoadImage(LPVOID Data);
     BOOL _LoadNTHeaders(LPVOID Data);
@@ -193,8 +249,8 @@ protected:
     BOOL _GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols);
     BOOL _GetExportSymbols(vector<EXPORT_SYMBOL>& symbols);
 
-    VOID _ParseInsn32(CODEPOINT32& cp, ADDRESS32 offset, const char *insn);
-    VOID _ParseInsn64(CODEPOINT64& cp, ADDRESS64 offset, const char *insn);
+    VOID _ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn);
+    VOID _ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn);
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -212,6 +268,7 @@ VOID DumpFileHeader(LPVOID Data);
 VOID DumpOptionalHeader32(LPVOID Data, DWORD CheckSum);
 VOID DumpOptionalHeader64(LPVOID Data, DWORD CheckSum);
 VOID DumpSectionHeader(LPVOID Data);
+VOID DumpCodes(const vector<BYTE>& codes, INT bits);
 
 ////////////////////////////////////////////////////////////////////////////
 // inline functions
@@ -305,8 +362,8 @@ inline DWORD PEModule::GetDirEntryDataSize(DWORD index) const
 inline BOOL PEModule::RVAInDirEntry(DWORD rva, DWORD index) const
 {
     if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES &&
-        m_pDataDirectories[index].VirtualAddress <= rva &&
-        rva < m_pDataDirectories[index].VirtualAddress + m_pDataDirectories[index].Size)
+        m_pDataDirectories[index].RVA <= rva &&
+        rva < m_pDataDirectories[index].RVA + m_pDataDirectories[index].Size)
     {
         return TRUE;
     }

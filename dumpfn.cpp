@@ -1,5 +1,22 @@
+////////////////////////////////////////////////////////////////////////////
 // dumpfn.cpp
 // Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+//
+// CodeReverse is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeReverse is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 
@@ -656,6 +673,33 @@ VOID DumpSectionHeader(LPVOID Data)
     printf("  NumberOfRelocations: 0x%08X (%u)\n", SectionHeader->NumberOfRelocations, SectionHeader->NumberOfRelocations);
     printf("  NumberOfLinenumbers: 0x%08X (%u)\n", SectionHeader->NumberOfLinenumbers, SectionHeader->NumberOfLinenumbers);
     printf("  Characteristics: 0x%08lX (%s)\n", SectionHeader->Characteristics, GetSectionFlagsString(SectionHeader->Characteristics));
+}
+
+VOID DumpCodes(const vector<BYTE>& codes, INT bits)
+{
+    size_t codesperline;
+
+    if (bits == 64)
+        codesperline = 16;
+    else if (bits == 32)
+        codesperline = 12;
+    else
+        codesperline = 9;
+
+    size_t i;
+    for (i = 0; i < codesperline; i++)
+    {
+        if (i < codes.size())
+        {
+            printf("%02X ", codes[i]);
+        }
+        else
+            printf("   ");
+    }
+    for (; i < codes.size(); i++)
+    {
+        printf("%02X ", codes[i]);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////

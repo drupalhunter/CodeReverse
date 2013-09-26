@@ -1,6 +1,23 @@
 # Makefile.g++64 --- Makefile for 64-bit GNU C++
 # Usage: make -f Makefile.g++64
 
+############################################################################
+## This file is part of CodeReverse.
+##
+## CodeReverse is free software: you can redistribute it and#or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## CodeReverse is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with CodeReverse.  If not, see <http:##www.gnu.org#licenses#>.
+############################################################################
+
 DEFS = -m64 -mthreads -DJAPAN -finput-charset=CP932 -fexec-charset=CP932
 
 DEFS2 = -municode -DUNICODE -D_UNICODE
@@ -40,7 +57,7 @@ RCFLAGS = -F pe-x86-64
 all: cr64.exe
 
 cr64.exe: $(OBJS)
-	g++ -mconsole -o cr64.exe $(OPTIONS) $(OBJS)
+	g++ -mconsole -o cr64.exe $(OPTIONS) $(OBJS) -limagehlp
 
 codereverse64.o: $(CR_HEADERS) codereverse.cpp
 	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o codereverse64.o codereverse.cpp

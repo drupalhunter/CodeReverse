@@ -1,18 +1,43 @@
+////////////////////////////////////////////////////////////////////////////
 // codereverse.cpp
 // Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+//
+// CodeReverse is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeReverse is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
+const char * const cr_logo =
+"/////////////////////////////////////\n"
+"// CodeReverse 0.0.1               //\n"
+"// katayama.hirofumi.mz@gmail.com  //\n"
+"/////////////////////////////////////\n";
+
+////////////////////////////////////////////////////////////////////////////
+
 struct X86_REGINFO
 {
-    const char *name;
+    const char * const name;
     X86_REGTYPE type;
     INT         bits;
 };
 
-const X86_REGINFO g_reg_entries[] =
+const X86_REGINFO cr_reg_entries[] =
 {
     {"cr0", X86_CRREG,  0},
     {"cr1", X86_CRREG,  0},
@@ -156,24 +181,24 @@ const X86_REGINFO g_reg_entries[] =
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// reg_get_type, reg_get_size
+// cr_reg_get_type, cr_reg_get_size
 
-X86_REGTYPE reg_get_type(const char *name, int bits)
+X86_REGTYPE cr_reg_get_type(const char *name, int bits)
 {
-    for (size_t i = 0; i < sizeof(g_reg_entries) / sizeof(g_reg_entries[0]); i++)
+    for (size_t i = 0; i < sizeof(cr_reg_entries) / sizeof(cr_reg_entries[0]); i++)
     {
-        if (bits >= g_reg_entries[i].bits &&
-            _stricmp(g_reg_entries[i].name, name) == 0)
+        if (bits >= cr_reg_entries[i].bits &&
+            _stricmp(cr_reg_entries[i].name, name) == 0)
         {
-            return g_reg_entries[i].type;
+            return cr_reg_entries[i].type;
         }
     }
     return X86_REGNONE;
 }
 
-DWORD reg_get_size(const char *name, int bits)
+DWORD cr_reg_get_size(const char *name, int bits)
 {
-    switch (reg_get_type(name, bits))
+    switch (cr_reg_get_type(name, bits))
     {
     case X86_CRREG:
         if (bits == 32)
@@ -199,139 +224,677 @@ DWORD reg_get_size(const char *name, int bits)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// parse_operand
 
-void parse_operand(OPERAND& opr, INT bits, bool jump/* = false*/)
+VOID OPERAND::SetImm(ULONGLONG val, bool is_signed)
 {
     char buf[64];
-    strcpy(buf, opr.text.c_str());
-    char *p = buf;
 
-    DWORD size = reg_get_size(p, bits);
-    if (size != 0)
+    if (is_signed)
+        sprintf(buf, "%ld", (LONG)(LONGLONG)val);
+    else if (HILONG(val) == 0)
     {
-        opr.type = OT_REG;
-        opr.size = size;
-        return;
-    }
-
-    if (_strnicmp(p, "byte ", 5) == 0)
-    {
-        p += 5;
-        opr.size = 1;
-    }
-    else if (_strnicmp(p, "word ", 5) == 0)
-    {
-        p += 5;
-        opr.size = 2;
-    }
-    else if (_strnicmp(p, "dword ", 6) == 0)
-    {
-        p += 6;
-        opr.size = 4;
-    }
-    else if (_strnicmp(p, "qword ", 6) == 0)
-    {
-        p += 6;
-        opr.size = 8;
-    }
-    else if (_strnicmp(p, "tword ", 6) == 0)
-    {
-        p += 6;
-        opr.size = 10;
-    }
-    else if (_strnicmp(p, "oword ", 6) == 0)
-    {
-        p += 6;
-        opr.size = 16;
-    }
-    else if (_strnicmp(p, "yword ", 6) == 0)
-    {
-        p += 6;
-        opr.size = 32;
-    }
-    else if (_strnicmp(p, "short ", 6) == 0)
-    {
-        p += 6;
-        opr.size = 1;
-    }
-    else if (_strnicmp(p, "near ", 5) == 0)
-    {
-        p += 5;
-        opr.size = 2;
-    }
-
-    // near or far
-    if (_strnicmp(p, "near ", 5) == 0)
-        p += 5;
-    else if (_strnicmp(p, "far ", 4) == 0)
-        p += 4;
-
-    if (p[0] == '+' || p[0] == '-')
-    {
-        char *endptr;
-        LONGLONG value = _strtoi64(p, &endptr, 16);
-        opr.SetImm(value, true);
-    }
-    else if (p[0] == '0' && p[1] == 'x')
-    {
-        char *endptr;
-        ULONGLONG value = _strtoui64(p, &endptr, 16);
-
-        if (jump)
+        if (HIWORD(LOLONG(val)) == 0)
         {
-            if (bits == 64)
-                sprintf(buf, "L%08lX%08lX", HILONG(value), LOLONG(value));
-            else if (bits == 32)
-                sprintf(buf, "L%08lX", LOLONG(value));
+            if (HIBYTE(LOWORD(LOLONG(val))) == 0)
+                sprintf(buf, "0x%02X", (BYTE)(val));
             else
-                sprintf(buf, "L%04X", (WORD)value);
-            opr.SetLabel(buf);
+                sprintf(buf, "0x%04X", LOWORD(LOLONG(val)));
         }
         else
-            opr.SetImm(value, false);
+            sprintf(buf, "0x%08lX", LOLONG(val));
     }
-    else if (p[0] == '[')
+    else
+        sprintf(buf, "0x%08lX%08lX", HILONG(val), LOLONG(val));
+
+    text = buf;
+    type = OT_IMM;
+    value = val;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// MZC2 MSecurityAttributes
+
+MSecurityAttributes::MSecurityAttributes(
+    BOOL bInherit/* = TRUE*/, LPVOID pSecurityDescriptor/* = NULL*/)
+{
+    nLength = sizeof(SECURITY_ATTRIBUTES);
+    lpSecurityDescriptor = pSecurityDescriptor;
+    bInheritHandle = bInherit;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// MZC2 MFile
+
+MFile::MFile()
+    : m_hHandle(NULL)
+{
+}
+
+MFile::MFile(HANDLE hHandle)
+    : m_hHandle(hHandle)
+{
+}
+
+MFile::~MFile()
+{
+    if (m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE)
+        MzcVerify(::CloseHandle(m_hHandle));
+}
+
+MFile::operator HANDLE() const
+{
+    return m_hHandle;
+}
+
+MFile::operator PHANDLE()
+{
+    return &m_hHandle;
+}
+
+PHANDLE MFile::operator&()
+{
+    return &m_hHandle;
+}
+
+MFile& MFile::operator=(HANDLE hHandle)
+{
+    if (m_hHandle != hHandle)
     {
-        p++;
-        *strchr(p, ']') = '\0';
+        if (m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE)
+            MzcVerify(::CloseHandle(m_hHandle));
+        Attach(hHandle);
+    }
+    return *this;
+}
 
-        DWORD size;
+bool MFile::operator!() const
+{
+    return m_hHandle == NULL || m_hHandle == INVALID_HANDLE_VALUE;
+}
 
-        if (_strnicmp(p, "word ", 5) == 0)
-        {
-            p += 5;
-        }
-        else if (_strnicmp(p, "dword ", 6) == 0)
-        {
-            p += 6;
-        }
-        else if (_strnicmp(p, "rel ", 4) == 0)
-        {
-            p += 4;
-        }
-        else if (_strnicmp(p, "qword ", 6) == 0)
-        {
-            p += 6;
-        }
-        else if ((size = reg_get_size(p, bits)) != 0)
-        {
-            opr.type = OT_MEMREG;
-            return;
-        }
+bool MFile::operator==(HANDLE hHandle) const
+{
+    return m_hHandle == hHandle;
+}
 
-        ADDRESS64 addr;
-        char *endptr;
-        if (isdigit(*p))
+bool MFile::operator!=(HANDLE hHandle) const
+{
+    return m_hHandle != hHandle;
+}
+
+BOOL MFile::OpenFileForInput(
+    LPCTSTR pszFileName, DWORD dwFILE_SHARE_/* = FILE_SHARE_READ*/)
+{
+    return MFile::CreateFile(pszFileName, GENERIC_READ,
+        dwFILE_SHARE_, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+
+BOOL MFile::OpenFileForOutput(
+    LPCTSTR pszFileName, DWORD dwFILE_SHARE_/* = FILE_SHARE_READ*/)
+{
+    return MFile::CreateFile(pszFileName, GENERIC_WRITE,
+        dwFILE_SHARE_, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+
+BOOL MFile::OpenFileForRandom(
+    LPCTSTR pszFileName, DWORD dwFILE_SHARE_/* = FILE_SHARE_READ*/)
+{
+    return MFile::CreateFile(pszFileName,
+        GENERIC_READ | GENERIC_WRITE, dwFILE_SHARE_, NULL, OPEN_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, NULL);
+}
+
+BOOL MFile::DuplicateHandle(PHANDLE phHandle, BOOL bInherit)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    HANDLE hProcess = ::GetCurrentProcess();
+    return ::DuplicateHandle(hProcess, m_hHandle, hProcess, phHandle, 0,
+        bInherit, DUPLICATE_SAME_ACCESS);
+}
+
+BOOL MFile::DuplicateHandle(
+    PHANDLE phHandle, BOOL bInherit, DWORD dwDesiredAccess)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    HANDLE hProcess = ::GetCurrentProcess();
+    return ::DuplicateHandle(hProcess, m_hHandle, hProcess, phHandle,
+        dwDesiredAccess, bInherit, 0);
+}
+
+DWORD MFile::WaitForSingleObject(
+    DWORD dwTimeout/* = INFINITE*/)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::WaitForSingleObject(m_hHandle, dwTimeout);
+}
+
+VOID MFile::Attach(HANDLE hHandle)
+{
+    MzcAssert(m_hHandle == NULL || m_hHandle == INVALID_HANDLE_VALUE);
+    m_hHandle = hHandle;
+}
+
+HANDLE MFile::Detach()
+{
+    HANDLE hHandle = m_hHandle;
+    m_hHandle = NULL;
+    return hHandle;
+}
+
+BOOL MFile::CloseHandle()
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    BOOL b = ::CloseHandle(m_hHandle);
+    MzcAssert(b);
+    m_hHandle = INVALID_HANDLE_VALUE;
+    return b;
+}
+
+BOOL MFile::PeekNamedPipe(
+    LPVOID pBuffer/* = NULL*/,
+    DWORD cbBuffer/* = 0*/,
+    LPDWORD pcbRead/* = NULL*/,
+    LPDWORD pcbAvail/* = NULL*/,
+    LPDWORD pBytesLeft/* = NULL*/)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::PeekNamedPipe(m_hHandle, pBuffer, cbBuffer,
+        pcbRead, pcbAvail, pBytesLeft);
+}
+
+BOOL MFile::ReadFile(LPVOID pBuffer, DWORD cbToRead,
+    LPDWORD pcbRead, LPOVERLAPPED pOverlapped/* = NULL*/)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::ReadFile(m_hHandle, pBuffer, cbToRead, pcbRead, pOverlapped);
+}
+
+BOOL MFile::WriteFile(LPCVOID pBuffer, DWORD cbToWrite,
+    LPDWORD pcbWritten, LPOVERLAPPED pOverlapped/* = NULL*/)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::WriteFile(
+        m_hHandle, pBuffer, cbToWrite, pcbWritten, pOverlapped);
+}
+
+BOOL MFile::WriteSzA(LPCSTR psz,
+    LPDWORD pcbWritten, LPOVERLAPPED pOverlapped/* = NULL*/)
+{
+    return WriteFile(psz, (DWORD)strlen(psz), pcbWritten, pOverlapped);
+}
+
+BOOL MFile::WriteSzW(LPCWSTR psz,
+    LPDWORD pcbWritten, LPOVERLAPPED pOverlapped/* = NULL*/)
+{
+    return WriteFile(psz, (DWORD)(wcslen(psz) * sizeof(WCHAR)), pcbWritten,
+        pOverlapped);
+}
+
+BOOL MFile::WriteSz(LPCTSTR psz,
+    LPDWORD pcbWritten, LPOVERLAPPED pOverlapped/* = NULL*/)
+{
+    return WriteFile(psz, (DWORD)(_tcslen(psz) * sizeof(TCHAR)), pcbWritten, pOverlapped);
+}
+
+BOOL MFile::CreateFile(LPCTSTR pszFileName,
+    DWORD dwDesiredAccess, DWORD dwShareMode,
+    LPSECURITY_ATTRIBUTES pSA, DWORD dwCreationDistribution,
+    DWORD dwFlagsAndAttributes/* = FILE_ATTRIBUTE_NORMAL*/,
+    HANDLE hTemplateFile/* = NULL*/)
+{
+    MzcAssert(m_hHandle == NULL || m_hHandle == INVALID_HANDLE_VALUE);
+    m_hHandle = ::CreateFile(pszFileName, dwDesiredAccess, dwShareMode,
+        pSA, dwCreationDistribution, dwFlagsAndAttributes, hTemplateFile);
+    return (m_hHandle != INVALID_HANDLE_VALUE);
+}
+
+DWORD MFile::SetFilePointer(
+    LONG nDeltaLow,
+    PLONG pnDeltaHigh/* = NULL*/,
+    DWORD dwOrigin/* = FILE_BEGIN*/)
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::SetFilePointer(m_hHandle, nDeltaLow, pnDeltaHigh, dwOrigin);
+}
+
+DWORD MFile::SeekToEnd()
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return SetFilePointer(0, NULL, FILE_END);
+}
+
+VOID MFile::SeekToBegin()
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    SetFilePointer(0, NULL, FILE_BEGIN);
+}
+
+DWORD MFile::GetFileSize(
+    LPDWORD pdwHighPart/* = NULL*/) const
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::GetFileSize(m_hHandle, pdwHighPart);
+}
+
+BOOL MFile::SetEndOfFile()
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::SetEndOfFile(m_hHandle);
+}
+
+BOOL MFile::FlushFileBuffers()
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::FlushFileBuffers(m_hHandle);
+}
+
+BOOL MFile::WriteSzA(LPCSTR psz)
+{
+    INT cb = (INT) strlen(psz);
+    return WriteBinary(psz, (DWORD) cb);
+}
+
+BOOL MFile::WriteSzW(LPCWSTR psz)
+{
+    INT cb = (INT) (wcslen(psz) * sizeof(WCHAR));
+    return WriteBinary(psz, (DWORD) cb);
+}
+
+BOOL MFile::WriteSz(LPCTSTR psz)
+{
+    INT cb = (INT) (_tcslen(psz) * sizeof(TCHAR));
+    return WriteBinary(psz, (DWORD) cb);
+}
+
+BOOL __cdecl MFile::WriteFormatA(LPCSTR pszFormat, ...)
+{
+    va_list argList;
+    CHAR sz[1024];
+    va_start(argList, pszFormat);
+    std::vsprintf(sz, pszFormat, argList);
+    BOOL b = WriteSzA(sz);
+    va_end(argList);
+    return b;
+}
+
+BOOL __cdecl MFile::WriteFormatW(LPCWSTR pszFormat, ...)
+{
+    using namespace std;
+    va_list argList;
+    WCHAR sz[1024];
+    va_start(argList, pszFormat);
+    vswprintf(sz, pszFormat, argList);
+    BOOL b = WriteSzW(sz);
+    va_end(argList);
+    return b;
+}
+
+BOOL __cdecl MFile::WriteFormat(LPCTSTR pszFormat, ...)
+{
+    using namespace std;
+    va_list argList;
+    TCHAR sz[1024];
+    va_start(argList, pszFormat);
+    _vstprintf(sz, pszFormat, argList);
+    BOOL b = WriteSz(sz);
+    va_end(argList);
+    return b;
+}
+
+BOOL MFile::GetFileTime(
+    LPFILETIME pftCreate/* = NULL*/,
+    LPFILETIME pftLastAccess/* = NULL*/,
+    LPFILETIME pftLastWrite/* = NULL*/) const
+{
+    MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
+    return ::GetFileTime(m_hHandle, pftCreate, pftLastAccess, pftLastWrite);
+}
+
+BOOL MFile::OpenFileForAppend(
+    LPCTSTR pszFileName, DWORD dwFILE_SHARE_/* = FILE_SHARE_READ*/)
+{
+    BOOL bExisted = (::GetFileAttributes(pszFileName) != 0xFFFFFFFF);
+    if (!MFile::CreateFile(pszFileName, GENERIC_READ | GENERIC_WRITE,
+        dwFILE_SHARE_, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL))
+        return FALSE;
+    if (SetFilePointer(0, NULL, FILE_END) == 0xFFFFFFFF)
+    {
+        MzcAssert(FALSE);
+        CloseHandle();
+        if (!bExisted)
+            ::DeleteFile(pszFileName);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+BOOL MFile::WriteBinary(LPCVOID pv, DWORD cb)
+{
+    CONST BYTE *pb = (CONST BYTE *) pv;
+    DWORD cbWritten;
+    while (cb != 0)
+    {
+        if (WriteFile(pb, cb, &cbWritten))
         {
-            addr = _strtoui64(p, &endptr, 16);
-            opr.SetMemImm(addr);
+            cb -= cbWritten;
+            pb += cbWritten;
         }
         else
-        {
-            opr.SetMemExp(p);
-        }
+            break;
     }
+    return (cb == 0) && FlushFileBuffers();
+}
+
+////////////////////////////////////////////////////////////////////////////
+// MZC2 MProcessMaker
+
+MProcessMaker::~MProcessMaker()
+{
+    Close();
+}
+
+BOOL MProcessMaker::TerminateProcess(UINT uExitCode)
+{
+    return ::TerminateProcess(m_pi.hProcess, uExitCode);
+}
+
+VOID MProcessMaker::SetStdInput(HANDLE hStdIn)
+{
+    if (hStdIn != NULL)
+    {
+        m_si.hStdInput = hStdIn;
+        m_si.dwFlags |= STARTF_USESTDHANDLES;
+    }
+}
+
+VOID MProcessMaker::SetStdOutput(HANDLE hStdOut)
+{
+    if (hStdOut != NULL)
+    {
+        m_si.hStdOutput = hStdOut;
+        m_si.dwFlags |= STARTF_USESTDHANDLES;
+    }
+}
+
+VOID MProcessMaker::SetStdError(HANDLE hStdErr)
+{
+    if (hStdErr != NULL)
+    {
+        m_si.hStdError = hStdErr;
+        m_si.dwFlags |= STARTF_USESTDHANDLES;
+    }
+}
+
+VOID MProcessMaker::SetShowWindow(INT nCmdShow/* = SW_HIDE*/)
+{
+    m_si.wShowWindow = (WORD) nCmdShow;
+    m_si.dwFlags |= STARTF_USESHOWWINDOW;
+}
+
+VOID MProcessMaker::SetCreationFlags(
+    DWORD dwFlags/* = CREATE_NEW_CONSOLE*/)
+{
+    m_dwCreationFlags = dwFlags;
+}
+
+VOID MProcessMaker::SetCurrentDirectory(LPCTSTR pszCurDir)
+{
+    m_pszCurDir = pszCurDir;
+}
+
+VOID MProcessMaker::SetDesktop(LPTSTR lpDesktop)
+{
+    m_si.lpDesktop = lpDesktop;
+}
+
+VOID MProcessMaker::SetTitle(LPTSTR lpTitle)
+{
+    m_si.lpTitle = lpTitle;
+}
+
+VOID MProcessMaker::SetPosition(DWORD dwX, DWORD dwY)
+{
+    m_si.dwX = dwX;
+    m_si.dwY = dwY;
+    m_si.dwFlags |= STARTF_USEPOSITION;
+}
+
+VOID MProcessMaker::SetSize(DWORD dwXSize, DWORD dwYSize)
+{
+    m_si.dwXSize = dwXSize;
+    m_si.dwYSize = dwYSize;
+    m_si.dwFlags |= STARTF_USESIZE;
+}
+
+VOID MProcessMaker::SetCountChars(
+    DWORD dwXCountChars, DWORD dwYCountChars)
+{
+    m_si.dwXCountChars = dwXCountChars;
+    m_si.dwYCountChars = dwYCountChars;
+    m_si.dwFlags |= STARTF_USECOUNTCHARS;
+}
+
+VOID MProcessMaker::SetFillAttirbutes(DWORD dwFillAttribute)
+{
+    m_si.dwFillAttribute = dwFillAttribute;
+    m_si.dwFlags |= STARTF_USEFILLATTRIBUTE;
+}
+
+HANDLE MProcessMaker::GetHandle() const
+{
+    return m_pi.hProcess;
+}
+
+DWORD MProcessMaker::GetExitCode() const
+{
+    MzcAssert(m_pi.hProcess != NULL);
+    DWORD dwExitCode;
+    ::GetExitCodeProcess(m_pi.hProcess, &dwExitCode);
+    return dwExitCode;
+}
+
+DWORD MProcessMaker::WaitForExit(DWORD dwTimeout/* = INFINITE*/)
+{
+    MzcAssert(m_pi.hProcess != NULL);
+    return ::WaitForSingleObject(m_pi.hProcess, dwTimeout);
+}
+
+BOOL MProcessMaker::IsRunning() const
+{
+    return (m_pi.hProcess != NULL &&
+        ::WaitForSingleObject(m_pi.hProcess, 0) == WAIT_TIMEOUT);
+}
+
+bool MProcessMaker::operator!() const
+{
+    return !IsRunning();
+}
+
+MProcessMaker::MProcessMaker()
+{
+    ZeroMemory(&m_si, sizeof(m_si));
+    m_si.cb = sizeof(STARTUPINFO);
+    ZeroMemory(&m_pi, sizeof(m_pi));
+    m_dwCreationFlags = 0;
+    m_pszCurDir = NULL;
+    m_si.hStdInput = ::GetStdHandle(STD_INPUT_HANDLE);
+    m_si.hStdOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
+    m_si.hStdError = ::GetStdHandle(STD_ERROR_HANDLE);
+}
+
+BOOL MProcessMaker::CreateProcess(
+    LPCTSTR pszAppName, LPCTSTR pszCommandLine/* = NULL*/,
+    LPCTSTR pszzEnvironment/* = NULL*/, BOOL bInherit/* = TRUE*/,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes/* = NULL*/,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes/* = NULL*/)
+{
+    BOOL b;
+    if (pszCommandLine == NULL)
+    {
+#ifdef _UNICODE
+        b = ::CreateProcess(pszAppName, NULL,
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags | CREATE_UNICODE_ENVIRONMENT,
+            (LPVOID) pszzEnvironment, m_pszCurDir, &m_si, &m_pi);
+#else
+        b = ::CreateProcess(pszAppName, NULL,
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags, (LPVOID) pszzEnvironment,
+            m_pszCurDir, &m_si, &m_pi);
+#endif
+    }
+    else
+    {
+        LPTSTR pszCmdLine = _tcsdup(pszCommandLine);
+#ifdef _UNICODE
+        b = ::CreateProcess(pszAppName, pszCmdLine, 
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags | CREATE_UNICODE_ENVIRONMENT,
+            (LPVOID) pszzEnvironment, m_pszCurDir, &m_si, &m_pi);
+#else
+        b = ::CreateProcess(pszAppName, pszCmdLine, 
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags, (LPVOID) pszzEnvironment,
+            m_pszCurDir, &m_si, &m_pi);
+#endif
+        free(pszCmdLine);
+    }
+    MzcAssert(b);
+    return b;
+}
+
+BOOL MProcessMaker::CreateProcessAsUser(
+    HANDLE hToken, LPCTSTR pszAppName, LPCTSTR pszCommandLine/* = NULL*/,
+    LPCTSTR pszzEnvironment/* = NULL*/, BOOL bInherit/* = TRUE*/,
+    LPSECURITY_ATTRIBUTES lpProcessAttributes/* = NULL*/,
+    LPSECURITY_ATTRIBUTES lpThreadAttributes/* = NULL*/)
+{
+    BOOL b;
+    if (pszCommandLine == NULL)
+    {
+#ifdef _UNICODE
+        b = ::CreateProcessAsUser(hToken, pszAppName, NULL, 
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags | CREATE_UNICODE_ENVIRONMENT,
+            (LPVOID) pszzEnvironment, m_pszCurDir, &m_si, &m_pi);
+#else
+        b = ::CreateProcessAsUser(hToken, pszAppName, NULL, 
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags, (LPVOID) pszzEnvironment,
+            m_pszCurDir, &m_si, &m_pi);
+#endif
+    }
+    else
+    {
+        LPTSTR pszCmdLine = _tcsdup(pszCommandLine);
+#ifdef _UNICODE
+        b = ::CreateProcessAsUser(hToken, pszAppName, pszCmdLine,
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags | CREATE_UNICODE_ENVIRONMENT,
+            (LPVOID) pszzEnvironment, m_pszCurDir, &m_si, &m_pi);
+#else
+        b = ::CreateProcessAsUser(hToken, pszAppName, pszCmdLine,
+            lpProcessAttributes, lpThreadAttributes,
+            bInherit, m_dwCreationFlags, (LPVOID) pszzEnvironment,
+            m_pszCurDir, &m_si, &m_pi);
+#endif
+        free(pszCmdLine);
+    }
+    MzcAssert(b);
+    return b;
+}
+
+VOID MProcessMaker::Close()
+{
+    if (m_pi.hProcess != NULL)
+    {
+        ::CloseHandle(m_pi.hProcess);
+        m_pi.hProcess = NULL;
+    }
+    if (m_pi.hThread != NULL)
+    {
+        ::CloseHandle(m_pi.hThread);
+        m_pi.hThread = NULL;
+    }
+    HANDLE hStdInput = ::GetStdHandle(STD_INPUT_HANDLE);
+    if (m_si.hStdInput != hStdInput)
+    {
+        ::CloseHandle(m_si.hStdInput);
+        m_si.hStdInput = hStdInput;
+    }
+    HANDLE hStdOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
+    if (m_si.hStdOutput != hStdOutput)
+    {
+        ::CloseHandle(m_si.hStdOutput);
+        m_si.hStdOutput = hStdOutput;
+    }
+    HANDLE hStdError = ::GetStdHandle(STD_ERROR_HANDLE);
+    if (m_si.hStdError != hStdError)
+    {
+        ::CloseHandle(m_si.hStdError);
+        m_si.hStdError = hStdError;
+    }
+}
+
+BOOL MProcessMaker::PrepareForRedirect(
+    PHANDLE phInputWrite, PHANDLE phOutputRead,
+    PHANDLE phErrorRead)
+{
+    MSecurityAttributes sa;
+
+    MFile hInputRead, hInputWriteTmp;
+    MFile hOutputReadTmp, hOutputWrite;
+    MFile hErrorReadTmp, hErrorWrite;
+
+    if (phInputWrite != NULL)
+    {
+        if (::CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 0))
+        {
+            if (!hInputWriteTmp.DuplicateHandle(phInputWrite, FALSE))
+                return FALSE;
+            hInputWriteTmp.CloseHandle();
+        }
+        else
+            return FALSE;
+    }
+
+    if (phOutputRead != NULL)
+    {
+        if (::CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 0))
+        {
+            if (!hOutputReadTmp.DuplicateHandle(phOutputRead, FALSE))
+                return FALSE;
+            hOutputReadTmp.CloseHandle();
+        }
+        else
+            return FALSE;
+    }
+
+    if (phOutputRead != NULL && phOutputRead == phErrorRead)
+    {
+        if (!hOutputWrite.DuplicateHandle(&hErrorWrite, TRUE))
+            return FALSE;
+    }
+    else if (phErrorRead != NULL)
+    {
+        if (::CreatePipe(&hErrorReadTmp, &hErrorWrite, &sa, 0))
+        {
+            if (!hErrorReadTmp.DuplicateHandle(phErrorRead, FALSE))
+                return FALSE;
+            hErrorReadTmp.CloseHandle();
+        }
+        else
+            return FALSE;
+    }
+
+    if (phInputWrite != NULL)
+        SetStdInput(hInputRead.Detach());
+    if (phOutputRead != NULL)
+        SetStdOutput(hOutputWrite.Detach());
+    if (phErrorRead != NULL)
+        SetStdError(hErrorWrite.Detach());
+
+    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -339,6 +902,8 @@ void parse_operand(OPERAND& opr, INT bits, bool jump/* = false*/)
 extern "C"
 int _tmain(int argc, _TCHAR **argv)
 {
+    puts(cr_logo);
+
     if (argc != 2)
     {
         fprintf(stderr, "Usage: pedumper exefile.exe\n");
@@ -352,6 +917,7 @@ int _tmain(int argc, _TCHAR **argv)
         module.DumpImportSymbols();
         module.DumpExportSymbols();
         module.DumpResource();
+        module.DumpDelayLoad();
         module.DumpDisAsm();
     }
     else
