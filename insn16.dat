@@ -1,0 +1,1666 @@
+////////////////////////////////////////////////////////////////////////////
+// insn16.dat - information of x86 16-bit instructions
+// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+//
+// CodeReverse is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either $version 3 of the License, or
+// (at your option) any later $version.
+//
+// CodeReverse is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+////////////////////////////////////////////////////////////////////////////
+
+// The description of this file may be imperfect or incorrect.
+
+instruction aaa() {
+    register BYTE al = al;
+    register BYTE ah = ah;
+    volatile BYTE $v = al & 0x0F;
+    if (v >= 10 || AF) {
+        al += 6;
+        ah += 1;
+        AF = 1;
+        CF = 1;
+    } else {
+        AF = 0;
+        CF = 0;
+    }
+    al &= 0x0F;
+    OF = undefined;
+    SF = undefined;
+    ZF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction aad($imm8 = 10) {
+    XCHAR al = al;
+    al += $imm8 * ah;
+    ZF = al == 0;
+    SF = al < 0;
+    ah = 0;
+    OF = undefined;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction aam($imm8 = 10) {
+    volatile BYTE $v = al;
+    ah = $v / $imm8;
+    al = $v % $imm8;
+    ZF = al == 0;
+    SF = al < 0;
+    OF = undefined;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction aas() {
+    if ((al & 0x0F) >= 10 || AF) {
+        al -= 6;
+        ah -= 1;
+        AF = 1;
+        CF = 1;
+    } else {
+        AF = 0;
+        CF = 0;
+    }
+    al &= 0x0F;
+    OF = undefined;
+    SF = undefined;
+    ZF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction adc(XSIGNED $dest, XSIGNED $src) {
+    volatile BOOL $minus = $dest < 0;
+    OF = $minus && $src < 0;
+    $dest += $src + CF;
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    CF = $minus && $dest >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $dest >= 0;
+}
+
+instruction add(XSIGNED $dest, XSIGNED $src) {
+    volatile BOOL $minus = $dest < 0;
+    OF = $minus && $src < 0;
+    $dest += $src;
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    CF = $minus && $dest >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $dest >= 0;
+}
+
+instruction and(XSIGNED $dest, XSIGNED $src) {
+    volatile if ($dest !== $src) {
+        $dest &= $src;
+    }
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    CF = 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $dest >= 0;
+}
+
+//instruction bound($dest,$src);
+//instruction call($dest);
+
+instruction cbw() {
+    register CHAR al = al;
+    register SHORT ax = al;
+}
+
+instruction clc() {
+    CF = 0;
+}
+
+instruction cld() {
+    DF = 0;
+}
+
+instruction cli() {
+    IF = 0;
+}
+
+instruction cmc() {
+    CF = !CF;
+}
+
+instruction cmp($dest, $src) {
+    volatile BOOL $minus = $dest < 0;
+    OF = $minus && $src > 0;
+    volatile XSIGNED $v = $dest - $src;
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction cmpsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    volatile BOOL $minus = $si < 0;
+    OF = $minus && di > 0;
+    volatile XCHAR $v = *si - *di;
+    if (DF) {
+        si -= 1;
+        di -= 1;
+    } else {
+        si += 1;
+        di += 1;
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction cmpsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    volatile BOOL $minus = $si < 0;
+    OF = $minus && $src > 0;
+    volatile XSHORT $v = *si - *di;
+    if (DF) {
+        register si -= 2;
+        register di -= 2;
+    } else {
+        register si += 2;
+        register di += 2;
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repe cmpsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si -= 1;
+            di -= 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si += 1;
+            di += 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repe cmpsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si -= 2;
+            register di -= 2;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si += 2;
+            register di += 2;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repz cmpsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si -= 1;
+            di -= 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si += 1;
+            di += 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repz cmpsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si -= 2;
+            register di -= 2;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si += 2;
+            register di += 2;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repne cmpsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si -= 1;
+            di -= 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si += 1;
+            di += 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repne cmpsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si -= 2;
+            register di -= 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si += 2;
+            register di += 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repnz cmpsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si -= 1;
+            di -= 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            si += 1;
+            di += 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repnz cmpsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    if (DF) {
+        while (cx && ZF) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si -= 2;
+            register di -= 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx && ZF) {
+            $minus = $si < 0;
+            OF = $minus && *di > 0;
+            $v = *si - *di;
+            ZF = $v == 0;
+            register si += 2;
+            register di += 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    ZF = $v == 0;
+    SF = $v < 0;
+    CF = $minus && $v >= 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction cwd() {
+    register SHORT ax = ax;
+    register LONG dx:ax = ax;
+}
+
+instruction daa() {
+    register BYTE al = al;
+    volatile BYTE $oldal = al;
+    volatile BOOL $oldcf = CF;
+    if ((al & 0x0F) >= 10 && AF) {
+        al += 6;
+        CF = undefined;
+        AF = 1;
+    } else {
+        CF = 0;
+        AF = 0;
+    }
+    if ($oldal > 0x99 || $oldcf) {
+        al += 0x60;
+        CF = 1;
+    } else {
+        CF = 0;
+    }
+    OF = undefined;
+    SF = al > 0;
+    ZF = al == 0;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction das() {
+    register BYTE al = al;
+    volatile BYTE $oldal = al;
+    volatile BOOL $oldcf = CF;
+    if ((al & 0x0F) >= 10 && AF) {
+        al -= 6;
+        CF = undefined;
+        AF = 1;
+    } else {
+        CF = 0;
+        AF = 0;
+    }
+    if ($oldal > 0x99 && $oldcf) {
+        al -= 0x60;
+        CF = 1;
+    }
+    OF = undefined;
+    SF = al < 0;
+    ZF = al == 0;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction dec(XSIGNED $dest) {
+    $dest -= 1;
+    OF = 0;
+    SF = $dest < 0;
+    ZF = $dest == 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $dest >= 0;
+}
+
+instruction div(UNSIGNED $src) {
+    volatile if (sizeof($src) == 1) {
+        volatile WORD $v = ax;
+        al = $v / $src;
+        ah = $v % $src;
+        register BYTE al = al;
+        register BYTE ah = ah;
+    } else volatile if (sizeof($src) == 2) {
+        volatile DWORD $v(dx:ax);
+        ax = $v / $src;
+        dx = $v % $src;
+        register WORD ax = ax;
+        register WORD dx = dx;
+    }
+    CF = undefined;
+    OF = undefined;
+    SF = undefined;
+    ZF = undefined;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+// instruction enter(WORD $a, BYTE $b);
+// instruction hlt();
+
+instruction idiv(SIGNED $src) {
+    if (sizeof($src) == 1) {
+        SHORT $v = ax;
+        al = $v / $src;
+        ah = $v % $src;
+        register CHAR al = al;
+        register CHAR ah = ah;
+        register SHORT ax = ax;
+    } else if (sizeof($src) == 2) {
+        LONG $v = dx:ax;
+        ax = $v / $src;
+        dx = $v % $src;
+        register SHORT ax = ax;
+        register SHORT dx = dx;
+        register LONG dx:ax = dx:ax;
+    }
+    CF = undefined;
+    OF = undefined;
+    SF = undefined;
+    ZF = undefined;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction imul(SIGNED $src) {
+    if (sizeof($src) == 1) {
+        volatile CHAR $v = al;
+        ax = $v * $src;
+        register SHORT ax = ax;
+        CF = al != ax;
+        OF = al != ax;
+    } else if (sizeof($src) == 2) {
+        volatile SHORT $v = ax;
+        dx:ax = $v / $src;
+        register LONG dx:ax = dx:ax;
+        CF = ax != dx:ax;
+        OF = ax != dx:ax;
+    }
+    SF = undefined;
+    ZF = undefined;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction imul($dest, SIGNED $src) {
+    if (sizeof($dest) == 1) {
+        volatile SHORT temp($dest);
+        temp *= $src;
+        $dest *= $src;
+        CF = temp != $dest;
+        OF = temp != $dest;
+    } else if (sizeof($dest) == 2) {
+        volatile LONG temp($dest);
+        temp *= $src;
+        $dest *= $src;
+        CF = temp != $dest;
+        OF = temp != $dest;
+    }
+    SF = undefined;
+    ZF = undefined;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction imul($dest, SIGNED $src1, SIGNED $src2) {
+    if (sizeof($src1) == 1) {
+        SHORT temp($src1);
+        temp *= $src2;
+        $dest = $src1 * $src2;
+        CF = temp != $dest;
+        OF = temp != $dest;
+    } else if (sizeof($src) == 2) {
+        LONG temp($src1);
+        temp *= $src2;
+        $dest = $src1 * $src2;
+        CF = temp != $dest;
+        OF = temp != $dest;
+    }
+    SF = undefined;
+    ZF = undefined;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+// instruction in($dest,$src);
+// instruction rep insb();
+// instruction rep insw();
+
+instruction inc($dest) {
+    if (sizeof($dest) == 1) {
+        OF = $dest == 0x7F;
+    } else if (sizeof($dest) == 2) {
+        OF = $dest == 0x7FFF;
+    }
+    $dest += 1;
+    SF = $dest < 0;
+    ZF = $dest == 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $dest >= 0;
+}
+
+// instruction insb();
+// instruction insw();
+// instruction int($a);
+// instruction into();
+// instruction iret();
+
+instruction ja($dest) {
+    if (!ZF && !CF) {
+        goto $dest;
+    }
+}
+
+instruction jae($dest) {
+    if (!CF) {
+        goto $dest;
+    }
+}
+
+instruction jb($dest) {
+    if (CF) {
+        goto $dest;
+    }
+}
+
+instruction jbe($dest) {
+    if (ZF || CF) {
+        goto $dest;
+    }
+}
+
+instruction jc($dest) {
+    if (CF) {
+        goto $dest;
+    }
+}
+
+instruction jcxz($dest) {
+    register WORD cx = cx;
+    if (cx == 0) {
+        goto $dest;
+    }
+}
+
+instruction je($dest) {
+    if (ZF) {
+        goto $dest;
+    }
+}
+
+instruction jg($dest) {
+    if (!ZF && SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jge($dest) {
+    if (SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jl($dest) {
+    if (!SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jle($dest) {
+    if (ZF && !SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jmp($dest) {
+    goto $dest;
+}
+
+instruction jna($dest) {
+    if (ZF || CF) {
+        goto $dest;
+    }
+}
+
+instruction jnae($dest) {
+    if (CF) {
+        goto $dest;
+    }
+}
+
+instruction jnb($dest) {
+    if (!CF) {
+        goto $dest;
+    }
+}
+
+instruction jnbe($dest) {
+    if (!ZF && !CF) {
+        goto $dest;
+    }
+}
+
+instruction jnc($dest) {
+    if (!CF) {
+        goto $dest;
+    }
+}
+
+instruction jne($dest) {
+    if (!ZF) {
+        goto $dest;
+    }
+}
+
+instruction jng($dest) {
+    if (ZF || !SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jnge($dest) {
+    if (!SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jnl($dest) {
+    if (SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jnle($dest) {
+    if (!ZF && SFeqOF) {
+        goto $dest;
+    }
+}
+
+instruction jno($dest) {
+    if (!OF) {
+        goto $dest;
+    }
+}
+
+instruction jnp($dest) {
+    if (!PF) {
+        goto $dest;
+    }
+}
+
+instruction jns($dest) {
+    if (!SF) {
+        goto $dest;
+    }
+}
+
+instruction jnz($dest) {
+    if (!ZF) {
+        goto $dest;
+    }
+}
+
+instruction jo($dest) {
+    if (OF) {
+        goto $dest;
+    }
+}
+
+instruction jp($dest) {
+    if (PF) {
+        goto $dest;
+    }
+}
+
+instruction jpe($dest) {
+    if (PF) {
+        goto $dest;
+    }
+}
+
+instruction jpo($dest) {
+    if (!PF) {
+        goto $dest;
+    }
+}
+
+instruction js($dest) {
+    if (SF) {
+        goto $dest;
+    }
+}
+
+instruction jz($dest) {
+    if (ZF) {
+        goto $dest;
+    }
+}
+
+// instruction lahf();
+// instruction lds(void *$dest, void *$src);
+// instruction les(void *$dest, void *$src);
+
+instruction lea(void *$dest, void *$src) {
+    $dest = $src;
+}
+
+// instruction leave();
+
+instruction lodsb() {
+    register XCHAR *si = si;
+    register XCHAR al = al;
+    al = *si;
+    volatile if (DF) {
+        si -= 1;
+    } else {
+        si += 1;
+    }
+}
+
+instruction lodsw() {
+    register XSHORT *si = si;
+    register XSHORT ax = ax;
+    ax = *si;
+    volatile if (DF) {
+        register si -= 2;
+    } else {
+        register si += 2;
+    }
+}
+
+instruction rep lodsb() {
+    register XCHAR *si = si;
+    register XCHAR al = al;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            al = *si;
+            si -= 1;
+            cx -= 1;
+        }
+    } else {
+        while (cx) {
+            al = *si;
+            si += 1;
+            cx -= 1;
+        }
+    }
+}
+
+instruction rep lodsw() {
+    register XSHORT *si = si;
+    register XSHORT ax = ax;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            ax = *si;
+            register si -= 2;
+            cx -= 1;
+        }
+    } else {
+        while (cx) {
+            ax = *si;
+            register si += 2;
+            cx -= 1;
+        }
+    }
+}
+
+instruction loop($dest) {
+    register WORD cx = cx;
+    cx -= 1;
+    volatile if (cx) {
+        goto $dest;
+    }
+}
+
+instruction loope($dest) {
+    register WORD cx = cx;
+    cx -= 1;
+    volatile if (ZF && cx) {
+        goto $dest;
+    }
+}
+
+instruction loopne($dest) {
+    register WORD cx = cx;
+    cx -= 1;
+    volatile if (!ZF && cx) {
+        goto $dest;
+    }
+}
+
+instruction loopnz($dest) {
+    register WORD cx = cx;
+    cx -= 1;
+    volatile if (!ZF && cx) {
+        goto $dest;
+    }
+}
+
+instruction loopz($dest) {
+    register WORD cx = cx;
+    cx -= 1;
+    volatile if (ZF && cx) {
+        goto $dest;
+    }
+}
+
+instruction mov($dest, $src) {
+    $dest = $src;
+}
+
+instruction movsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    *di = *si;
+    volatile if (DF) {
+        di -= 1;
+        si -= 1;
+    } else {
+        di += 1;
+        si += 1;
+    }
+}
+
+instruction movsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    *di = *si;
+    volatile if (DF) {
+        register di -= 2;
+        register si -= 2;
+    } else {
+        register di += 2;
+        register si += 2;
+    }
+}
+
+instruction rep movsb() {
+    register XCHAR *di = di;
+    register XCHAR *si = si;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            *di = *si;
+            di -= 1;
+            si -= 1;
+            cx -= 1;
+        }
+    } else {
+        while (cx) {
+            *di = *si;
+            di += 1;
+            si += 1;
+            cx -= 1;
+        }
+    }
+}
+
+instruction rep movsw() {
+    register XSHORT *di = di;
+    register XSHORT *si = si;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            *di = *si;
+            register di -= 2;
+            register si -= 2;
+            cx -= 1;
+        }
+    } else {
+        while (cx) {
+            *di = *si;
+            register di += 2;
+            register si += 2;
+            cx -= 1;
+        }
+    }
+}
+
+instruction mul(UNSIGNED $src) {
+    volatile if (sizeof($src) == 1) {
+        volatile WORD $v = al;
+        ax = $v * $src;
+        CF = ax != al;
+        OF = ax != al;
+        register BYTE al = al;
+        register BYTE ah = ah;
+        register WORD ax = ax;
+        OF = ax != al;
+        CF = ax != al;
+    } else volatile if (sizeof($src) == 2) {
+        volatile DWORD $v = ax;
+        dx:ax = $v * $src;
+        CF = dx:ax != ax;
+        OF = dx:ax != ax;
+        register WORD ax = ax;
+        register WORD dx = dx;
+        register DWORD dx:ax = dx:ax;
+        OF = dx:ax != ax;
+        CF = dx:ax != ax;
+    }
+    SF = undefined;
+    ZF = undefined;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction neg(SIGNED $dest) {
+    $dest = -$dest;
+    CF = $dest != 0;
+    OF = 0;
+    SF = $dest < 0;
+    ZF = $dest == 0;
+    AF = undefined;
+    PF = undefined;
+    SFeqOF = $dest >= 0;
+}
+
+instruction nop() {
+}
+
+instruction not(UNSIGNED $dest) {
+    $dest = ~$dest;
+}
+
+instruction or($dest, $src) {
+    if ($dest === $src) {
+        SF = 0;
+        PF = undefined;
+        SFeqOF = 1;
+    } else {
+        $dest |= $src;
+        SF = $dest < 0;
+        PF = undefined;
+        SFeqOF = $dest >= 0;
+    }
+    ZF = $dest == 0;
+    OF = 0;
+    CF = 0;
+    AF = undefined;
+}
+
+// instruction out($dest, $src);
+// instruction outsb();
+// instruction outsw();
+// instruction rep outsb();
+// instruction rep outsw();
+// instruction pop($a);
+// instruction popa();
+// instruction popf();
+// instruction push($a);
+// instruction pusha();
+// instruction pushf();
+// instruction rcl(XSIGNED $dest, XSIGNED $src);
+// instruction rcr(XSIGNED $dest, XSIGNED $src);
+// instruction rol(XSIGNED $dest, XSIGNED $src);
+// instruction ror(XSIGNED $dest, XSIGNED $src);
+// instruction ret();
+// instruction retf();
+// instruction retn();
+// instruction sahf();
+
+instruction sal(SIGNED $dest, XUNSIGNED $src) {
+    $dest <<= $src;
+    CF = undefined;
+    OF = undefined;
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    PF = undefined;
+    AF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction sar(SIGNED $dest, XUNSIGNED $src) {
+    $dest >>= $src;
+    CF = undefined;
+    OF = undefined;
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    PF = undefined;
+    AF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction shl(UNSIGNED $dest, UNSIGNED $src) {
+    $dest <<= $src;
+    CF = undefined;
+    OF = undefined;
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    PF = undefined;
+    AF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction shr(UNSIGNED $dest, UNSIGNED $src) {
+    $dest >>= $src;
+    CF = undefined;
+    OF = undefined;
+    ZF = $dest == 0;
+    SF = $dest < 0;
+    PF = undefined;
+    AF = undefined;
+    SFeqOF = undefined;
+}
+
+instruction sbb($dest, $src) {
+    adc($dest, -$src);
+}
+
+instruction scasb() {
+    register XCHAR *di = di;
+    volatile XCHAR $v = al - *di;
+
+    OF = 0;
+    ZF = $v == 0;
+    SF = $v < 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+
+    volatile if (DF) {
+        di -= 1;
+    } else {
+        di += 1;
+    }
+}
+
+instruction scasw() {
+    register XSHORT *di = di;
+    volatile XSHORT $v = ax - *di;
+
+    OF = 0;
+    ZF = $v == 0;
+    SF = $v < 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+
+    volatile if (DF) {
+        register di -= 2;
+    } else {
+        register di += 2;
+    }
+}
+
+instruction repe scasb() {
+    register XCHAR *di = di;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di -= 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di += 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repe scasw() {
+    register XSHORT *di = di;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            di -= 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            di += 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repz scasb() {
+    register XCHAR *di = di;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di -= 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di += 1;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repz scasw() {
+    register XSHORT *di = di;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            register di -= 2;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            register di += 2;
+            cx -= 1;
+            if (!ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repne scasb() {
+    register XCHAR *di = di;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di -= 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di += 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repne scasw() {
+    register XSHORT *di = di;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            register di -= 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            register di += 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repnz scasb() {
+    register XCHAR *di = di;
+    volatile XCHAR $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di -= 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = al - *di;
+            ZF = $v == 0;
+            di += 1;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction repnz scasw() {
+    register XSHORT *di = di;
+    volatile XSHORT $v;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            register di -= 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    } else {
+        while (cx) {
+            $v = ax - *di;
+            ZF = $v == 0;
+            register di += 2;
+            cx -= 1;
+            if (ZF) {
+                break;
+            }
+        }
+    }
+    SF = $v < 0;
+    OF = 0;
+    AF = undefined;
+    PF = undefined;
+    CF = undefined;
+    SFeqOF = $v >= 0;
+}
+
+instruction stc() {
+    CF = 1;
+}
+
+instruction std() {
+    DF = 1;
+}
+
+instruction sti() {
+    IF = 1;
+}
+
+instruction stosb() {
+    register XCHAR *di = di;
+    register XCHAR al = al;
+    *di = al;
+    volatile if (DF) {
+        di -= 1;
+    } else {
+        di += 1;
+    }
+}
+
+instruction stosw() {
+    register XSHORT *di = di;
+    register XSHORT ax = ax;
+    *di = ax;
+    volatile volatile if (DF) {
+        register di -= 2;
+    } else {
+        register di += 2;
+    }
+}
+
+instruction rep stosb() {
+    register XCHAR *di = di;
+    register XCHAR al = al;
+    register WORD cx = cx;
+    volatile BOOL $minus;
+    volatile if (DF) {
+        while (cx) {
+            *di = al;
+            di -= 1;
+            cx -= 1;
+        }
+    } else 
+        while (cx) {
+            *di = al;
+            di += 1;
+            cx -= 1;
+        }
+    }
+}
+
+instruction rep stosw() {
+    register XSHORT *di = di;
+    register XSHORT ax = ax;
+    register WORD cx = cx;
+    volatile if (DF) {
+        while (cx) {
+            *di = ax;
+            register di -= 2;
+            cx -= 1;
+        }
+    } else {
+        while (cx) {
+            *di = ax;
+            register di += 2;
+            cx -= 1;
+        }
+    }
+}
+
+instruction sub(XSIGNED $dest, XSIGNED $src) {
+    add($dest, -$src);
+}
+
+instruction test(XSIGNED $dest, XSIGNED $src) {
+    if ($dest === $src) {
+        ZF = $dest == 0;
+        SF = $dest < 0;
+    } else {
+        XSIGNED $v($dest & $src);
+        ZF = $v == 0;
+        SF = $v < 0;
+    }
+    PF = undefined;
+    CF = 0;
+    OF = 0;
+    SFeqOF = undefined;
+}
+
+// instruction wait();
+
+instruction xchg($dest, $src) {
+    typeof($dest) $v($dest);
+    $dest = $src;
+    $src = $v;
+}
+
+instruction xlat(const BYTE *$src) {
+    register BYTE al = al;
+    al = $src[al];
+    register BYTE al = al;
+}
+
+instruction xlatb(const BYTE *$src) {
+    register BYTE al = al;
+    al = $src[al];
+    register BYTE al = al;
+}
+
+instruction xor(XSIGNED $dest, XSIGNED $src) {
+    volatile if ($dest === $src) {
+        $dest = 0;
+        ZF = 1;
+        SF = 0;
+    } else {
+        $dest ^= $src;
+        ZF = $dest == 0;
+        SF = $dest < 0;
+    }
+    OF = 0;
+    CF = 0;
+    PF = undefined;
+    AF = undefined;
+    SFeqOF = $dest >= 0;
+}

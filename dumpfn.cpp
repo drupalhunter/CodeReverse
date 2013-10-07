@@ -497,41 +497,41 @@ VOID DumpDataDirectory(LPVOID Data, DWORD index)
     printf(" (%lu): V.A.: 0x%08lX, Size: 0x%08lX (%lu)\n", index, Directory->VirtualAddress, Directory->Size, Directory->Size);
 }
 
-VOID DumpDosHeader(LPVOID Data)
+VOID DumpDOSHeader(LPVOID Data)
 {
-    PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)Data;
+    PIMAGE_DOS_HEADER DOSHeader = (PIMAGE_DOS_HEADER)Data;
     printf("\n### DOS Header ###\n");
-    printf("  e_magic: 0x%04X\n", DosHeader->e_magic);
-    printf("  e_cblp: 0x%04X\n", DosHeader->e_cblp);
-    printf("  e_cp: 0x%04X\n", DosHeader->e_cp);
-    printf("  e_crlc: 0x%04X\n", DosHeader->e_crlc);
-    printf("  e_cparhdr: 0x%04X\n", DosHeader->e_cparhdr);
-    printf("  e_minalloc: 0x%04X\n", DosHeader->e_minalloc);
-    printf("  e_maxalloc: 0x%04X\n", DosHeader->e_maxalloc);
-    printf("  e_ss: 0x%04X\n", DosHeader->e_ss);
-    printf("  e_sp: 0x%04X\n", DosHeader->e_sp);
-    printf("  e_csum: 0x%04X\n", DosHeader->e_csum);
-    printf("  e_ip: 0x%04X\n", DosHeader->e_ip);
-    printf("  e_cs: 0x%04X\n", DosHeader->e_cs);
-    printf("  e_lfarlc: 0x%04X\n", DosHeader->e_lfarlc);
-    printf("  e_ovno: 0x%04X\n", DosHeader->e_ovno);
-    printf("  e_res[0]: 0x%04X\n", DosHeader->e_res[0]);
-    printf("  e_res[1]: 0x%04X\n", DosHeader->e_res[1]);
-    printf("  e_res[2]: 0x%04X\n", DosHeader->e_res[2]);
-    printf("  e_res[3]: 0x%04X\n", DosHeader->e_res[3]);
-    printf("  e_oemid: 0x%04X\n", DosHeader->e_oemid);
-    printf("  e_oeminfo: 0x%04X\n", DosHeader->e_oeminfo);
-    printf("  e_res2[0]: 0x%04X\n", DosHeader->e_res2[0]);
-    printf("  e_res2[1]: 0x%04X\n", DosHeader->e_res2[1]);
-    printf("  e_res2[2]: 0x%04X\n", DosHeader->e_res2[2]);
-    printf("  e_res2[3]: 0x%04X\n", DosHeader->e_res2[3]);
-    printf("  e_res2[4]: 0x%04X\n", DosHeader->e_res2[4]);
-    printf("  e_res2[5]: 0x%04X\n", DosHeader->e_res2[5]);
-    printf("  e_res2[6]: 0x%04X\n", DosHeader->e_res2[6]);
-    printf("  e_res2[7]: 0x%04X\n", DosHeader->e_res2[7]);
-    printf("  e_res2[8]: 0x%04X\n", DosHeader->e_res2[8]);
-    printf("  e_res2[9]: 0x%04X\n", DosHeader->e_res2[9]);
-    printf("  e_lfanew: 0x%08lX\n", DosHeader->e_lfanew);
+    printf("  e_magic: 0x%04X\n", DOSHeader->e_magic);
+    printf("  e_cblp: 0x%04X\n", DOSHeader->e_cblp);
+    printf("  e_cp: 0x%04X\n", DOSHeader->e_cp);
+    printf("  e_crlc: 0x%04X\n", DOSHeader->e_crlc);
+    printf("  e_cparhdr: 0x%04X\n", DOSHeader->e_cparhdr);
+    printf("  e_minalloc: 0x%04X\n", DOSHeader->e_minalloc);
+    printf("  e_maxalloc: 0x%04X\n", DOSHeader->e_maxalloc);
+    printf("  e_ss: 0x%04X\n", DOSHeader->e_ss);
+    printf("  e_sp: 0x%04X\n", DOSHeader->e_sp);
+    printf("  e_csum: 0x%04X\n", DOSHeader->e_csum);
+    printf("  e_ip: 0x%04X\n", DOSHeader->e_ip);
+    printf("  e_cs: 0x%04X\n", DOSHeader->e_cs);
+    printf("  e_lfarlc: 0x%04X\n", DOSHeader->e_lfarlc);
+    printf("  e_ovno: 0x%04X\n", DOSHeader->e_ovno);
+    printf("  e_res[0]: 0x%04X\n", DOSHeader->e_res[0]);
+    printf("  e_res[1]: 0x%04X\n", DOSHeader->e_res[1]);
+    printf("  e_res[2]: 0x%04X\n", DOSHeader->e_res[2]);
+    printf("  e_res[3]: 0x%04X\n", DOSHeader->e_res[3]);
+    printf("  e_oemid: 0x%04X\n", DOSHeader->e_oemid);
+    printf("  e_oeminfo: 0x%04X\n", DOSHeader->e_oeminfo);
+    printf("  e_res2[0]: 0x%04X\n", DOSHeader->e_res2[0]);
+    printf("  e_res2[1]: 0x%04X\n", DOSHeader->e_res2[1]);
+    printf("  e_res2[2]: 0x%04X\n", DOSHeader->e_res2[2]);
+    printf("  e_res2[3]: 0x%04X\n", DOSHeader->e_res2[3]);
+    printf("  e_res2[4]: 0x%04X\n", DOSHeader->e_res2[4]);
+    printf("  e_res2[5]: 0x%04X\n", DOSHeader->e_res2[5]);
+    printf("  e_res2[6]: 0x%04X\n", DOSHeader->e_res2[6]);
+    printf("  e_res2[7]: 0x%04X\n", DOSHeader->e_res2[7]);
+    printf("  e_res2[8]: 0x%04X\n", DOSHeader->e_res2[8]);
+    printf("  e_res2[9]: 0x%04X\n", DOSHeader->e_res2[9]);
+    printf("  e_lfanew: 0x%08lX\n", DOSHeader->e_lfanew);
 }
 
 VOID DumpFileHeader(LPVOID Data)

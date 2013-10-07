@@ -28,7 +28,12 @@ OPTIONS = -O9 -Ofast -DNDEBUG $(DEFS) $(DEFS2) -Wall -pedantic
 
 CPPFLAGS = -std=c++0x
 
-OBJS = codereverse64.o dumpfn64.o module64.o codereverse64_res.o \
+OBJS = \
+	codereverse64.o \
+	dumpfn64.o \
+	module64.o \
+	mzc2mini64.o \
+	codereverse64_res.o \
 	h-ndisasm\disasm64.o \
 	h-ndisasm\insnsb64.o \
 	h-ndisasm\insnsd64.o \
@@ -39,9 +44,10 @@ OBJS = codereverse64.o dumpfn64.o module64.o codereverse64_res.o \
 	h-ndisasm\ver64.o
 
 CR_HEADERS = \
+	stdafx.h \
 	codereverse.h \
 	module.h \
-	stdafx.h
+	mzc2mini.h
 
 H_NDISASM_HEADERS = \
 	h-ndisasm\compiler.h \
@@ -57,7 +63,7 @@ RCFLAGS = -F pe-x86-64
 all: cr64.exe
 
 cr64.exe: $(OBJS)
-	g++ -mconsole -o cr64.exe $(OPTIONS) $(OBJS) -limagehlp
+	g++ -mconsole -o cr64.exe $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
 codereverse64.o: $(CR_HEADERS) codereverse.cpp
 	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o codereverse64.o codereverse.cpp
@@ -65,6 +71,8 @@ dumpfn64.o: $(CR_HEADERS) dumpfn.cpp
 	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o dumpfn64.o dumpfn.cpp
 module64.o: $(CR_HEADERS) module.cpp
 	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o module64.o module.cpp
+mzc2mini64.o: $(CR_HEADERS) mzc2mini.cpp
+	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o mzc2mini64.o mzc2mini.cpp
 
 h-ndisasm\disasm64.o: h-ndisasm\disasm.c $(H_NDISASM_HEADERS)
 	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\disasm64.o h-ndisasm\disasm.c

@@ -160,6 +160,7 @@
     <ClCompile Include="h-ndisasm\regs.c" />
     <ClCompile Include="h-ndisasm\ver.c" />
     <ClCompile Include="module.cpp" />
+    <ClCompile Include="mzc2mini.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +178,7 @@
     <ClInclude Include="h-ndisasm\tables.h" />
     <ClInclude Include="h-ndisasm\version.h" />
     <ClInclude Include="module.h" />
+    <ClInclude Include="mzc2mini.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-
+////////////////////////////////////////////////////////////////////////////
 // module.cpp
 // Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
@@ -15,327 +15,834 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+// along with CodeReverse.  If .OperandType(), see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 
 ////////////////////////////////////////////////////////////////////////////
+// PEMODULE::PEMODULEIMPL
 
-PEModule::PEModule() :
-    m_pszFileName(NULL),
-    m_hFile(INVALID_HANDLE_VALUE),
-    m_hFileMapping(NULL),
-    m_pFileImage(NULL),
-    m_dwFileSize(0),
-    m_dwLastError(ERROR_SUCCESS),
-    m_bModuleLoaded(FALSE),
-    m_bDisAsmed(FALSE),
-    m_bDecompiled(FALSE),
-    m_pDosHeader(NULL),
-    m_pNTHeaders(NULL),
-    m_pFileHeader(NULL),
-    m_pOptional32(NULL),
-    m_pOptional64(NULL),
-    m_pLoadedImage(NULL),
-    m_dwHeaderSum(0),
-    m_dwCheckSum(0),
-    m_dwSizeOfOptionalHeader(0),
-    m_dwAddressOfEntryPoint(0),
-    m_dwBaseOfCode(0),
-    m_dwSizeOfImage(0),
-    m_dwSizeOfHeaders(0),
-    m_dwNumberOfSections(0),
-    m_pSectionHeaders(NULL),
-    m_pDataDirectories(NULL)
+struct PEMODULE::PEMODULEIMPL
+{
+    LPCTSTR     pszFileName;
+    HANDLE      hFile;
+    HANDLE      hFileMapping;
+    LPBYTE      pFileImage;
+    DWORD       dwFileSize;
+    DWORD       dwLastError;
+    BOOL        bModuleLoaded;
+    BOOL        bDisAsmed;
+    BOOL        bDecompiled;
+
+    PIMAGE_DOS_HEADER           pDOSHeader;
+    union
+    {
+        PIMAGE_NT_HEADERS       pNTHeaders;
+        PIMAGE_NT_HEADERS32     pNTHeaders32;
+        PIMAGE_NT_HEADERS64     pNTHeaders64;
+    };
+    PIMAGE_FILE_HEADER          pFileHeader;
+    PIMAGE_OPTIONAL_HEADER32    pOptional32;
+    PIMAGE_OPTIONAL_HEADER64    pOptional64;
+
+    LPBYTE  pLoadedImage;
+    DWORD   dwHeaderSum, dwCheckSum;
+    DWORD   dwSizeOfOptionalHeader;
+    DWORD   dwAddressOfEntryPoint;
+    DWORD   dwBaseOfCode;
+    DWORD   dwSizeOfHeaders;
+
+    PREAL_IMAGE_SECTION_HEADER  pSectionHeaders;
+    PREAL_IMAGE_DATA_DIRECTORY  pDataDirectories;
+
+    // import symbols
+    vector<string>              vImportDllNames;
+    map<DWORD, IMPORT_SYMBOL>   mRVAToImportSymbol;
+    map<string, IMPORT_SYMBOL>  mNameToImportSymbol;
+
+    // export symbols
+    vector<EXPORT_SYMBOL>       vExportSymbols;
+    map<DWORD, EXPORT_SYMBOL>   mRVAToExportSymbol;
+    map<string, EXPORT_SYMBOL>  mNameToExportSymbol;
+
+    // symbols
+    map<DWORD, SYMBOL>          mRVAToSymbol;
+    map<string, SYMBOL>         mNameToSymbol;
+
+    // delay loading
+    vector<ImgDelayDescr>       vImgDelayDescrs;
+
+    PEMODULEIMPL()
+    {
+        pszFileName = NULL;
+        hFile = INVALID_HANDLE_VALUE;
+        hFileMapping = NULL;
+        pFileImage = NULL;
+        dwFileSize = 0;
+        dwLastError = ERROR_SUCCESS;
+        bModuleLoaded = FALSE;
+        bDisAsmed = FALSE;
+        bDecompiled = FALSE;
+        pDOSHeader = NULL;
+        pNTHeaders = NULL;
+        pFileHeader = NULL;
+        pOptional32 = NULL;
+        pOptional64 = NULL;
+        pLoadedImage = NULL;
+        dwHeaderSum = 0;
+        dwCheckSum = 0;
+        dwSizeOfOptionalHeader = 0;
+        dwAddressOfEntryPoint = 0;
+        dwBaseOfCode = 0;
+        dwSizeOfHeaders = 0;
+        pSectionHeaders = NULL;
+        pDataDirectories = NULL;
+    }
+
+    virtual ~PEMODULEIMPL()
+    {
+        Clear();
+    }
+
+    VOID Clear()
+    {
+        if (pLoadedImage != NULL)
+        {
+            VirtualFree(pLoadedImage, 0, MEM_RELEASE);
+            pLoadedImage = NULL;
+        }
+        if (pFileImage != NULL)
+        {
+            UnmapViewOfFile(pFileImage);
+            pFileImage = NULL;
+        }
+        if (hFileMapping != NULL)
+        {
+            CloseHandle(hFileMapping);
+            hFileMapping = NULL;
+        }
+        if (hFile != INVALID_HANDLE_VALUE)
+        {
+            CloseHandle(hFile);
+            hFile = INVALID_HANDLE_VALUE;
+        }
+        pszFileName = NULL;
+        dwFileSize = 0;
+        bModuleLoaded = FALSE;
+        pDOSHeader = NULL;
+        pNTHeaders = NULL;
+        pFileHeader = NULL;
+        pOptional32 = NULL;
+        pOptional64 = NULL;
+        dwHeaderSum = 0;
+        dwCheckSum = 0;
+        dwSizeOfOptionalHeader = 0;
+        dwAddressOfEntryPoint = 0;
+        dwBaseOfCode = 0;
+        dwSizeOfHeaders = 0;
+        pSectionHeaders = NULL;
+        pDataDirectories = NULL;
+
+        vImportDllNames.clear();
+        vExportSymbols.clear();
+        mRVAToImportSymbol.clear();
+        mNameToImportSymbol.clear();
+        mRVAToExportSymbol.clear();
+        mNameToExportSymbol.clear();
+        mRVAToSymbol.clear();
+        mNameToSymbol.clear();
+
+        bDisAsmed = FALSE;
+        bDecompiled = FALSE;
+
+        vImgDelayDescrs.clear();
+    }
+
+private:
+    // Don't copy this!
+    PEMODULEIMPL(const PEMODULE::PEMODULEIMPL& impl);
+    PEMODULEIMPL& operator=(const PEMODULE::PEMODULEIMPL& impl);
+};
+
+////////////////////////////////////////////////////////////////////////////
+// PEMODULE attributes
+
+BOOL PEMODULE::IsDLL() const
+{
+    if (!IsModuleLoaded())
+        return FALSE;
+
+    return (FileHeader()->Characteristics & IMAGE_FILE_DLL) != 0;
+}
+
+BOOL PEMODULE::IsCUIExe() const
+{
+    if (!IsModuleLoaded() || IsDLL())
+        return FALSE;
+
+    if (Is64Bit())
+        return OptionalHeader64()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI;
+    else if (Is32Bit())
+        return OptionalHeader32()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI;
+    else
+        return FALSE;
+}
+
+BOOL PEMODULE::IsGUIExe() const
+{
+    if (!IsModuleLoaded() || IsDLL())
+        return FALSE;
+
+    if (Is64Bit())
+        return OptionalHeader64()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
+    else if (Is32Bit())
+        return OptionalHeader32()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
+    else
+        return FALSE;
+}
+
+DWORD PEMODULE::GetFileSize() const
+{
+    return m_pImpl->dwFileSize;
+}
+
+LPCTSTR PEMODULE::GetFileName() const
+{
+    return m_pImpl->pszFileName;
+}
+
+BOOL PEMODULE::Is32Bit() const
+{
+    return OptionalHeader32() != NULL;
+}
+
+BOOL PEMODULE::Is64Bit() const
+{
+    return OptionalHeader64() != NULL;
+}
+
+BOOL PEMODULE::IsModuleLoaded() const
+{
+    return m_pImpl->bModuleLoaded;
+}
+
+BOOL PEMODULE::RVAInDirEntry(DWORD rva, DWORD index) const
+{
+    if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES &&
+        DataDirectories()[index].RVA <= rva &&
+        rva < DataDirectories()[index].RVA + DataDirectories()[index].Size)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+BOOL PEMODULE::IsValidAddress(ULONGLONG Address) const
+{
+    if (!IsModuleLoaded())
+        return FALSE;
+
+    if (Is64Bit())
+        return Address - OptionalHeader64()->ImageBase < GetSizeOfImage();
+    else
+        return Address - OptionalHeader32()->ImageBase < GetSizeOfImage();
+}
+
+DWORD PEMODULE::GetBaseOfCode() const
+{
+    if (Is64Bit())
+        return OptionalHeader64()->BaseOfCode;
+    else if (Is32Bit())
+        return OptionalHeader32()->BaseOfCode;
+    else
+        return 0;
+}
+
+DWORD PEMODULE::GetSizeOfHeaders() const
+{
+    if (Is64Bit())
+        return OptionalHeader64()->SizeOfHeaders;
+    else if (Is32Bit())
+        return OptionalHeader32()->SizeOfHeaders;
+    else
+        return 0;
+}
+
+DWORD PEMODULE::GetSizeOfImage() const
+{
+    if (Is64Bit())
+        return OptionalHeader64()->SizeOfImage;
+    else if (Is32Bit())
+        return OptionalHeader32()->SizeOfImage;
+    else
+        return 0;
+}
+
+PIMAGE_IMPORT_DESCRIPTOR PEMODULE::ImportDescriptors()
+{
+    return (PIMAGE_IMPORT_DESCRIPTOR)DirEntryData(IMAGE_DIRECTORY_ENTRY_IMPORT);
+}
+
+PIMAGE_EXPORT_DIRECTORY PEMODULE::ExportDirectory()
+{
+    return (PIMAGE_EXPORT_DIRECTORY)DirEntryData(IMAGE_DIRECTORY_ENTRY_EXPORT);
+}
+
+PIMAGE_RESOURCE_DIRECTORY PEMODULE::ResourceDirectory()
+{
+    return (PIMAGE_RESOURCE_DIRECTORY)DirEntryData(IMAGE_DIRECTORY_ENTRY_RESOURCE);
+}
+
+LPBYTE PEMODULE::GetData(DWORD rva)
+{
+    return (LoadedImage() ? LoadedImage() + rva : NULL);
+}
+
+LPBYTE& PEMODULE::LoadedImage()
+{
+    return m_pImpl->pLoadedImage;
+}
+
+LPBYTE& PEMODULE::FileImage()
+{
+    return m_pImpl->pFileImage;
+}
+
+DWORD PEMODULE::GetSizeOfOptionalHeader() const
+{
+    if (FileHeader())
+        return FileHeader()->SizeOfOptionalHeader;
+    else
+        return 0;
+}
+
+DWORD PEMODULE::DirEntryDataSize(DWORD index) const
+{
+    return (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES ? DataDirectories()[index].Size : 0);
+}
+
+LPBYTE PEMODULE::DirEntryData(DWORD index)
+{
+    if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
+    {
+        if (DataDirectories()[index].RVA != 0 &&
+            DataDirectories()[index].Size != 0)
+        {
+            return LoadedImage() + DataDirectories()[index].RVA;
+        }
+    }
+    return NULL;
+}
+
+BOOL PEMODULE::AddressInCode32(ADDR32 va) const
+{
+    if (!IsModuleLoaded() || !Is32Bit())
+        return FALSE;
+
+    PREAL_IMAGE_SECTION_HEADER pCode = CodeSectionHeader();
+    if (pCode == NULL)
+        return FALSE;
+
+    DWORD rva = (DWORD)(DWORD_PTR)(va - OptionalHeader32()->ImageBase);
+
+    return (pCode->RVA <= rva && rva < pCode->RVA + pCode->Misc.VirtualSize);
+}
+
+BOOL PEMODULE::AddressInData32(ADDR32 va) const
+{
+    if (!IsModuleLoaded() || !Is32Bit())
+        return FALSE;
+
+    PREAL_IMAGE_SECTION_HEADER pHeader;
+    DWORD rva;
+
+    const DWORD dwFlags = (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE);
+    DWORD size = NumberOfSections();
+    for (DWORD i = 0; i < size; i++)
+    {
+        if (SectionHeader(i)->Characteristics & dwFlags)
+            continue;
+
+        rva = va - OptionalHeader32()->ImageBase;
+
+        pHeader = SectionHeader(i);
+        if (pHeader->RVA <= rva && rva < pHeader->RVA + pHeader->Misc.VirtualSize)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+BOOL PEMODULE::AddressInCode64(ADDR64 va) const
+{
+    if (!IsModuleLoaded() || !Is64Bit())
+        return FALSE;
+
+    PREAL_IMAGE_SECTION_HEADER pCode = CodeSectionHeader();
+    if (pCode == NULL)
+        return FALSE;
+
+    DWORD rva = (DWORD)(DWORD_PTR)(va - OptionalHeader64()->ImageBase);
+
+    return (pCode->RVA <= rva && rva < pCode->RVA + pCode->Misc.VirtualSize);
+}
+
+BOOL PEMODULE::AddressInData64(ADDR64 va) const
+{
+    if (!IsModuleLoaded() || !Is64Bit())
+        return FALSE;
+
+    PREAL_IMAGE_SECTION_HEADER pHeader;
+    DWORD rva;
+
+    const DWORD dwFlags = (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE);
+    DWORD size = NumberOfSections();
+    for (DWORD i = 0; i < size; i++)
+    {
+        if (SectionHeader(i)->Characteristics & dwFlags)
+            continue;
+
+        rva = (DWORD)(DWORD_PTR)(va - OptionalHeader64()->ImageBase);
+
+        pHeader = SectionHeader(i);
+        if (pHeader->RVA <= rva && rva < pHeader->RVA + pHeader->Misc.VirtualSize)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+DWORD PEMODULE::RVAOfEntryPoint() const
+{
+    if (Is64Bit())
+        return OptionalHeader64()->AddressOfEntryPoint;
+    else if (Is32Bit())
+        return OptionalHeader32()->AddressOfEntryPoint;
+    else
+        return 0;
+}
+
+DWORD PEMODULE::RVAFromVA32(ADDR32 va) const
+{
+    assert(OptionalHeader32());
+    return va - OptionalHeader32()->ImageBase;
+}
+
+DWORD PEMODULE::RVAFromVA64(ADDR64 va) const
+{
+    assert(OptionalHeader64());
+    return (DWORD)(va - OptionalHeader64()->ImageBase);
+}
+
+ADDR32 PEMODULE::VA32FromRVA(DWORD rva) const
+{
+    assert(OptionalHeader32());
+    return OptionalHeader32()->ImageBase + rva;
+}
+
+ADDR64 PEMODULE::VA64FromRVA(DWORD rva) const
+{
+    assert(OptionalHeader64());
+    return OptionalHeader64()->ImageBase + rva;
+}
+
+DWORD PEMODULE::CheckSum() const
+{
+    return m_pImpl->dwCheckSum;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// PEMODULE accessors
+
+WORD& PEMODULE::NumberOfSections()
+{
+    return FileHeader()->NumberOfSections;
+}
+
+DWORD& PEMODULE::LastError()
+{
+    return m_pImpl->dwLastError;
+}
+
+PIMAGE_DOS_HEADER PEMODULE::DOSHeader()
+{
+    return m_pImpl->pDOSHeader;
+}
+
+PIMAGE_NT_HEADERS32 PEMODULE::NTHeaders32()
+{
+    return Is32Bit() ? m_pImpl->pNTHeaders32 : NULL;
+}
+
+PIMAGE_NT_HEADERS64 PEMODULE::NTHeaders64()
+{
+    return Is64Bit() ? m_pImpl->pNTHeaders64 : NULL;
+}
+
+PIMAGE_FILE_HEADER PEMODULE::FileHeader()
+{
+    return m_pImpl->pFileHeader;
+}
+
+PIMAGE_OPTIONAL_HEADER32& PEMODULE::OptionalHeader32()
+{
+    return m_pImpl->pOptional32;
+}
+
+PIMAGE_OPTIONAL_HEADER64& PEMODULE::OptionalHeader64()
+{
+    return m_pImpl->pOptional64;
+}
+
+PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories()
+{
+    return m_pImpl->pDataDirectories;
+}
+
+PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index)
+{
+    assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
+    return &m_pImpl->pDataDirectories[index];
+}
+
+PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
+{
+    assert(m_pImpl->pSectionHeaders);
+    DWORD size = NumberOfSections();
+    for (DWORD i = 0; i < size; i++)
+    {
+        PREAL_IMAGE_SECTION_HEADER pHeader = SectionHeader(i);
+        if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
+            return pHeader;
+    }
+    return NULL;
+}
+
+PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders()
+{
+    return m_pImpl->pSectionHeaders;
+}
+
+PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index)
+{
+    assert(m_pImpl->pSectionHeaders);
+    if (index < NumberOfSections())
+    {
+        return &m_pImpl->pSectionHeaders[index];
+    }
+    return NULL;
+}
+
+vector<EXPORT_SYMBOL>& PEMODULE::ExportSymbols()
+{
+    return m_pImpl->vExportSymbols;
+}
+
+vector<string>& PEMODULE::ImportDllNames()
+{
+    return m_pImpl->vImportDllNames;
+}
+
+vector<ImgDelayDescr>& PEMODULE::DelayLoadDescriptors()
+{
+    return m_pImpl->vImgDelayDescrs;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// PEMODULE const accessors
+
+const WORD& PEMODULE::NumberOfSections() const
+{
+    return FileHeader()->NumberOfSections;
+}
+
+const DWORD& PEMODULE::LastError() const
+{
+    return m_pImpl->dwLastError;
+}
+
+const PIMAGE_DOS_HEADER PEMODULE::DOSHeader() const
+{
+    return m_pImpl->pDOSHeader;
+}
+
+const PIMAGE_NT_HEADERS32 PEMODULE::NTHeaders32() const
+{
+    return Is32Bit() ? m_pImpl->pNTHeaders32 : NULL;
+}
+
+const PIMAGE_NT_HEADERS64 PEMODULE::NTHeaders64() const
+{
+    return Is64Bit() ? m_pImpl->pNTHeaders64 : NULL;
+}
+
+const PIMAGE_FILE_HEADER PEMODULE::FileHeader() const
+{
+    return m_pImpl->pFileHeader;
+}
+
+const PIMAGE_OPTIONAL_HEADER32& PEMODULE::OptionalHeader32() const
+{
+    return m_pImpl->pOptional32;
+}
+
+const PIMAGE_OPTIONAL_HEADER64& PEMODULE::OptionalHeader64() const
+{
+    return m_pImpl->pOptional64;
+}
+
+const PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories() const
+{
+    return m_pImpl->pDataDirectories;
+}
+
+const PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index) const
+{
+    assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
+    return &m_pImpl->pDataDirectories[index];
+}
+
+const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
+{
+    assert(m_pImpl->pSectionHeaders != NULL);
+
+    DWORD size = NumberOfSections();
+    for (DWORD i = 0; i < size; i++)
+    {
+        PREAL_IMAGE_SECTION_HEADER pHeader = SectionHeader(i);
+        if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
+            return pHeader;
+    }
+    return NULL;
+}
+
+const PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders() const
+{
+    return m_pImpl->pSectionHeaders;
+}
+
+const PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index) const
+{
+    assert(m_pImpl->pSectionHeaders);
+    if (index < NumberOfSections())
+    {
+        return &m_pImpl->pSectionHeaders[index];
+    }
+    return NULL;
+}
+
+const vector<EXPORT_SYMBOL>& PEMODULE::ExportSymbols() const
+{
+    return m_pImpl->vExportSymbols;
+}
+
+const vector<string>& PEMODULE::ImportDllNames() const
+{
+    return m_pImpl->vImportDllNames;
+}
+
+const vector<ImgDelayDescr>& PEMODULE::DelayLoadDescriptors() const
+{
+    return m_pImpl->vImgDelayDescrs;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// PEMODULE
+
+PEMODULE::PEMODULE() : m_pImpl(new PEMODULE::PEMODULEIMPL)
 {
 }
 
-PEModule::PEModule(LPCTSTR FileName) :
-    m_pszFileName(NULL),
-    m_hFile(INVALID_HANDLE_VALUE),
-    m_hFileMapping(NULL),
-    m_pFileImage(NULL),
-    m_dwFileSize(0),
-    m_dwLastError(ERROR_SUCCESS),
-    m_bModuleLoaded(FALSE),
-    m_bDisAsmed(FALSE),
-    m_bDecompiled(FALSE),
-    m_pDosHeader(NULL),
-    m_pNTHeaders(NULL),
-    m_pFileHeader(NULL),
-    m_pOptional32(NULL),
-    m_pOptional64(NULL),
-    m_pLoadedImage(NULL),
-    m_dwHeaderSum(0),
-    m_dwCheckSum(0),
-    m_dwSizeOfOptionalHeader(0),
-    m_dwAddressOfEntryPoint(0),
-    m_dwBaseOfCode(0),
-    m_dwSizeOfImage(0),
-    m_dwSizeOfHeaders(0),
-    m_dwNumberOfSections(0),
-    m_pSectionHeaders(NULL),
-    m_pDataDirectories(NULL)
+PEMODULE::PEMODULE(LPCTSTR FileName) : m_pImpl(new PEMODULE::PEMODULEIMPL)
 {
     LoadModule(FileName);
 }
 
-PEModule::~PEModule()
+/*virtual*/ PEMODULE::~PEMODULE()
 {
-    if (m_bModuleLoaded)
+    if (IsModuleLoaded())
         UnloadModule();
+
+    delete m_pImpl;
 }
 
-VOID PEModule::UnloadModule()
+VOID PEMODULE::UnloadModule()
 {
-    if (m_pLoadedImage != NULL)
-    {
-        VirtualFree(m_pLoadedImage, 0, MEM_RELEASE);
-        m_pLoadedImage = NULL;
-    }
-    if (m_pFileImage != NULL)
-    {
-        UnmapViewOfFile(m_pFileImage);
-        m_pFileImage = NULL;
-    }
-    if (m_hFileMapping != NULL)
-    {
-        CloseHandle(m_hFileMapping);
-        m_hFileMapping = NULL;
-    }
-    if (m_hFile != INVALID_HANDLE_VALUE)
-    {
-        CloseHandle(m_hFile);
-        m_hFile = INVALID_HANDLE_VALUE;
-    }
-    m_pszFileName = NULL;
-    m_dwFileSize = 0;
-    m_bModuleLoaded = FALSE;
-    m_pDosHeader = NULL;
-    m_pNTHeaders = NULL;
-    m_pFileHeader = NULL;
-    m_pOptional32 = NULL;
-    m_pOptional64 = NULL;
-    m_dwHeaderSum = 0;
-    m_dwCheckSum = 0;
-    m_dwSizeOfOptionalHeader = 0;
-    m_dwAddressOfEntryPoint = 0;
-    m_dwBaseOfCode = 0;
-    m_dwSizeOfImage = 0;
-    m_dwSizeOfHeaders = 0;
-    m_dwNumberOfSections = 0;
-    m_pSectionHeaders = NULL;
-    m_pDataDirectories = NULL;
-
-    m_vImportDllNames.clear();
-    m_vExportSymbols.clear();
-    m_mRVAToImportSymbol.clear();
-    m_mNameToImportSymbol.clear();
-    m_mRVAToExportSymbol.clear();
-    m_mNameToExportSymbol.clear();
-    m_mRVAToSymbol.clear();
-    m_mNameToSymbol.clear();
-
-    m_mAddrToAsmCode32.clear();
-    m_mAddrToAsmCode64.clear();
-    m_bDisAsmed = FALSE;
-    m_bDecompiled = FALSE;
-
-    m_sEntrances32.clear();
-    m_sEntrances64.clear();
-
-    m_vImgDelayDescrs.clear();
-
-    m_mAddrToCF32.clear();
-    m_mAddrToCF64.clear();
+    m_pImpl->Clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// loading
+// PEMODULE loading
 
-BOOL PEModule::_LoadImage(LPVOID Data)
+BOOL PEMODULE::_LoadImage(LPVOID Data)
 {
-    m_pDosHeader = (PIMAGE_DOS_HEADER)Data;
-    if (m_pDosHeader->e_magic == IMAGE_DOS_SIGNATURE && m_pDosHeader->e_lfanew)  // "MZ"
+    PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)Data;
+    PIMAGE_NT_HEADERS pNTHeaders;
+
+    if (pDOSHeader->e_magic == IMAGE_DOS_SIGNATURE && pDOSHeader->e_lfanew)  // "MZ"
     {
-        m_pNTHeaders = (PIMAGE_NT_HEADERS)((LPBYTE)Data + m_pDosHeader->e_lfanew);
+        pNTHeaders = (PIMAGE_NT_HEADERS)((LPBYTE)Data + pDOSHeader->e_lfanew);
     }
     else
     {
-        m_pDosHeader = NULL;
-        m_pNTHeaders = (PIMAGE_NT_HEADERS)Data;
+        pDOSHeader = NULL;
+        pNTHeaders = (PIMAGE_NT_HEADERS)Data;
     }
+    m_pImpl->pDOSHeader = pDOSHeader;
 
-    if (m_pNTHeaders->Signature == IMAGE_NT_SIGNATURE) // "PE\0\0"
+    if (pNTHeaders->Signature == IMAGE_NT_SIGNATURE) // "PE\0\0"
     {
-        if (_LoadNTHeaders(m_pNTHeaders))
+        if (_LoadNTHeaders(pNTHeaders))
         {
-            if (m_pOptional32)
+            LoadedImage() = (LPBYTE)VirtualAlloc(
+                NULL,
+                GetSizeOfImage() + 16,
+                MEM_COMMIT,
+                PAGE_READWRITE);
+            if (LoadedImage() != NULL)
             {
-                m_pLoadedImage = (LPBYTE)VirtualAlloc(
-                    NULL,
-                    m_pOptional32->SizeOfImage + 16,
-                    MEM_COMMIT,
-                    PAGE_READWRITE
-                );
-            }
-            else if (m_pOptional64)
-            {
-                m_pLoadedImage = (LPBYTE)VirtualAlloc(
-                    NULL,
-                    m_pOptional64->SizeOfImage + 16,
-                    MEM_COMMIT,
-                    PAGE_READWRITE
-                );
-            }
+                CopyMemory(LoadedImage(), FileImage(), GetSizeOfHeaders());
 
-            if (m_pLoadedImage != NULL)
-            {
-                CopyMemory(m_pLoadedImage, m_pFileImage, m_dwSizeOfHeaders);
-
-                for (DWORD i = 0; i < m_dwNumberOfSections; i++)
+                DWORD size = NumberOfSections();
+                PREAL_IMAGE_SECTION_HEADER Headers = SectionHeaders();
+                for (DWORD i = 0; i < size; i++)
                 {
                     CopyMemory(
-                        &m_pLoadedImage[m_pSectionHeaders[i].VirtualAddress],
-                        &m_pFileImage[m_pSectionHeaders[i].PointerToRawData],
-                        m_pSectionHeaders[i].SizeOfRawData
-                    );
+                        &LoadedImage()[Headers[i].RVA],
+                        &FileImage()[Headers[i].PointerToRawData],
+                        Headers[i].SizeOfRawData);
                 }
-
                 return TRUE;
             }
         }
     }
 
-    m_pNTHeaders = NULL;
     return FALSE;
 }
 
-BOOL PEModule::_LoadNTHeaders(LPVOID Data)
+BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
 {
-    m_pNTHeaders = (PIMAGE_NT_HEADERS)Data;
-    m_pFileHeader = &m_pNTHeaders->FileHeader;
-
-    m_dwSizeOfOptionalHeader = m_pFileHeader->SizeOfOptionalHeader;
-    m_dwNumberOfSections = m_pFileHeader->NumberOfSections;
-
-    switch(m_dwSizeOfOptionalHeader)
-    {
 #ifndef IMAGE_SIZEOF_NT_OPTIONAL32_HEADER
     #define IMAGE_SIZEOF_NT_OPTIONAL32_HEADER sizeof(IMAGE_OPTIONAL_HEADER32)
 #endif
-    case IMAGE_SIZEOF_NT_OPTIONAL32_HEADER:
-        m_pOptional32 = (PIMAGE_OPTIONAL_HEADER32)&m_pNTHeaders->OptionalHeader;
-        if (m_pOptional32->Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC)
-            return FALSE;
-
-        m_dwAddressOfEntryPoint = m_pOptional32->AddressOfEntryPoint;
-        m_dwBaseOfCode = m_pOptional32->BaseOfCode;
-        m_dwSizeOfImage = m_pOptional32->SizeOfImage;
-        m_dwSizeOfHeaders = m_pOptional32->SizeOfHeaders;
-        m_pSectionHeaders = (PIMAGE_SECTION_HEADER)((LPBYTE)m_pOptional32 + m_dwSizeOfOptionalHeader);
-        m_pDataDirectories = (PREAL_IMAGE_DATA_DIRECTORY)m_pOptional32->DataDirectory;
-        break;
-
 #ifndef IMAGE_SIZEOF_NT_OPTIONAL64_HEADER
     #define IMAGE_SIZEOF_NT_OPTIONAL64_HEADER sizeof(IMAGE_OPTIONAL_HEADER64)
 #endif
-    case IMAGE_SIZEOF_NT_OPTIONAL64_HEADER:
-        m_pOptional64 = (PIMAGE_OPTIONAL_HEADER64)&m_pNTHeaders->OptionalHeader;
-        if (m_pOptional64->Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+
+    PIMAGE_FILE_HEADER pFileHeader;
+    PIMAGE_OPTIONAL_HEADER32 pOptional32;
+    PIMAGE_OPTIONAL_HEADER64 pOptional64;
+    m_pImpl->pNTHeaders = (PIMAGE_NT_HEADERS)Data;
+    pFileHeader = &m_pImpl->pNTHeaders->FileHeader;
+
+    LPBYTE pb;
+    switch(pFileHeader->SizeOfOptionalHeader)
+    {
+    case IMAGE_SIZEOF_NT_OPTIONAL32_HEADER:
+        m_pImpl->pFileHeader = pFileHeader;
+        m_pImpl->pOptional32 = pOptional32 = &m_pImpl->pNTHeaders32->OptionalHeader;;
+        if (pOptional32->Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC)
             return FALSE;
 
-        m_dwAddressOfEntryPoint = m_pOptional64->AddressOfEntryPoint;
-        m_dwBaseOfCode = m_pOptional64->BaseOfCode;
-        m_dwSizeOfImage = m_pOptional64->SizeOfImage;
-        m_dwSizeOfHeaders = m_pOptional64->SizeOfHeaders;
-        m_pSectionHeaders = (PIMAGE_SECTION_HEADER)((LPBYTE)m_pOptional64 + m_dwSizeOfOptionalHeader);
-        m_pDataDirectories = (PREAL_IMAGE_DATA_DIRECTORY)m_pOptional64->DataDirectory;
+        pb = (LPBYTE)pOptional32 + pFileHeader->SizeOfOptionalHeader;
+        m_pImpl->pSectionHeaders = (PREAL_IMAGE_SECTION_HEADER)pb;
+        DataDirectories() = (PREAL_IMAGE_DATA_DIRECTORY)pOptional32->DataDirectory;
+        break;
+
+    case IMAGE_SIZEOF_NT_OPTIONAL64_HEADER:
+        m_pImpl->pFileHeader = pFileHeader;
+        m_pImpl->pOptional64 = pOptional64 = &m_pImpl->pNTHeaders64->OptionalHeader;
+        if (pOptional64->Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+            return FALSE;
+
+        pb = (LPBYTE)pOptional64 + pFileHeader->SizeOfOptionalHeader;
+        m_pImpl->pSectionHeaders = (PREAL_IMAGE_SECTION_HEADER)pb;
+        DataDirectories() = (PREAL_IMAGE_DATA_DIRECTORY)pOptional64->DataDirectory;
         break;
 
     default:
+        m_pImpl->pFileHeader = NULL;
+        m_pImpl->pNTHeaders = NULL;
+        m_pImpl->pOptional32 = NULL;
+        m_pImpl->pOptional64 = NULL;
         return FALSE;
     }
 
     return TRUE;
 }
 
-BOOL PEModule::LoadModule(LPCTSTR FileName)
+BOOL PEMODULE::LoadModule(LPCTSTR FileName)
 {
-    m_hFile = CreateFile(FileName, GENERIC_READ,
+    m_pImpl->hFile = CreateFile(FileName, GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         NULL, OPEN_EXISTING, 0, NULL);
-    if (m_hFile == INVALID_HANDLE_VALUE)
+    if (m_pImpl->hFile == INVALID_HANDLE_VALUE)
     {
-        m_dwLastError = GetLastError();
+        LastError() = GetLastError();
         return FALSE;
     }
 
-    m_dwFileSize = ::GetFileSize(m_hFile, NULL);
-    if (m_dwFileSize == 0xFFFFFFFF)
+    m_pImpl->dwFileSize = ::GetFileSize(m_pImpl->hFile, NULL);
+    if (m_pImpl->dwFileSize == 0xFFFFFFFF)
     {
-        m_dwLastError = GetLastError();
-        CloseHandle(m_hFile);
+        LastError() = GetLastError();
+        CloseHandle(m_pImpl->hFile);
         return FALSE;
     }
 
-    m_hFileMapping = CreateFileMappingA(
-        m_hFile, NULL, PAGE_READONLY,
-        0, 0, NULL
-    );
-    if (m_hFileMapping != NULL)
+    m_pImpl->hFileMapping = CreateFileMappingA(
+        m_pImpl->hFile, NULL, PAGE_READONLY, 0, 0, NULL);
+    if (m_pImpl->hFileMapping != NULL)
     {
-        m_pFileImage = (LPBYTE)MapViewOfFile(
-            m_hFileMapping,
+        FileImage() = (LPBYTE)MapViewOfFile(
+            m_pImpl->hFileMapping,
             FILE_MAP_READ,
             0, 0,
-            m_dwFileSize
-        );
-        if (m_pFileImage != NULL)
+            m_pImpl->dwFileSize);
+        if (FileImage() != NULL)
         {
 #ifndef NO_CHECKSUM
             CheckSumMappedFile(
-                m_pFileImage, m_dwFileSize,
-                &m_dwHeaderSum, &m_dwCheckSum);
+                FileImage(), m_pImpl->dwFileSize,
+                &m_pImpl->dwHeaderSum, &m_pImpl->dwCheckSum);
 #endif
-            if (_LoadImage(m_pFileImage))
+            if (_LoadImage(FileImage()))
             {
                 LoadImportTables();
                 LoadExportTable();
-                m_bModuleLoaded = TRUE;
-                m_pszFileName = FileName;
+                m_pImpl->bModuleLoaded = TRUE;
+                m_pImpl->pszFileName = FileName;
                 return TRUE;
             }
-            m_dwLastError = ERROR_INVALID_DATA;
+            LastError() = ERROR_INVALID_DATA;
         }
         else
         {
-            m_dwLastError = GetLastError();
+            LastError() = GetLastError();
         }
-        CloseHandle(m_hFileMapping);
-        m_hFileMapping = NULL;
+        CloseHandle(m_pImpl->hFileMapping);
+        m_pImpl->hFileMapping = NULL;
     }
     else
     {
-        m_dwLastError = GetLastError();
+        LastError() = GetLastError();
     }
 
-    CloseHandle(m_hFile);
-    m_hFile = INVALID_HANDLE_VALUE;
+    CloseHandle(m_pImpl->hFile);
+    m_pImpl->hFile = INVALID_HANDLE_VALUE;
 
     return FALSE;
 }
 
-BOOL PEModule::LoadImportTables()
+BOOL PEMODULE::LoadImportTables()
 {
     vector<IMPORT_SYMBOL> symbols;
     SYMBOL symbol;
 
-    if (!_GetImportDllNames(m_vImportDllNames))
+    if (!_GetImportDllNames(ImportDllNames()))
         return FALSE;
 
-    for (DWORD i = 0; i < m_vImportDllNames.size(); i++)
+    DWORD size = (DWORD)ImportDllNames().size();
+    for (DWORD i = 0; i < size; i++)
     {
         if (_GetImportSymbols(i, symbols))
         {
@@ -343,12 +850,12 @@ BOOL PEModule::LoadImportTables()
             {
                 symbol.dwRVA = symbols[j].dwRVA;
                 symbol.pszName = symbols[j].pszName;
-                m_mRVAToSymbol.insert(make_pair(symbol.dwRVA, symbol));
-                m_mRVAToImportSymbol.insert(make_pair(symbols[j].dwRVA, symbols[j]));
+                AddMapRVAToSymbol(symbol.dwRVA, symbol);
+                AddMapRVAToImportSymbol(symbols[j].dwRVA, symbols[j]);
                 if (symbols[j].Name.wImportByName)
                 {
-                    m_mNameToImportSymbol.insert(make_pair(symbols[j].pszName, symbols[j]));
-                    m_mNameToSymbol.insert(make_pair(symbol.pszName, symbol));
+                    AddMapNameToImportSymbol(symbols[j].pszName, symbols[j]);
+                    AddMapNameToSymbol(symbol.pszName, symbol);
                 }
             }
         }
@@ -356,17 +863,17 @@ BOOL PEModule::LoadImportTables()
     return TRUE;
 }
 
-BOOL PEModule::LoadExportTable()
+BOOL PEMODULE::LoadExportTable()
 {
     vector<EXPORT_SYMBOL> symbols;
     SYMBOL symbol;
 
-    m_vExportSymbols.clear();
+    ExportSymbols().clear();
 
     if (!_GetExportSymbols(symbols))
         return FALSE;
 
-    m_vExportSymbols = symbols;
+    ExportSymbols() = symbols;
 
     for (DWORD i = 0; i < (DWORD)symbols.size(); i++)
     {
@@ -374,32 +881,31 @@ BOOL PEModule::LoadExportTable()
             continue;
 
         if (symbols[i].dwRVA)
-            m_mRVAToExportSymbol.insert(make_pair(symbols[i].dwRVA, symbols[i]));
+            AddMapRVAToExportSymbol(symbols[i].dwRVA, symbols[i]);
         if (symbols[i].pszName)
-            m_mNameToExportSymbol.insert(make_pair(symbols[i].pszName, symbols[i]));
+            AddMapNameToExportSymbol(symbols[i].pszName, symbols[i]);
 
         symbol.dwRVA = symbols[i].dwRVA;
         symbol.pszName = symbols[i].pszName;
         if (symbol.dwRVA)
-            m_mRVAToSymbol.insert(make_pair(symbol.dwRVA, symbol));
+            AddMapRVAToSymbol(symbol.dwRVA, symbol);
         if (symbol.pszName)
-            m_mNameToSymbol.insert(make_pair(symbol.pszName, symbol));
+            AddMapNameToSymbol(symbol.pszName, symbol);
     }
 
     return TRUE;
 }
 
-BOOL PEModule::LoadDelayLoad()
+BOOL PEMODULE::LoadDelayLoad()
 {
-    if (!ModuleLoaded())
+    if (!IsModuleLoaded())
         return FALSE;
 
-    PREAL_IMAGE_DATA_DIRECTORY pDir =
-        &m_pDataDirectories[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT];
+    PREAL_IMAGE_DATA_DIRECTORY pDir = DataDirectory(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
 
     vector<ImgDelayDescr> Descrs;
     ImgDelayDescr *pDescrs;
-    pDescrs = (ImgDelayDescr *)(m_pLoadedImage + pDir->RVA);
+    pDescrs = (ImgDelayDescr *)(LoadedImage() + pDir->RVA);
 
     size_t i = 0;
     while (pDescrs[i].rvaHmod)
@@ -408,7 +914,7 @@ BOOL PEModule::LoadDelayLoad()
         i++;
     }
 
-    m_vImgDelayDescrs = Descrs;
+    DelayLoadDescriptors() = Descrs;
 
     // TODO: load IAT and INT
 
@@ -418,52 +924,53 @@ BOOL PEModule::LoadDelayLoad()
 ////////////////////////////////////////////////////////////////////////////
 // dumping
 
-VOID PEModule::DumpHeaders()
+VOID PEMODULE::DumpHeaders()
 {
-    if (!ModuleLoaded())
+    if (!IsModuleLoaded())
         return;
 
 #ifdef _UNICODE
     printf("FileName: %ls, FileSize: 0x%08lX (%lu)\n",
-        m_pszFileName, m_dwFileSize, m_dwFileSize);
+        GetFileName(), GetFileSize(), GetFileSize());
 #else
     printf("FileName: %s, FileSize: 0x%08lX (%lu)\n",
-        m_pszFileName, m_dwFileSize, m_dwFileSize);
+        GetFileName(), GetFileSize(), GetFileSize());
 #endif
 
-    if (m_pDosHeader)
+    if (DOSHeader())
     {
-        DumpDosHeader(m_pDosHeader);
+        DumpDOSHeader(DOSHeader());
     }
-    if (m_pFileHeader)
+    if (FileHeader())
     {
-        DumpFileHeader(m_pFileHeader);
+        DumpFileHeader(FileHeader());
     }
-    if (m_pOptional32)
+    if (OptionalHeader32())
     {
-        DumpOptionalHeader32(m_pOptional32, m_dwCheckSum);
+        DumpOptionalHeader32(OptionalHeader32(), CheckSum());
     }
-    else if (m_pOptional64)
+    else if (OptionalHeader64())
     {
-        DumpOptionalHeader64(m_pOptional64, m_dwCheckSum);
+        DumpOptionalHeader64(OptionalHeader64(), CheckSum());
     }
-    if (m_pSectionHeaders)
+    if (m_pImpl->pSectionHeaders)
     {
-        for (DWORD i = 0; i < m_dwNumberOfSections; i++)
+        DWORD size = NumberOfSections();
+        for (DWORD i = 0; i < size; i++)
         {
             printf("\n### Section #%lu ###\n", i);
-            DumpSectionHeader(&m_pSectionHeaders[i]);
+            DumpSectionHeader(SectionHeader(i));
         }
     }
 }
 
-VOID PEModule::DumpImportSymbols()
+VOID PEMODULE::DumpImportSymbols()
 {
     PIMAGE_IMPORT_DESCRIPTOR descs;
     vector<string> dll_names;
     vector<IMPORT_SYMBOL> symbols;
 
-    descs = GetImportDescriptors();
+    descs = ImportDescriptors();
     if (descs == NULL)
         return;
 
@@ -490,13 +997,15 @@ VOID PEModule::DumpImportSymbols()
                 {
                     if (Is64Bit())
                     {
-                        ULONGLONG dwl = m_pOptional64->ImageBase + symbols[j].dwRVA;
+                        ADDR64 addr = VA64FromRVA(symbols[j].dwRVA);
                         printf("    %08lX %08lX%08lX ", symbols[j].dwRVA,
-                            (DWORD)(dwl >> 32), (DWORD)dwl);
+                            HILONG(addr), LOLONG(addr));
                     }
-                    else
-                        printf("    %08lX %08lX ", symbols[j].dwRVA,
-                            m_pOptional32->ImageBase + symbols[j].dwRVA);
+                    else if (Is32Bit())
+                    {
+                        ADDR32 addr = VA32FromRVA(symbols[j].dwRVA);
+                        printf("    %08lX %08lX ", symbols[j].dwRVA, addr);
+                    }
                     if (symbols[j].Name.wImportByName)
                         printf("%4X %s\n", symbols[j].wHint, symbols[j].pszName);
                     else
@@ -508,9 +1017,9 @@ VOID PEModule::DumpImportSymbols()
     }
 }
 
-VOID PEModule::DumpExportSymbols()
+VOID PEMODULE::DumpExportSymbols()
 {
-    PIMAGE_EXPORT_DIRECTORY pDir = GetExportDirectory();
+    PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
 
     if (pDir == NULL)
         return;
@@ -538,14 +1047,14 @@ VOID PEModule::DumpExportSymbols()
 
     printf("  %-50s %-5s ; %-8s %-8s\n", "FUNCTION NAME", "ORDI.", "RVA", "VA");
 
-    for (DWORD i = 0; i < m_vExportSymbols.size(); i++)
+    for (DWORD i = 0; i < ExportSymbols().size(); i++)
     {
-        EXPORT_SYMBOL& symbol = m_vExportSymbols[i];
+        EXPORT_SYMBOL& symbol = ExportSymbols()[i];
         if (symbol.dwRVA)
         {
             if (Is64Bit())
             {
-                ADDR64 va = m_pOptional64->ImageBase + symbol.dwRVA;
+                ADDR64 va = VA64FromRVA(symbol.dwRVA);
                 if (symbol.pszName)
                     printf("  %-50s @%-4lu ; %08lX %08lX%08lX\n", 
                         symbol.pszName, symbol.dwOrdinal, symbol.dwRVA,
@@ -557,7 +1066,7 @@ VOID PEModule::DumpExportSymbols()
             }
             else if (Is32Bit())
             {
-                ADDR32 va = m_pOptional32->ImageBase + symbol.dwRVA;
+                ADDR32 va = VA32FromRVA(symbol.dwRVA);
                 if (symbol.pszName)
                     printf("  %-50s @%-4lu ; %08lX %08lX\n", 
                         symbol.pszName, symbol.dwOrdinal, symbol.dwRVA, va);
@@ -580,17 +1089,17 @@ VOID PEModule::DumpExportSymbols()
     printf("\n\n");
 }
 
-VOID PEModule::DumpDelayLoad()
+VOID PEMODULE::DumpDelayLoad()
 {
-    if (m_vImgDelayDescrs.empty())
+    if (DelayLoadDescriptors().empty())
     {
         LoadDelayLoad();
-        if (m_vImgDelayDescrs.empty())
+        if (DelayLoadDescriptors().empty())
             return;
     }
 
     printf("### DELAY LOAD ###\n");
-    size_t i, size = m_vImgDelayDescrs.size();
+    size_t i, size = DelayLoadDescriptors().size();
     DWORD rva;
     if (Is64Bit())
     {
@@ -600,38 +1109,38 @@ VOID PEModule::DumpDelayLoad()
             printf("  ### Descr #%u ###\n", (INT)i);
             printf("    NAME       %-8s %-8s\n", "RVA", "VA");
 
-            rva = m_vImgDelayDescrs[i].grAttrs;
-            addr = m_pOptional64->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].grAttrs;
+            addr = VA64FromRVA(rva);
             printf("    Attrs:     %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            rva = m_vImgDelayDescrs[i].rvaDLLName;
-            addr = m_pOptional64->ImageBase + rva;
-            printf("    DLL Name:  %s\n", (LPCSTR)(m_pLoadedImage + rva));
+            rva = DelayLoadDescriptors()[i].rvaDLLName;
+            addr = VA64FromRVA(rva);
+            printf("    DLL Name:  %s\n", (LPCSTR)(LoadedImage() + rva));
             printf("            :  %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            rva = m_vImgDelayDescrs[i].rvaHmod;
-            addr = m_pOptional64->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaHmod;
+            addr = VA64FromRVA(rva);
             printf("    Module:    %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            rva = m_vImgDelayDescrs[i].rvaIAT;
-            addr = m_pOptional64->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaIAT;
+            addr = VA64FromRVA(rva);
             printf("    IAT:       %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            rva = m_vImgDelayDescrs[i].rvaINT;
-            addr = m_pOptional64->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaINT;
+            addr = VA64FromRVA(rva);
             printf("    INT:       %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            rva = m_vImgDelayDescrs[i].rvaBoundIAT;
-            addr = m_pOptional64->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaBoundIAT;
+            addr = VA64FromRVA(rva);
             printf("    BoundIAT:  %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            rva = m_vImgDelayDescrs[i].rvaUnloadIAT;
-            addr = m_pOptional64->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaUnloadIAT;
+            addr = VA64FromRVA(rva);
             printf("    UnloadIAT: %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            LPCSTR pszTime = GetTimeStampString(m_vImgDelayDescrs[i].dwTimeStamp);
+            LPCSTR pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
             printf("    dwTimeStamp:  0x%08lX (%s)",
-                m_vImgDelayDescrs[i].dwTimeStamp, pszTime);
+                DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
         }
     }
     else if (Is32Bit())
@@ -642,38 +1151,38 @@ VOID PEModule::DumpDelayLoad()
             printf("  ### Descr #%u ###\n", (INT)i);
             printf("    NAME       %-8s %-8s\n", "RVA", "VA");
 
-            rva = m_vImgDelayDescrs[i].grAttrs;
-            addr = m_pOptional32->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].grAttrs;
+            addr = VA32FromRVA(rva);
             printf("    Attrs:     %08lX %08lX\n", rva, addr);
 
-            rva = m_vImgDelayDescrs[i].rvaDLLName;
-            addr = m_pOptional32->ImageBase + rva;
-            printf("    DLL Name:  %s\n", (LPCSTR)(m_pLoadedImage + rva));
+            rva = DelayLoadDescriptors()[i].rvaDLLName;
+            addr = VA32FromRVA(rva);
+            printf("    DLL Name:  %s\n", (LPCSTR)(LoadedImage() + rva));
             printf("            :  %08lX %08lX\n", rva, addr);
 
-            rva = m_vImgDelayDescrs[i].rvaHmod;
-            addr = m_pOptional32->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaHmod;
+            addr = VA32FromRVA(rva);
             printf("    Module:    %08lX %08lX\n", rva, addr);
 
-            rva = m_vImgDelayDescrs[i].rvaIAT;
-            addr = m_pOptional32->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaIAT;
+            addr = VA32FromRVA(rva);
             printf("    IAT:       %08lX %08lX\n", rva, addr);
 
-            rva = m_vImgDelayDescrs[i].rvaINT;
-            addr = m_pOptional32->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaINT;
+            addr = VA32FromRVA(rva);
             printf("    INT:       %08lX %08lX\n", rva, addr);
 
-            rva = m_vImgDelayDescrs[i].rvaBoundIAT;
-            addr = m_pOptional32->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaBoundIAT;
+            addr = VA32FromRVA(rva);
             printf("    BoundIAT:  %08lX %08lX\n", rva, addr);
 
-            rva = m_vImgDelayDescrs[i].rvaUnloadIAT;
-            addr = m_pOptional32->ImageBase + rva;
+            rva = DelayLoadDescriptors()[i].rvaUnloadIAT;
+            addr = VA32FromRVA(rva);
             printf("    UnloadIAT: %08lX %08lX\n", rva, addr);
 
-            LPCSTR pszTime = GetTimeStampString(m_vImgDelayDescrs[i].dwTimeStamp);
+            LPCSTR pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
             printf("    dwTimeStamp:  0x%08lX (%s)",
-                m_vImgDelayDescrs[i].dwTimeStamp, pszTime);
+                DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
         }
     }
 
@@ -681,24 +1190,10 @@ VOID PEModule::DumpDelayLoad()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// getting
 
-LPBYTE PEModule::GetDirEntryData(DWORD index)
+BOOL PEMODULE::_GetImportDllNames(vector<string>& names)
 {
-    if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
-    {
-        if (m_pDataDirectories[index].RVA != 0 &&
-            m_pDataDirectories[index].Size != 0)
-        {
-            return m_pLoadedImage + m_pDataDirectories[index].RVA;
-        }
-    }
-    return NULL;
-}
-
-BOOL PEModule::_GetImportDllNames(vector<string>& names)
-{
-    PIMAGE_IMPORT_DESCRIPTOR descs = GetImportDescriptors();
+    PIMAGE_IMPORT_DESCRIPTOR descs = ImportDescriptors();
     names.clear();
 
     if (descs == NULL)
@@ -710,12 +1205,12 @@ BOOL PEModule::_GetImportDllNames(vector<string>& names)
     return TRUE;
 }
 
-BOOL PEModule::_GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols)
+BOOL PEMODULE::_GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols)
 {
     DWORD i, j;
     IMPORT_SYMBOL symbol;
     PIMAGE_IMPORT_BY_NAME pIBN;
-    PIMAGE_IMPORT_DESCRIPTOR descs = GetImportDescriptors();
+    PIMAGE_IMPORT_DESCRIPTOR descs = ImportDescriptors();
 
     symbols.clear();
 
@@ -738,7 +1233,7 @@ BOOL PEModule::_GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols
 
                 for (j = 0; pINT64[j] != 0; j++)
                 {
-                    if (pINT64[j] < m_dwSizeOfImage)
+                    if (pINT64[j] < GetSizeOfImage())
                     {
                         symbol.dwRVA = descs[i].FirstThunk + j * sizeof(DWORD);
 
@@ -769,7 +1264,7 @@ BOOL PEModule::_GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols
 
                 for (j = 0; pINT[j] != 0; j++)
                 {
-                    if (pINT[j] < m_dwSizeOfImage)
+                    if (pINT[j] < GetSizeOfImage())
                     {
                         symbol.dwRVA = descs[i].FirstThunk + j * sizeof(DWORD);
 
@@ -796,10 +1291,10 @@ BOOL PEModule::_GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols
     return TRUE;
 }
 
-BOOL PEModule::_GetExportSymbols(vector<EXPORT_SYMBOL>& symbols)
+BOOL PEMODULE::_GetExportSymbols(vector<EXPORT_SYMBOL>& symbols)
 {
     EXPORT_SYMBOL symbol;
-    PIMAGE_EXPORT_DIRECTORY pDir = GetExportDirectory();
+    PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
 
     symbols.clear();
 
@@ -860,166 +1355,106 @@ BOOL PEModule::_GetExportSymbols(vector<EXPORT_SYMBOL>& symbols)
 ////////////////////////////////////////////////////////////////////////////
 // finding
 
-const IMPORT_SYMBOL *PEModule::FindImportSymbolByRVA(DWORD rva) const
+const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByRVA(DWORD rva) const
 {
     map<DWORD, IMPORT_SYMBOL>::const_iterator it;
-    it = m_mRVAToImportSymbol.find(rva);
-    if (it != m_mRVAToImportSymbol.end())
+    it = m_pImpl->mRVAToImportSymbol.find(rva);
+    if (it != m_pImpl->mRVAToImportSymbol.end())
         return &it->second;
     return NULL;
 }
 
-const IMPORT_SYMBOL *PEModule::FindImportSymbolByName(LPCSTR Name) const
+const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByName(LPCSTR Name) const
 {
     map<string, IMPORT_SYMBOL>::const_iterator it;
-    it = m_mNameToImportSymbol.find(Name);
-    if (it != m_mNameToImportSymbol.end())
+    it = m_pImpl->mNameToImportSymbol.find(Name);
+    if (it != m_pImpl->mNameToImportSymbol.end())
         return &it->second;
     return NULL;
 }
 
-const EXPORT_SYMBOL *PEModule::FindExportSymbolByRVA(DWORD rva) const
+const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByRVA(DWORD rva) const
 {
     map<DWORD, EXPORT_SYMBOL>::const_iterator it;
-    it = m_mRVAToExportSymbol.find(rva);
-    if (it != m_mRVAToExportSymbol.end())
+    it = m_pImpl->mRVAToExportSymbol.find(rva);
+    if (it != m_pImpl->mRVAToExportSymbol.end())
         return &it->second;
     return NULL;
 }
 
-const EXPORT_SYMBOL *PEModule::FindExportSymbolByName(LPCSTR Name) const
+const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByName(LPCSTR Name) const
 {
     map<string, EXPORT_SYMBOL>::const_iterator it;
-    it = m_mNameToExportSymbol.find(Name);
-    if (it != m_mNameToExportSymbol.end())
+    it = m_pImpl->mNameToExportSymbol.find(Name);
+    if (it != m_pImpl->mNameToExportSymbol.end())
         return &it->second;
     return NULL;
 }
 
-const SYMBOL *PEModule::FindSymbolByRVA(DWORD rva) const
+const SYMBOL *PEMODULE::FindSymbolByRVA(DWORD rva) const
 {
     map<DWORD, SYMBOL>::const_iterator it;
-    it = m_mRVAToSymbol.find(rva);
-    if (it != m_mRVAToSymbol.end())
+    it = m_pImpl->mRVAToSymbol.find(rva);
+    if (it != m_pImpl->mRVAToSymbol.end())
         return &it->second;
     return NULL;
 }
 
-const SYMBOL *PEModule::FindSymbolByName(LPCSTR Name) const
+const SYMBOL *PEMODULE::FindSymbolByName(LPCSTR Name) const
 {
     map<string, SYMBOL>::const_iterator it;
-    it = m_mNameToSymbol.find(Name);
-    if (it != m_mNameToSymbol.end())
+    it = m_pImpl->mNameToSymbol.find(Name);
+    if (it != m_pImpl->mNameToSymbol.end())
         return &it->second;
     return NULL;
 }
 
-const SYMBOL *PEModule::FindSymbolByAddr32(ADDR32 addr) const
+const SYMBOL *PEMODULE::FindSymbolByAddr32(ADDR32 addr) const
 {
-    if (m_pOptional32)
-        return FindSymbolByRVA(addr - m_pOptional32->ImageBase);
+    if (OptionalHeader32())
+        return FindSymbolByRVA(RVAFromVA32(addr));
     else
         return NULL;
 }
 
-const SYMBOL *PEModule::FindSymbolByAddr64(ADDR64 addr) const
+const SYMBOL *PEMODULE::FindSymbolByAddr64(ADDR64 addr) const
 {
-    if (m_pOptional64)
-        return FindSymbolByRVA((DWORD)(addr - m_pOptional64->ImageBase));
+    if (OptionalHeader64())
+        return FindSymbolByRVA(RVAFromVA64(addr));
     else
         return NULL;
-}
-
-PREAL_IMAGE_SECTION_HEADER PEModule::GetCodeSectionHeader() const
-{
-    if (m_pSectionHeaders == NULL)
-        return NULL;
-
-    PREAL_IMAGE_SECTION_HEADER pHeader;
-    for (DWORD i = 0; i < m_dwNumberOfSections; i++)
-    {
-        pHeader = GetSectionHeader(i);
-        if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
-            return pHeader;
-    }
-    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// verifying
 
-BOOL PEModule::AddressInCode32(ADDR32 va) const
+VOID PEMODULE::AddMapNameToSymbol(const string& name, const SYMBOL& symbol)
 {
-    if (!ModuleLoaded() || !Is32Bit())
-        return FALSE;
-
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
-
-    DWORD rva = (DWORD)(DWORD_PTR)(va - m_pOptional32->ImageBase);
-
-    return (pCode->RVA <= rva && rva < pCode->RVA + pCode->Misc.VirtualSize);
+    m_pImpl->mNameToSymbol.insert(make_pair(name, symbol));
 }
 
-BOOL PEModule::AddressInData32(ADDR32 va) const
+VOID PEMODULE::AddMapNameToImportSymbol(const string& name, const IMPORT_SYMBOL& symbol)
 {
-    if (!ModuleLoaded() || !Is32Bit())
-        return FALSE;
-
-    PREAL_IMAGE_SECTION_HEADER pHeader;
-    DWORD rva;
-
-    const DWORD dwFlags = (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE);
-    for (DWORD i = 0; i < m_dwNumberOfSections; i++)
-    {
-        if (m_pSectionHeaders[i].Characteristics & dwFlags)
-            continue;
-
-        rva = va - m_pOptional32->ImageBase;
-
-        pHeader = GetSectionHeader(i);
-        if (pHeader->RVA <= rva && rva < pHeader->RVA + pHeader->Misc.VirtualSize)
-            return TRUE;
-    }
-    return FALSE;
+    m_pImpl->mNameToImportSymbol.insert(make_pair(name, symbol));
 }
 
-BOOL PEModule::AddressInCode64(ADDR64 va) const
+VOID PEMODULE::AddMapNameToExportSymbol(const string& name, const EXPORT_SYMBOL& symbol)
 {
-    if (!ModuleLoaded() || !Is64Bit())
-        return FALSE;
-
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
-
-    DWORD rva = (DWORD)(DWORD_PTR)(va - m_pOptional64->ImageBase);
-
-    return (pCode->RVA <= rva && rva < pCode->RVA + pCode->Misc.VirtualSize);
+    m_pImpl->mNameToExportSymbol.insert(make_pair(name, symbol));
 }
 
-BOOL PEModule::AddressInData64(ADDR64 va) const
+VOID PEMODULE::AddMapRVAToSymbol(DWORD rva, const SYMBOL& symbol)
 {
-    if (!ModuleLoaded() || !Is64Bit())
-        return FALSE;
+    m_pImpl->mRVAToSymbol.insert(make_pair(rva, symbol));
+}
 
-    PREAL_IMAGE_SECTION_HEADER pHeader;
-    DWORD rva;
+VOID PEMODULE::AddMapRVAToImportSymbol(DWORD rva, const IMPORT_SYMBOL& symbol)
+{
+    m_pImpl->mRVAToImportSymbol.insert(make_pair(rva, symbol));
+}
 
-    const DWORD dwFlags = (IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE);
-    for (DWORD i = 0; i < m_dwNumberOfSections; i++)
-    {
-        if (m_pSectionHeaders[i].Characteristics & dwFlags)
-            continue;
-
-        rva = (DWORD)(DWORD_PTR)(va - m_pOptional64->ImageBase);
-
-        pHeader = GetSectionHeader(i);
-        if (pHeader->RVA <= rva && rva < pHeader->RVA + pHeader->Misc.VirtualSize)
-            return TRUE;
-    }
-    return FALSE;
+VOID PEMODULE::AddMapRVAToExportSymbol(DWORD rva, const EXPORT_SYMBOL& symbol)
+{
+    m_pImpl->mRVAToExportSymbol.insert(make_pair(rva, symbol));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1029,716 +1464,519 @@ extern "C"
 int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
                int64_t offset, int autosync, uint32_t prefer);
 
-BOOL PEModule::DisAsmAddr32(ADDR32 func, ADDR32 va)
+BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
 {
-    if (!ModuleLoaded() || !Is32Bit())
+    if (!IsModuleLoaded() || !Is32Bit() || !AddressInCode32(va))
         return FALSE;
 
-    // get code section
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
-
-    // check boundary
-    ADDR32 CodeVA = m_pOptional32->ImageBase + pCode->RVA;
-    if (!(CodeVA <= va && va < CodeVA + pCode->SizeOfRawData))
-        return FALSE;
-
-    // calculate
-    DWORD rva = va - m_pOptional32->ImageBase;
-    LPBYTE input = m_pLoadedImage + rva;
-    ADDR32 offset = va;
-
-    ASMCODE32 ac;
+    DWORD rva = RVAFromVA32(va);
+    LPBYTE input = LoadedImage() + rva;
     INT lendis;
-    LPBYTE p = input;
     CHAR outbuf[256];
-    vector<ADDR32> jump_entries, call_entries;
+    ADDR32 addr;
 
-    // insert code function
-    if (m_mAddrToCF32.find(func) == m_mAddrToCF32.end())
-    {
-        CODEFUNC cf;
-        cf.Addr32 = func;
-        const SYMBOL * pSymbol = FindSymbolByAddr32(func);
-        if (pSymbol)
-        {
-            cf.Name = pSymbol->pszName;
-        }
-        else
-        {
-            CHAR buf[64];
-            sprintf(buf, "L%08lX", func);
-            cf.Name = buf;
-        }
-        m_mAddrToCF32[func] = cf;
-    }
+    CODEFUNC32& cf = status.MapAddrToCodeFunc()[func];
+    if (func == va)
+        cf.Addr() = func;
 
-    LPBYTE iend = m_pLoadedImage + pCode->RVA + pCode->SizeOfRawData;
-    while (p < iend)
+    PREAL_IMAGE_SECTION_HEADER pCode = CodeSectionHeader();
+    assert(pCode);
+
+    ADDR32SET vPrevCalls;
+    LPBYTE iend = LoadedImage() + pCode->RVA + pCode->SizeOfRawData;
+    while (input < iend)
     {
-        map<ADDR32, ASMCODE32>::iterator it, end;
-        it = m_mAddrToAsmCode32.find(offset);
-        end = m_mAddrToAsmCode32.end();
-        if (it != end)
+        ASMCODE32& ac = status.MapAddrToAsmCode()[va];
+        if (ac.Funcs().Contains(func))
             break;
 
+        ac.Addr() = va;
+        ac.Funcs().Insert(func);
+
         // disasm
-        lendis = disasm(p, outbuf, sizeof(outbuf), 32, offset, false, 0);
+        lendis = disasm(input, outbuf, sizeof(outbuf), 32, va, false, 0);
 
         // parse insn
-        ac.Clear();
-        if (!lendis || p + lendis > iend)
+        if (!lendis || input + lendis > iend)
         {
             lendis = 1;
-            ac.name = "???";
+            ac.Name() = "???";
+            ac.AsmCodeType() = ACT_UNKNOWN;
+            // don't decompile if any unknown instruction.
+            cf.Flags() |= FF_DONTDECOMPBUTDISASM;
         }
         else
-            _ParseInsn32(ac, offset, outbuf);
+            _ParseInsn32(ac, va, outbuf);
 
         // set codes
         for (INT i = 0; i < lendis; i++)
-            ac.codes.push_back(p[i]);
+            ac.Codes().push_back(input[i]);
 
-        ac.addr = offset;
-        ac.func = func;
-
-        bool bBreak = false;
-        switch (ac.bt)
+        BOOL bBreak = FALSE;
+        switch (ac.AsmCodeType())
         {
-        case BT_JCC:
+        case ACT_JCC:
             // conditional jump
-            switch (ac.operand1.type)
+            switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_LABEL: case OT_API:
-                if (func == offset)
-                {
-                    // func is jumper
-                    m_mAddrToCF64[func].Type = FT_JUMPER;
-                    m_mAddrToCF64[func].SizeOfArgs = 0;
-                    bBreak = true;
-                }
-                else
-                    jump_entries.push_back((ADDR32)ac.operand1.value);
+                cf.Jumpers().Insert(va);
+                addr = ac.Operand(0)->Value32();
+                cf.Jumpees().Insert(addr);
                 break;
 
             default: break;
             }
             break;
 
-        case BT_JMP:
-            switch (ac.operand1.type)
+        case ACT_JMP:
+            switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_LABEL:
-                if (func == offset)
+                if (func == va)
                 {
                     // func is jumper
-                    m_mAddrToCF32[func].Type = FT_JUMPER;
+                    cf.FuncType() = FT_JUMPER;
                 }
                 else
-                    jump_entries.push_back(ac.operand1.value);
+                {
+                    cf.Jumpers().Insert(va);
+                    addr = ac.Operand(0)->Value32();
+                    cf.Jumpees().Insert(addr);
+                }
                 break;
 
             case OT_API:
-                if (func == offset)
+                if (func == va)
                 {
                     // func is jumper
-                    m_mAddrToCF32[func].Type = FT_JUMPER;
-                    m_mAddrToCF32[func].Name = "__imp";
-                    m_mAddrToCF32[func].Name += ac.operand1.text;
+                    cf.FuncType() = FT_JUMPER;
+                    bBreak = TRUE;
                 }
                 break;
 
-            default: break;
+            default:
+                break;
             }
-            bBreak = true;
+            bBreak = TRUE;
             break;
 
-        case BT_CALL:
-            switch (ac.operand1.type)
+        case ACT_CALL:
+            switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_LABEL:
                 // function call
-                call_entries.push_back((ADDR32)ac.operand1.value);
+                addr = ac.Operand(0)->Value32();
+                status.Entrances().Insert(addr);
+                cf.Callers().Insert(va);
+                status.MapAddrToCodeFunc()[addr].Callees().Insert(func);
+                vPrevCalls.Insert(addr);
                 break;
 
-            default: break;
+            default:
+                break;
             }
             break;
 
-        case BT_RETURN:
-            if (ac.operand1.type == OT_IMM)
+        case ACT_RETURN:
+            if (!ac.Operands().empty() && ac.Operand(0)->OperandType() == OT_IMM)
             {
                 // func is __stdcall
-                m_mAddrToCF32[func].Type = FT_STDCALL;
-                m_mAddrToCF32[func].SizeOfArgs = ac.operand1.value;
+                cf.FuncType() = FT_STDCALL;
+                cf.SizeOfArgs() = (INT)ac.Operand(0)->Value32();
             }
             else
             {
                 // func is not __stdcall
-                m_mAddrToCF32[func].Flags |= FF_NOTSTDCALL;
+                cf.Flags() |= FF_NOTSTDCALL;
             }
-            bBreak = true;
+            bBreak = TRUE;
+            break;
+
+        case ACT_STACKOP:
+            if (ac.Name() == "add")
+            {
+                assert(ac.Operand(0)->Text() == "esp");
+                if (!vPrevCalls.Empty() && ac.Operand(0)->OperandType() == OT_IMM)
+                {
+                    for (size_t i = 0; i < vPrevCalls.Size(); i++)
+                    {
+                        addr = vPrevCalls[i];
+                        CODEFUNC32& cf2 = status.MapAddrToCodeFunc()[addr];
+                        cf2.FuncType() = FT_CDECL;
+                        cf2.SizeOfArgs() = (INT)ac.Operand(0)->Value32();
+                    }
+                }
+            }
+            else if (ac.Name() == "sub")
+            {
+                assert(ac.Operand(0)->Text() == "esp");
+            }
+            vPrevCalls.Clear();
             break;
 
         default:
-            // check stack frame
-            if (ac.name == "enter")
-            {
-                m_mAddrToCF32[func].Flags |= FF_HASSTACKFRAME;
-            }
-            else if (ac.name == "leave")
-            {
-                m_mAddrToCF32[func].Flags |= FF_HASSTACKFRAME;
-            }
-            else if (ac.name == "sub")
-            {
-                if (ac.operand1.text == "esp")
-                {
-                    m_mAddrToCF32[func].Flags |= FF_HASSTACKFRAME;
-                }
-            }
             break;
         }
-
-        // add asm code
-        m_mAddrToAsmCode32.insert(make_pair(offset, ac));
 
         if (bBreak)
             break;
 
         // move to next position
-        p += lendis;
-        offset += lendis;
-    }
-
-    {
-        vector<ADDR32>::iterator it, end;
-        // recurse
-        end = jump_entries.end();
-        for (it = jump_entries.begin(); it != end; it++)
-        {
-            DisAsmAddr32(func, *it);
-        }
-        // add entrances
-        end = call_entries.end();
-        for (it = call_entries.begin(); it != end; it++)
-        {
-            m_sEntrances32.insert(*it);
-        }
+        input += lendis;
+        va += lendis;
     }
 
     return TRUE;
 }
 
-BOOL PEModule::DisAsmAddr64(ADDR64 func, ADDR64 va)
+BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
 {
-    if (!ModuleLoaded() || !Is64Bit())
-        return FALSE;
-
-    // get code section
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
-
-    // check boundary
-    ADDR64 CodeVA = m_pOptional64->ImageBase + pCode->RVA;
-    if (!(CodeVA <= va && va < CodeVA + pCode->SizeOfRawData))
+    if (!IsModuleLoaded() || !Is64Bit() || !AddressInCode64(va))
         return FALSE;
 
     // calculate
-    DWORD rva = (DWORD)(va - m_pOptional64->ImageBase);
-    LPBYTE input = m_pLoadedImage + rva;
-    ADDR64 offset = va;
-
-    ASMCODE64 ac;
+    DWORD rva = RVAFromVA64(va);
+    LPBYTE input = LoadedImage() + rva;
     INT lendis;
-    LPBYTE p = input;
     CHAR outbuf[256];
-    vector<ADDR64> jump_entries, call_entries;
+    ADDR64 addr;
 
-    // insert code function
-    if (m_mAddrToCF64.find(func) == m_mAddrToCF64.end())
-    {
-        CODEFUNC cf;
-        cf.Addr64 = func;
-        const SYMBOL * pSymbol = FindSymbolByAddr64(func);
-        if (pSymbol)
-        {
-            cf.Name = pSymbol->pszName;
-        }
-        else
-        {
-            CHAR buf[64];
-            sprintf(buf, "L%08lX%08lX", HILONG(func), LOLONG(func));
-            cf.Name = buf;
-        }
-        m_mAddrToCF64[func] = cf;
-    }
+    CODEFUNC64& cf = status.MapAddrToCodeFunc()[func];
+    if (func == va)
+        cf.Addr() = func;
 
-    LPBYTE iend = m_pLoadedImage + pCode->RVA + pCode->SizeOfRawData;
-    while (p < iend)
+    PREAL_IMAGE_SECTION_HEADER pCode = CodeSectionHeader();
+    assert(pCode);
+
+    ADDR64SET vPrevCalls;
+    LPBYTE iend = LoadedImage() + pCode->RVA + pCode->SizeOfRawData;
+    while (input < iend)
     {
-        map<ADDR64, ASMCODE64>::iterator it, end;
-        it = m_mAddrToAsmCode64.find(offset);
-        end = m_mAddrToAsmCode64.end();
-        if (it != end)
+        ASMCODE64& ac = status.MapAddrToAsmCode()[va];
+        if (ac.Funcs().Contains(func))
             break;
 
+        ac.Addr() = va;
+        ac.Funcs().Insert(func);
+
         // disasm
-        lendis = disasm(p, outbuf, sizeof(outbuf), 64, offset, false, 0);
+        lendis = disasm(input, outbuf, sizeof(outbuf), 64, va, false, 0);
 
         // parse insn
-        ac.Clear();
-        if (!lendis || p + lendis > iend)
+        if (!lendis || input + lendis > iend)
         {
             lendis = 1;
-            ac.name = "???";
+            ac.Name() = "???";
+            ac.AsmCodeType() = ACT_UNKNOWN;
+            // don't decompile if any unknown instruction.
+            cf.Flags() |= FF_DONTDECOMPBUTDISASM;
         }
         else
-            _ParseInsn64(ac, offset, outbuf);
+            _ParseInsn64(ac, va, outbuf);
 
         // add asm codes
         for (INT i = 0; i < lendis; i++)
-            ac.codes.push_back(p[i]);
+            ac.Codes().push_back(input[i]);
 
-        ac.func = func;
-        ac.addr = offset;
-
-        bool bBreak = false;
-        switch (ac.bt)
+        BOOL bBreak = FALSE;
+        switch (ac.AsmCodeType())
         {
-        case BT_JCC:
+        case ACT_JCC:
             // conditional jump
-            switch (ac.operand1.type)
+            switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_LABEL:
-                if (func == offset)
-                {
-                    // func is jumper
-                    m_mAddrToCF64[func].Type = FT_JUMPER;
-                    bBreak = true;
-                }
-                else
-                    jump_entries.push_back(ac.operand1.value);
+                cf.Jumpers().Insert(va);
+                addr = ac.Operand(0)->Value64();
+                cf.Jumpees().Insert(addr);
                 break;
 
-            default: break;
+            default:
+                break;
             }
             break;
 
-        case BT_JMP:
-            switch (ac.operand1.type)
+        case ACT_JMP:
+            switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_LABEL:
-                if (func == offset)
+                if (func == va)
                 {
                     // func is jumper
-                    m_mAddrToCF64[func].Type = FT_JUMPER;
+                    cf.FuncType() = FT_JUMPER;
                 }
                 else
-                    jump_entries.push_back(ac.operand1.value);
+                {
+                    cf.Jumpers().Insert(va);
+                    addr = ac.Operand(0)->Value64();
+                    cf.Jumpees().Insert(addr);
+                }
                 break;
 
             case OT_API:
-                if (func == offset)
+                if (func == va)
                 {
                     // func is jumper
-                    m_mAddrToCF64[func].Type = FT_JUMPER;
-                    m_mAddrToCF64[func].Name = "__imp";
-                    m_mAddrToCF64[func].Name += ac.operand1.text;
+                    cf.FuncType() = FT_JUMPER;
                 }
                 break;
 
-            default: break;
+            default:
+                break;
             }
-            bBreak = true;
+            bBreak = TRUE;
             break;
 
-        case BT_CALL:
-            switch (ac.operand1.type)
+        case ACT_CALL:
+            switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_LABEL:
                 // function call
-                call_entries.push_back(ac.operand1.value);
+                addr = ac.Operand(0)->Value64();
+                status.Entrances().Insert(addr);
+                cf.Callers().Insert(va);
+                status.MapAddrToCodeFunc()[addr].Callees().Insert(func);
+                vPrevCalls.Insert(addr);
                 break;
 
-            default: break;
+            default:
+                break;
             }
             break;
 
-        case BT_RETURN:
-            if (ac.operand1.type == OT_IMM)
+        case ACT_RETURN:
+            if (!ac.Operands().empty() && ac.Operand(0)->OperandType() == OT_IMM)
             {
                 // func is __stdcall
-                m_mAddrToCF64[func].Type = FT_STDCALL;
-                m_mAddrToCF64[func].SizeOfArgs = ac.operand1.value;
+                cf.FuncType() = FT_STDCALL;
+                cf.SizeOfArgs() = (INT)ac.Operand(0)->Value64();
             }
             else
             {
                 // func is not __stdcall
-                m_mAddrToCF64[func].Flags |= FF_NOTSTDCALL;
+                cf.Flags() |= FF_NOTSTDCALL;
             }
-            bBreak = true;
+            bBreak = TRUE;
+            break;
+
+        case ACT_STACKOP:
+            if (ac.Name() == "add")
+            {
+                assert(ac.Operand(0)->Text() == "rsp");
+                if (!vPrevCalls.Empty() && ac.Operand(0)->OperandType() == OT_IMM)
+                {
+                    for (size_t i = 0; i < vPrevCalls.Size(); i++)
+                    {
+                        addr = vPrevCalls[i];
+                        CODEFUNC64& cf2 = status.MapAddrToCodeFunc()[addr];
+                        cf2.FuncType() = FT_CDECL;
+                        cf2.SizeOfArgs() = (INT)ac.Operand(0)->Value64();
+                    }
+                }
+            }
+            else if (ac.Name() == "sub")
+            {
+                assert(ac.Operand(0)->Text() == "rsp");
+            }
+            else if (ac.Name() == "push")
+            {
+            }
+            else if (ac.Name() == "pop")
+            {
+            }
+            else
+            {
+                // don't decompile if any unknown stack operation
+                cf.Flags() |= FF_DONTDECOMPBUTDISASM;
+            }
+            vPrevCalls.Clear();
             break;
 
         default:
-            // check stack frame
-            if (ac.name == "enter")
-            {
-                m_mAddrToCF64[func].Flags |= FF_HASSTACKFRAME;
-            }
-            else if (ac.name == "leave")
-            {
-                m_mAddrToCF64[func].Flags |= FF_HASSTACKFRAME;
-            }
-            else if (ac.name == "sub")
-            {
-                if (ac.operand1.text == "rsp")
-                {
-                    m_mAddrToCF64[func].Flags |= FF_HASSTACKFRAME;
-                }
-            }
             break;
         }
-
-        // add asm code
-        m_mAddrToAsmCode64.insert(make_pair(offset, ac));
 
         if (bBreak)
             break;
 
         // move to next position
-        p += lendis;
-        offset += lendis;
-    }
-
-    {
-        vector<ADDR64>::iterator it, end;
-        // recurse
-        end = jump_entries.end();
-        for (it = jump_entries.begin(); it != end; it++)
-        {
-            DisAsmAddr64(func, *it);
-        }
-        // add entrances
-        end = call_entries.end();
-        for (it = call_entries.begin(); it != end; it++)
-        {
-            m_sEntrances64.insert(*it);
-        }
+        input += lendis;
+        va += lendis;
     }
 
     return TRUE;
 }
 
-BOOL PEModule::DisAsm32()
+BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
 {
-    if (!ModuleLoaded() || !Is32Bit())
+    if (!IsModuleLoaded() || !Is32Bit())
         return FALSE;
 
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
+    // VOID WINAPI WinMainCRTStartup(VOID);
+    // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
+    LPCSTR pszEntryPointName;
+    if (IsDLL())
+        pszEntryPointName = "_DllMainCRTStartup";
+    else
+        pszEntryPointName = "WinMainCRTStartup";
 
-    // register entrypoint
     SYMBOL symbol;
-    symbol.dwRVA = m_dwAddressOfEntryPoint;
-    symbol.pszName = "EntryPoint";
-    m_mRVAToSymbol.insert(make_pair(m_dwAddressOfEntryPoint, symbol));
+    symbol.dwRVA = RVAOfEntryPoint();
+    symbol.pszName = pszEntryPointName;
+    AddMapRVAToSymbol(RVAOfEntryPoint(), symbol);
     string name = symbol.pszName;
-    m_mNameToSymbol.insert(make_pair(name, symbol));
+    AddMapNameToSymbol(name, symbol);
 
     // register entrances
     ADDR32 va;
-    va = m_pOptional32->ImageBase + m_dwAddressOfEntryPoint;
-    m_sEntrances32.insert(va);
+    va = VA32FromRVA(RVAOfEntryPoint());
+    status.Entrances().Insert(va);
 
-    m_mAddrToCF32[va].Addr32 = va;
-    m_mAddrToCF32[va].Name = "EntryPoint";
+    status.MapAddrToCodeFunc()[va].Addr() = va;
+    status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
+    if (IsDLL())
+    {
+        status.MapAddrToCodeFunc()[va].SizeOfArgs() = 3 * sizeof(ADDR32);
+
+        status.MapAddrToCodeFunc()[va].Args().clear();
+
+        OPERAND opr;
+        opr.DataType() = "HANDLE";
+        opr.Size() = 4;
+        status.MapAddrToCodeFunc()[va].Args().push_back(opr);
+        opr.DataType() = "DWORD";
+        opr.Size() = 4;
+        status.MapAddrToCodeFunc()[va].Args().push_back(opr);
+        opr.DataType() = "LPVOID";
+        opr.Size() = 4;
+        status.MapAddrToCodeFunc()[va].Args().push_back(opr);
+        status.MapAddrToCodeFunc()[va].ReturnDataType() = "BOOL";
+    }
+    else
+        status.MapAddrToCodeFunc()[va].SizeOfArgs() = 0;
 
     {
         vector<EXPORT_SYMBOL>::const_iterator it, end;
-        end = m_vExportSymbols.end();
-        for (it = m_vExportSymbols.begin(); it != end; it++)
+        end = ExportSymbols().end();
+        for (it = ExportSymbols().begin(); it != end; it++)
         {
-            va = m_pOptional32->ImageBase + it->dwRVA;
-            m_sEntrances32.insert(va);
+            va = VA32FromRVA(it->dwRVA);
+            status.Entrances().Insert(va);
 
-            m_mAddrToCF32[va].Addr32 = va;
-            m_mAddrToCF32[va].Name = it->pszName;
+            status.MapAddrToCodeFunc()[va].Addr() = va;
+            status.MapAddrToCodeFunc()[va].Name() = it->pszName;
         }
     }
 
     // disasm entrances
     {
-        set<ADDR32> s;
-        size_t size;
+        SIZE_T i = 0, size;
         do
         {
-            s = m_sEntrances32;
-            size = s.size();
+            ADDR32SET addrset = status.Entrances();
+            size = addrset.Size();
 
-            set<ADDR32>::iterator it, end = s.end();
-            for (it = s.begin(); it != end; it++)
+            for ( ; i < size; i++)
             {
-                ADDR32 addr = *it;
-                DisAsmAddr32(addr, addr);
+                DisAsmAddr32(status, addrset[i], addrset[i]);
+
+                CODEFUNC32& cf = status.MapAddrToCodeFunc()[addrset[i]];
+                for (SIZE_T j = 0; j < cf.Jumpees().Size(); j++)
+                {
+                    DisAsmAddr32(status, addrset[i], cf.Jumpees()[j]);
+                }
             }
 
-            // m_sEntrances32 may grow in DisAsmAddr64
-        } while(size != m_sEntrances32.size());
+            // status.Entrances() may grow in DisAsmAddr32
+        } while(size < status.Entrances().Size());
     }
 
     return TRUE;
 }
 
-BOOL PEModule::DisAsm64()
+BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
 {
-    if (!ModuleLoaded() || !Is64Bit())
+    if (!IsModuleLoaded() || !Is64Bit())
         return FALSE;
 
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
+    // VOID WINAPI WinMainCRTStartup(VOID);
+    // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
+    LPCSTR pszEntryPointName;
+    if (IsDLL())
+        pszEntryPointName = "_DllMainCRTStartup";
+    else
+        pszEntryPointName = "WinMainCRTStartup";
 
     // register entrypoint
     SYMBOL symbol;
-    symbol.dwRVA = m_dwAddressOfEntryPoint;
-    symbol.pszName = "EntryPoint";
-    m_mRVAToSymbol.insert(make_pair(m_dwAddressOfEntryPoint, symbol));
+    symbol.dwRVA = RVAOfEntryPoint();
+    symbol.pszName = pszEntryPointName;
+    AddMapRVAToSymbol(RVAOfEntryPoint(), symbol);
     string name = symbol.pszName;
-    m_mNameToSymbol.insert(make_pair(name, symbol));
+    AddMapNameToSymbol(name, symbol);
 
     // register entrances
     ADDR64 va;
-    va = m_pOptional64->ImageBase + m_dwAddressOfEntryPoint;
-    m_sEntrances64.insert(va);
+    va = VA64FromRVA(RVAOfEntryPoint());
+    status.Entrances().Insert(va);
 
-    m_mAddrToCF64[va].Addr64 = va;
-    m_mAddrToCF64[va].Name = "EntryPoint";
+    status.MapAddrToCodeFunc()[va].Addr() = va;
+    status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
+    if (IsDLL())
+    {
+        status.MapAddrToCodeFunc()[va].SizeOfArgs() = 3 * sizeof(ADDR64);
+
+        OPERAND opr;
+        opr.DataType() = "HANDLE";
+        opr.Size() = 8;
+        status.MapAddrToCodeFunc()[va].Args().push_back(opr);
+        opr.DataType() = "DWORD";
+        opr.Size() = 4;
+        status.MapAddrToCodeFunc()[va].Args().push_back(opr);
+        opr.DataType() = "LPVOID";
+        opr.Size() = 8;
+        status.MapAddrToCodeFunc()[va].Args().push_back(opr);
+        status.MapAddrToCodeFunc()[va].ReturnDataType() = "BOOL";
+    }
+    else
+        status.MapAddrToCodeFunc()[va].SizeOfArgs() = 0;
 
     {
         vector<EXPORT_SYMBOL>::const_iterator it, end;
-        end = m_vExportSymbols.end();
-        for (it = m_vExportSymbols.begin(); it != end; it++)
+        end = ExportSymbols().end();
+        for (it = ExportSymbols().begin(); it != end; it++)
         {
-            va = m_pOptional64->ImageBase + it->dwRVA;
-            m_sEntrances64.insert(va);
-            m_mAddrToCF64[va].Addr64 = va;
-            m_mAddrToCF64[va].Name = it->pszName;
+            va = VA64FromRVA(it->dwRVA);
+            status.Entrances().Insert(va);
+            status.MapAddrToCodeFunc()[va].Addr() = va;
+            status.MapAddrToCodeFunc()[va].Name() = it->pszName;
         }
     }
 
     // disasm entrances
     {
-        set<ADDR64> s;
-        size_t size;
+        SIZE_T i = 0, size;
         do
         {
-            s = m_sEntrances64;
-            size = s.size();
+            ADDR64SET addrset = status.Entrances();
+            size = addrset.Size();
 
-            set<ADDR64>::iterator it, end = s.end();
-            for (it = s.begin(); it != end; it++)
+            for ( ; i < size; i++)
             {
-                ADDR64 addr = *it;
-                DisAsmAddr64(addr, addr);
+                DisAsmAddr64(status, addrset[i], addrset[i]);
+
+                CODEFUNC64& cf = status.MapAddrToCodeFunc()[addrset[i]];
+                for (SIZE_T j = 0; j < cf.Jumpees().Size(); j++)
+                {
+                    DisAsmAddr64(status, addrset[i], cf.Jumpees()[j]);
+                }
             }
 
-            // m_sEntrances64 may grow in DisAsmAddr64
-        } while(size != m_sEntrances64.size());
+            // status.Entrances() may grow in DisAsmAddr64
+        } while(size < status.Entrances().Size());
     }
 
-    return TRUE;
-}
-
-BOOL PEModule::DumpDisAsmFunc32(ADDR32 func)
-{
-    if (!m_bDisAsmed && !DisAsm())
-        return FALSE;
-
-    if (!Is32Bit())
-        return FALSE;
-
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
-
-    map<ADDR32, ASMCODE32>::iterator it, end;
-    end = m_mAddrToAsmCode32.end();
-    for (it = m_mAddrToAsmCode32.begin(); it != end; it++)
-    {
-        ASMCODE32& ac = it->second;
-
-        if (func != 0 && ac.func != func)
-            continue;
-
-        printf("L%08lX: ", ac.addr);
-        
-        DumpCodes(ac.codes, 32);
-
-        if (ac.operand3.type != OT_NONE)
-        {
-            printf("%s %s,%s,%s\n", ac.name.c_str(),
-                ac.operand1.text.c_str(), ac.operand2.text.c_str(),
-                ac.operand3.text.c_str());
-        }
-        else if (ac.operand2.type != OT_NONE)
-        {
-            printf("%s %s,%s\n", ac.name.c_str(),
-                ac.operand1.text.c_str(), ac.operand2.text.c_str());
-        }
-        else if (ac.operand1.type != OT_NONE)
-        {
-            printf("%s %s\n", ac.name.c_str(),
-                ac.operand1.text.c_str());
-        }
-        else
-        {
-            printf("%s\n", ac.name.c_str());
-        }
-    }
-
-    return TRUE;
-}
-
-BOOL PEModule::DumpDisAsmFunc64(ADDR64 func)
-{
-    if (!m_bDisAsmed && !DisAsm())
-        return FALSE;
-
-    if (!Is64Bit())
-        return FALSE;
-
-    PREAL_IMAGE_SECTION_HEADER pCode = GetCodeSectionHeader();
-    if (pCode == NULL)
-        return FALSE;
-
-    map<ADDR64, ASMCODE64>::iterator it, end;
-    end = m_mAddrToAsmCode64.end();
-    for (it = m_mAddrToAsmCode64.begin(); it != end; it++)
-    {
-        ASMCODE64& ac = it->second;
-
-        if (func != 0 && ac.func != func)
-            continue;
-
-        printf("L%08lX%08lX: ", HILONG(ac.addr), LOLONG(ac.addr));
-
-        DumpCodes(ac.codes, 64);
-
-        if (ac.operand3.type != OT_NONE)
-        {
-            printf("%s %s,%s,%s\n", ac.name.c_str(),
-                ac.operand1.text.c_str(), ac.operand2.text.c_str(),
-                ac.operand3.text.c_str());
-        }
-        else if (ac.operand2.type != OT_NONE)
-        {
-            printf("%s %s,%s\n", ac.name.c_str(),
-                ac.operand1.text.c_str(), ac.operand2.text.c_str());
-        }
-        else if (ac.operand1.type != OT_NONE)
-        {
-            printf("%s %s\n", ac.name.c_str(),
-                ac.operand1.text.c_str());
-        }
-        else
-        {
-            printf("%s\n", ac.name.c_str());
-        }
-    }
-
-    return TRUE;
-}
-
-BOOL PEModule::DumpDisAsm()
-{
-    if (!ModuleLoaded())
-        return FALSE;
-
-    if (!m_bDisAsmed && !DisAsm())
-        return FALSE;
-
-    printf("### DISASSEMBLY ###\n\n");
-
-    if (Is64Bit())
-    {
-        set<ADDR64>::iterator it, end;
-        end = m_sEntrances64.end();
-        for (it = m_sEntrances64.begin(); it != end; it++)
-        {
-            CODEFUNC& cf = m_mAddrToCF64[*it];
-            if (cf.Flags & FF_IGNORE)
-                continue;
-
-            printf(";; Function %s @ L%08lX%08lX\n", cf.Name.c_str(),
-                HILONG(cf.Addr64), LOLONG(cf.Addr64));
-            if (cf.Type == FT_JUMPER)
-            {
-                printf("Type = FT_JUMPER, ");
-            }
-            else if (cf.Type == FT_APIIMP)
-            {
-                printf("Type = FT_APIIMP, ");
-            }
-            else
-            {
-                printf("Type = normal, ");
-            }
-            if (cf.Flags & FF_HASSTACKFRAME)
-            {
-                printf("HasStackFrame, ");
-            }
-            printf("SizeOfArgs == %d\n", cf.SizeOfArgs);
-            DumpDisAsmFunc64(*it);
-
-            printf(";; End of Function %s @ L%08lX%08lX\n\n", cf.Name.c_str(),
-                HILONG(cf.Addr64), LOLONG(cf.Addr64));
-        }
-    }
-    else if (Is32Bit())
-    {
-        set<ADDR32>::iterator it, end;
-        end = m_sEntrances32.end();
-        for (it = m_sEntrances32.begin(); it != end; it++)
-        {
-            CODEFUNC& cf = m_mAddrToCF32[*it];
-            if (cf.Flags & FF_IGNORE)
-                continue;
-
-            printf(";; Function %s @ L%08lX\n", cf.Name.c_str(), cf.Addr32);
-            if (cf.Type == FT_STDCALL)
-            {
-                printf("Type = FT_STDCALL, ");
-            }
-            else if (cf.Type == FT_JUMPER)
-            {
-                printf("Type = FT_JUMPER, ");
-            }
-            else if (cf.Type == FT_APIIMP)
-            {
-                printf("Type = FT_APIIMP, ");
-            }
-            else if (cf.Flags & FF_NOTSTDCALL)
-            {
-                printf("Type = not __stdcall, ");
-            }
-            else
-            {
-                printf("Type = unknown, ");
-            }
-            if (cf.Flags & FF_HASSTACKFRAME)
-            {
-                printf("HasStackFrame, ");
-            }
-            printf("SizeOfArgs == %d\n", cf.SizeOfArgs);
-            DumpDisAsmFunc32(*it);
-
-            printf(";; End of Function %s @ L%08lX\n\n", cf.Name.c_str(), cf.Addr32);
-        }
-    }
     return TRUE;
 }
 
@@ -1849,10 +2087,10 @@ EnumResTypeProc(
     return TRUE;
 }
 
-VOID PEModule::DumpResource()
+VOID PEMODULE::DumpResource()
 {
     HINSTANCE hInst;
-    hInst = LoadLibraryEx(m_pszFileName, NULL, LOAD_LIBRARY_AS_DATAFILE);
+    hInst = LoadLibraryEx(GetFileName(), NULL, LOAD_LIBRARY_AS_DATAFILE);
     if (hInst == NULL)
         return;
 
@@ -1865,7 +2103,7 @@ VOID PEModule::DumpResource()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEModule::_ParseInsn32, PEModule::_ParseInsn64
+// PEMODULE::_ParseInsn32, PEMODULE::_ParseInsn64
 
 const char * const cr_rep_insns[] =
 {
@@ -1883,18 +2121,18 @@ const char * const cr_rep_insns[] =
 struct CCENTRY
 {
     const char *name;
-    CCODE cc;
+    CONDCODE cc;
 };
 
 const CCENTRY cr_ccentries[] =
 {
-    { "call", C_none },
+    { "call", C_NONE },
 
-    { "loop", C_none },
+    { "loop", C_NONE },
     { "loope", C_E },
     { "loopne", C_NE },
 
-    { "jmp", C_none },
+    { "jmp", C_NONE },
 
     { "ja", C_A },
     { "jae", C_AE },
@@ -1928,7 +2166,7 @@ const CCENTRY cr_ccentries[] =
     { "jz", C_Z },
 };
 
-VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
+VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
 {
     char buf[128];
     strcpy(buf, insn);
@@ -1953,8 +2191,6 @@ VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
         q += 4;
     }
 
-    ac.Clear();
-
     if (q[0] == 'r' && q[1] == 'e')
     {
         const size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
@@ -1962,21 +2198,26 @@ VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
         {
             if (_stricmp(q, cr_rep_insns[i]) == 0)
             {
-                ac.name = q;
+                ac.Name() = q;
                 char *p = q + strlen(q) - 1;
+
+                OPERAND opr;
                 if (*p == 'b')
-                    ac.operand1.size = 1;
+                    opr.Size() = 1;
                 else if (*p == 'w')
-                    ac.operand1.size = 2;
+                    opr.Size() = 2;
                 else if (*p == 'd')
-                    ac.operand1.size = 4;
+                    opr.Size() = 4;
 
                 if (q[3] == 'e')
-                    ac.cc = C_E;
+                    ac.CondCode() = C_E;
                 else if (q[3] == 'n')
-                    ac.cc = C_NE;
+                    ac.CondCode() = C_NE;
                 else
-                    ac.cc = C_none;
+                    ac.CondCode() = C_NONE;
+
+                ac.Operands().clear();
+                ac.Operands().push_back(opr);
                 return;
             }
         }
@@ -1993,11 +2234,13 @@ VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
         if (p)
         {
             *p = '\0';
-            ac.operand1.text = p + 1;
-            ParseOperand(ac.operand1, 32, false);
+			OPERAND opr;
+			opr.Text() = p + 1;
+            ac.Operands().push_back(opr);
+            ParseOperand(*ac.Operand(0), 32, false);
         }
-        ac.name = q;
-        ac.bt = BT_RETURN;
+        ac.Name() = q;
+        ac.AsmCodeType() = ACT_RETURN;
         return;
     }
 
@@ -2010,42 +2253,45 @@ VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
             {
                 char *p = strchr(q, ' ');
                 *p = '\0';
-                ac.name = cr_ccentries[i].name;
-                ac.cc = cr_ccentries[i].cc;
+                ac.Name() = cr_ccentries[i].name;
+                ac.CondCode() = cr_ccentries[i].cc;
 
                 if (_strnicmp(cr_ccentries[i].name, "loop", 4) == 0)
                 {
-                    ac.bt = BT_LOOP;
+                    ac.AsmCodeType() = ACT_LOOP;
                 }
-                else if (ac.cc == C_none)
+                else if (ac.CondCode() == C_NONE)
                 {
                     if (_stricmp(cr_ccentries[i].name, "call") == 0)
-                        ac.bt = BT_CALL;
+                        ac.AsmCodeType() = ACT_CALL;
                     else
-                        ac.bt = BT_JMP;
+                        ac.AsmCodeType() = ACT_JMP;
                 }
                 else
-                    ac.bt = BT_JCC;
+                    ac.AsmCodeType() = ACT_JCC;
 
                 p++;
-                ac.operand1.text = p;
-                ParseOperand(ac.operand1, 32, true);
-                if (ac.operand1.type == OT_MEMIMM)
+                OPERAND opr;
+                opr.Text() = p;
+                ParseOperand(opr, 32, true);
+                if (opr.OperandType() == OT_MEMIMM)
                 {
-                    ADDR32 addr = (ADDR32)ac.operand1.value;
-                    DWORD rva = addr - m_pOptional32->ImageBase;
+                    ADDR32 addr = opr.Value32();
+                    DWORD rva = RVAFromVA32(addr);
                     const SYMBOL *symbol = FindSymbolByRVA(rva);
                     if (symbol)
-                        ac.operand1.SetAPI(symbol->pszName);
+                        opr.SetAPI(symbol->pszName);
                 }
-                else if (ac.bt == BT_JMP && ac.operand1.type == OT_IMM)
+                else if (ac.AsmCodeType() == ACT_JMP && opr.OperandType() == OT_IMM)
                 {
-                    ADDR32 addr = ac.operand1.value;
-                    DWORD rva = (DWORD)(addr - m_pOptional32->ImageBase);
+                    ADDR32 addr = opr.Value32();
+                    DWORD rva = RVAFromVA32(addr);
                     const SYMBOL *symbol = FindSymbolByRVA(rva);
                     if (symbol)
-                        ac.operand1.SetAPI(symbol->pszName);
+                        opr.SetAPI(symbol->pszName);
                 }
+                ac.Operands().clear();
+                ac.Operands().push_back(opr);
                 return;
             }
         }
@@ -2054,7 +2300,7 @@ VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
     char *p = strchr(q, ' ');
     if (p == NULL)
     {
-        ac.name = q;
+        ac.Name() = q;
         return;
     }
 
@@ -2062,28 +2308,47 @@ VOID PEModule::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
         p = strchr(p + 1, ' ');
 
     *p = '\0';
-    ac.name = q;
+    ac.Name() = q;
+    if (_stricmp(q, "push") == 0 || _stricmp(q, "pop") == 0 ||
+        _stricmp(q, "enter") == 0 || _stricmp(q, "leave") == 0)
+    {
+        ac.AsmCodeType() = ACT_STACKOP;
+    }
+
+    ac.Operands().clear();
     p = strtok(p + 1, ",");
     if (p)
     {
-        ac.operand1.text = p;
+        OPERAND opr;
+        opr.Text() = p;
+        ac.Operands().push_back(opr);
         p = strtok(NULL, ",");
         if (p)
         {
-            ac.operand2.text = p;
+            if (_stricmp(p, "esp") == 0)
+            {
+                ac.AsmCodeType() = ACT_STACKOP;
+            }
+            opr.Text() = p;
+            ac.Operands().push_back(opr);
             p = strtok(NULL, ",");
             if (p)
             {
-                ac.operand3.text = p;
-                ParseOperand(ac.operand3, 32);
+                if (_stricmp(p, "esp") == 0)
+                {
+                    ac.AsmCodeType() = ACT_STACKOP;
+                }
+                opr.Text() = p;
+                ac.Operands().push_back(opr);
+                ParseOperand(*ac.Operand(2), 32);
             }
-            ParseOperand(ac.operand2, 32);
+            ParseOperand(*ac.Operand(1), 32);
         }
-        ParseOperand(ac.operand1, 32);
+        ParseOperand(*ac.Operand(0), 32);
     }
 }
 
-VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
+VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
 {
     char buf[128];
     strcpy(buf, insn);
@@ -2096,8 +2361,6 @@ VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
         q += 4;
     }
 
-    ac.Clear();
-
     if (q[0] == 'r' && q[1] == 'e')
     {
         const size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
@@ -2105,23 +2368,28 @@ VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
         {
             if (_stricmp(q, cr_rep_insns[i]) == 0)
             {
-                ac.name = q;
+                ac.Name() = q;
                 char *p = q + strlen(q) - 1;
+
+                OPERAND opr;
                 if (*p == 'b')
-                    ac.operand1.size = 1;
+                    opr.Size() = 1;
                 else if (*p == 'w')
-                    ac.operand1.size = 2;
+                    opr.Size() = 2;
                 else if (*p == 'd')
-                    ac.operand1.size = 4;
+                    opr.Size() = 4;
                 else if (*p == 'q')
-                    ac.operand1.size = 8;
+                    opr.Size() = 8;
 
                 if (q[3] == 'e')
-                    ac.cc = C_E;
+                    ac.CondCode() = C_E;
                 else if (q[3] == 'n')
-                    ac.cc = C_NE;
+                    ac.CondCode() = C_NE;
                 else
-                    ac.cc = C_none;
+                    ac.CondCode() = C_NONE;
+
+                ac.Operands().clear();
+                ac.Operands().push_back(opr);
                 return;
             }
         }
@@ -2133,11 +2401,14 @@ VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
         if (p)
         {
             *p = '\0';
-            ac.operand1.text = p + 1;
-            ParseOperand(ac.operand1, 32, false);
+            OPERAND opr;
+            opr.Text() = p + 1;
+            ParseOperand(opr, 32, false);
+            ac.Operands().clear();
+            ac.Operands().push_back(opr);
         }
-        ac.name = q;
-        ac.bt = BT_RETURN;
+        ac.Name() = q;
+        ac.AsmCodeType() = ACT_RETURN;
         return;
     }
 
@@ -2150,42 +2421,45 @@ VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
             {
                 char *p = strchr(q, ' ');
                 *p = '\0';
-                ac.name = cr_ccentries[i].name;
-                ac.cc = cr_ccentries[i].cc;
+                ac.Name() = cr_ccentries[i].name;
+                ac.CondCode() = cr_ccentries[i].cc;
 
                 if (_strnicmp(cr_ccentries[i].name, "loop", 4) == 0)
                 {
-                    ac.bt = BT_LOOP;
+                    ac.AsmCodeType() = ACT_LOOP;
                 }
-                else if (ac.cc == C_none)
+                else if (ac.CondCode() == C_NONE)
                 {
                     if (_stricmp(cr_ccentries[i].name, "call") == 0)
-                        ac.bt = BT_CALL;
+                        ac.AsmCodeType() = ACT_CALL;
                     else
-                        ac.bt = BT_JMP;
+                        ac.AsmCodeType() = ACT_JMP;
                 }
                 else
-                    ac.bt = BT_JCC;
+                    ac.AsmCodeType() = ACT_JCC;
 
                 p++;
-                ac.operand1.text = p;
-                ParseOperand(ac.operand1, 64, true);
-                if (ac.operand1.type == OT_MEMIMM)
+                OPERAND opr;
+                opr.Text() = p;
+                ParseOperand(opr, 32, true);
+                if (opr.OperandType() == OT_MEMIMM)
                 {
-                    ADDR64 addr = ac.operand1.value;
-                    DWORD rva = (DWORD)(addr - m_pOptional64->ImageBase);
+                    ADDR64 addr = opr.Value64();
+                    DWORD rva = RVAFromVA64(addr);
                     const SYMBOL *symbol = FindSymbolByRVA(rva);
                     if (symbol)
-                        ac.operand1.SetAPI(symbol->pszName);
+                        opr.SetAPI(symbol->pszName);
                 }
-                else if (ac.bt == BT_JMP && ac.operand1.type == OT_IMM)
+                else if (ac.AsmCodeType() == ACT_JMP && opr.OperandType() == OT_IMM)
                 {
-                    ADDR64 addr = ac.operand1.value;
-                    DWORD rva = (DWORD)(addr - m_pOptional64->ImageBase);
+                    ADDR64 addr = opr.Value64();
+                    DWORD rva = RVAFromVA64(addr);
                     const SYMBOL *symbol = FindSymbolByRVA(rva);
                     if (symbol)
-                        ac.operand1.SetAPI(symbol->pszName);
+                        opr.SetAPI(symbol->pszName);
                 }
+                ac.Operands().clear();
+                ac.Operands().push_back(opr);
                 return;
             }
         }
@@ -2194,7 +2468,7 @@ VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
     char *p = strchr(q, ' ');
     if (p == NULL)
     {
-        ac.name = q;
+        ac.Name() = q;
         return;
     }
 
@@ -2202,88 +2476,107 @@ VOID PEModule::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
         p = strchr(p + 1, ' ');
 
     *p = '\0';
-    ac.name = q;
+    ac.Name() = q;
+    if (_stricmp(q, "push") == 0 || _stricmp(q, "pop") == 0 ||
+        _stricmp(q, "enter") == 0 || _stricmp(q, "leave") == 0)
+    {
+        ac.AsmCodeType() = ACT_STACKOP;
+    }
+
+    ac.Operands().clear();
     p = strtok(p + 1, ",");
     if (p)
     {
-        ac.operand1.text = p;
+        OPERAND opr;
+        opr.Text() = p;
+        ac.Operands().push_back(opr);
         p = strtok(NULL, ",");
         if (p)
         {
-            ac.operand2.text = p;
+            if (_stricmp(p, "esp") == 0)
+            {
+                ac.AsmCodeType() = ACT_STACKOP;
+            }
+            opr.Text() = p;
+            ac.Operands().push_back(opr);
             p = strtok(NULL, ",");
             if (p)
             {
-                ac.operand3.text = p;
-                ParseOperand(ac.operand3, 64);
+                if (_stricmp(p, "esp") == 0)
+                {
+                    ac.AsmCodeType() = ACT_STACKOP;
+                }
+                opr.Text() = p;
+                ac.Operands().push_back(opr);
+                ParseOperand(*ac.Operand(2), 32);
             }
-            ParseOperand(ac.operand2, 64);
+            ParseOperand(*ac.Operand(1), 32);
         }
-        ParseOperand(ac.operand1, 64);
+        ParseOperand(*ac.Operand(0), 32);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEModule::ParseOperand
+// PEMODULE::ParseOperand
 
-VOID PEModule::ParseOperand(OPERAND& opr, INT bits, bool jump/* = false*/)
+VOID PEMODULE::ParseOperand(OPERAND& opr, INT bits, bool jump/* = false*/)
 {
     char buf[64];
-    strcpy(buf, opr.text.c_str());
+    strcpy(buf, opr.Text().c_str());
     char *p = buf;
 
     DWORD size = cr_reg_get_size(p, bits);
     if (size != 0)
     {
-        opr.type = OT_REG;
-        opr.size = size;
+        opr.OperandType() = OT_REG;
+        opr.Size() = size;
         return;
     }
 
     if (_strnicmp(p, "byte ", 5) == 0)
     {
         p += 5;
-        opr.size = 1;
+        opr.Size() = 1;
     }
     else if (_strnicmp(p, "word ", 5) == 0)
     {
         p += 5;
-        opr.size = 2;
+        opr.Size() = 2;
     }
     else if (_strnicmp(p, "dword ", 6) == 0)
     {
         p += 6;
-        opr.size = 4;
+        opr.Size() = 4;
     }
     else if (_strnicmp(p, "qword ", 6) == 0)
     {
         p += 6;
-        opr.size = 8;
+        opr.Size() = 8;
     }
     else if (_strnicmp(p, "tword ", 6) == 0)
     {
         p += 6;
-        opr.size = 10;
+        opr.Size() = 10;
     }
     else if (_strnicmp(p, "oword ", 6) == 0)
     {
         p += 6;
-        opr.size = 16;
+        opr.Size() = 16;
     }
     else if (_strnicmp(p, "yword ", 6) == 0)
     {
         p += 6;
-        opr.size = 32;
+        opr.Size() = 32;
     }
     else if (_strnicmp(p, "short ", 6) == 0)
     {
         p += 6;
-        opr.size = 1;
+        opr.Size() = 1;
     }
     else if (_strnicmp(p, "near ", 5) == 0)
     {
         p += 5;
-        opr.size = 2;
+        opr.Size() = 2;
     }
 
     // near or far
@@ -2296,13 +2589,13 @@ VOID PEModule::ParseOperand(OPERAND& opr, INT bits, bool jump/* = false*/)
     {
         char *endptr;
         LONGLONG value = _strtoi64(p, &endptr, 16);
-        opr.SetImm(value, true);
+        opr.SetImm64(value, true);
     }
     else if (p[0] == '0' && p[1] == 'x')
     {
         char *endptr;
         ULONGLONG value = _strtoui64(p, &endptr, 16);
-        opr.value = value;
+        opr.Value64() = value;
 
         if (jump)
         {
@@ -2312,11 +2605,11 @@ VOID PEModule::ParseOperand(OPERAND& opr, INT bits, bool jump/* = false*/)
                 sprintf(buf, "L%08lX", LOLONG(value));
             else
                 sprintf(buf, "L%04X", (WORD)value);
-            opr.value = value;
+            opr.Value64() = value;
             opr.SetLabel(buf);
         }
         else
-            opr.SetImm(value, false);
+            opr.SetImm64(value, false);
     }
     else if (p[0] == '[')
     {
@@ -2342,7 +2635,7 @@ VOID PEModule::ParseOperand(OPERAND& opr, INT bits, bool jump/* = false*/)
         }
         else if ((size = cr_reg_get_size(p, bits)) != 0)
         {
-            opr.type = OT_MEMREG;
+            opr.OperandType() = OT_MEMREG;
             return;
         }
 
@@ -2363,123 +2656,24 @@ VOID PEModule::ParseOperand(OPERAND& opr, INT bits, bool jump/* = false*/)
 ////////////////////////////////////////////////////////////////////////////
 // decompiling
 
-BOOL PEModule::DecompileAddr32(ADDR32 va)
+BOOL PEMODULE::DecompileAddr32(DECOMPSTATUS32& status, ADDR32 va)
 {
-    if (!ModuleLoaded() || !Is32Bit())
-        return FALSE;
-
-    if (m_sEntrances32.count(va) == 0)
-    {
-        m_sEntrances32.insert(va);
-        DisAsmAddr32(va, va);
-    }
-
-    if (m_mAddrToCF32.find(va) != m_mAddrToCF32.end())
-        return TRUE;
-
-    return TRUE;
+    return FALSE;
 }
 
-BOOL PEModule::DecompileAddr64(ADDR64 va)
+BOOL PEMODULE::DecompileAddr64(DECOMPSTATUS64& status, ADDR64 va)
 {
-    if (!ModuleLoaded() || !Is64Bit())
-        return FALSE;
-
-    if (m_sEntrances64.count(va) == 0)
-    {
-        m_sEntrances64.insert(va);
-        DisAsmAddr64(va, va);
-    }
-
-    if (m_mAddrToCF64.find(va) != m_mAddrToCF64.end())
-        return TRUE;
-
-    return TRUE;
+    return FALSE;
 }
 
-BOOL PEModule::Decompile32()
+BOOL PEMODULE::Decompile32(DECOMPSTATUS32& status)
 {
-    if (!ModuleLoaded() || !Is32Bit())
-        return FALSE;
-
-    set<ADDR32> s(m_sEntrances32);
-    size_t size = s.size();
-
-    set<ADDR32>::iterator it, end = s.end();
-    for (it = s.begin(); it != end; it++)
-    {
-        DecompileAddr32(*it);
-    }
-    while (size != m_sEntrances32.size())
-    {
-        s = m_sEntrances32;
-        end = s.end();
-        for (it = s.begin(); it != end; it++)
-        {
-            DecompileAddr32(*it);
-        }
-        size = s.size();
-    }
-
-    m_bDecompiled = TRUE;
-    return TRUE;
+    return FALSE;
 }
 
-BOOL PEModule::Decompile64()
+BOOL PEMODULE::Decompile64(DECOMPSTATUS64& status)
 {
-    if (!ModuleLoaded() || !Is64Bit())
-        return FALSE;
-
-    set<ADDR64> s(m_sEntrances64);
-    size_t size = s.size();
-
-    set<ADDR64>::iterator it, end = s.end();
-    for (it = s.begin(); it != end; it++)
-    {
-        DecompileAddr64(*it);
-    }
-    while (size != m_sEntrances64.size())
-    {
-        s = m_sEntrances64;
-        end = s.end();
-        for (it = s.begin(); it != end; it++)
-        {
-            DecompileAddr64(*it);
-        }
-        size = s.size();
-    }
-
-    m_bDecompiled = TRUE;
-    return TRUE;
-}
-
-BOOL PEModule::Decompile()
-{
-    if (!ModuleLoaded())
-        return FALSE;
-
-    if (!m_bDisAsmed)
-        DisAsm();
-
-    if (Is64Bit())
-        return Decompile64();
-    else if (Is32Bit())
-        return Decompile32();
-    else
-        return FALSE;
-}
-
-BOOL PEModule::DumpDecompile()
-{
-    if (!ModuleLoaded())
-        return FALSE;
-
-    if (!m_bDecompiled)
-        Decompile();
-
-    printf("### DECOMPILATION ###\n");
-
-    return TRUE;
+    return FALSE;
 }
 
 ////////////////////////////////////////////////////////////////////////////

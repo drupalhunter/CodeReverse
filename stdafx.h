@@ -1,4 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////
+// stdafx.h
+// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
 //
 // CodeReverse is free software: you can redistribute it and/or modify
@@ -32,12 +35,14 @@
 #include <string>
 #include <set>
 #include <map>
+#include <stack>
 #include <algorithm>
 #include <stdint.h>
 using namespace std;
 
 #include "codereverse.h"
 #include "module.h"
+#include "mzc2mini.h"
 
 #if !defined(NO_CHECKSUM) && defined(_MSC_VER)
     #pragma comment(lib, "imagehlp.lib")

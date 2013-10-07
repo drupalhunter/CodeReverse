@@ -19,17 +19,11 @@
 ////////////////////////////////////////////////////////////////////////////
 // logo
 
-extern const char * const cr_logo;
+extern LPCSTR cr_logo;
 
 ////////////////////////////////////////////////////////////////////////////
-// LOLONG, HILONG
 
-#ifndef LOLONG
-    #define LOLONG(dwl) ((DWORD)(dwl))
-#endif
-#ifndef HILONG
-    #define HILONG(dwl) ((DWORD)(((dwl) >> 32) & 0xFFFFFFFF))
-#endif
+#include "include/cr.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // ADDR32, ADDR64 (virtual address)
@@ -38,18 +32,127 @@ typedef DWORD     ADDR32;
 typedef ULONGLONG ADDR64;
 
 ////////////////////////////////////////////////////////////////////////////
-// CCODE - condition code
+// VECSET<ITEM_T>
 
-enum CCODE
+template <typename ITEM_T>
+class VECSET
+{
+public:
+    VECSET()
+    {
+    }
+
+    VECSET(const VECSET<ITEM_T>& vs) : m_items(vs.m_items)
+    {
+    }
+
+    VECSET& operator=(const VECSET<ITEM_T>& vs)
+    {
+        m_items = vs.m_items;
+        return *this;
+    }
+
+    virtual ~VECSET()
+    {
+    }
+
+    ITEM_T& operator[](SIZE_T index)
+    {
+        return m_items[index];
+    }
+
+    const ITEM_T& operator[](SIZE_T index) const
+    {
+        return m_items[index];
+    }
+
+    SIZE_T Size() const
+    {
+        return m_items.size();
+    }
+
+    bool Empty() const
+    {
+        return m_items.size() == 0;
+    }
+
+    VOID Clear()
+    {
+        m_items.clear();
+    }
+
+    VOID Insert(const ITEM_T& item)
+    {
+        m_items.push_back(item);
+    }
+
+    bool operator==(const VECSET<ITEM_T>& vs) const
+    {
+        if (m_items.size() != vs.m_items.size())
+            return false;
+
+        for (SIZE_T i = 0; i < m_items.size(); i++)
+        {
+            if (m_items[i] != vs.m_items[i])
+                return false;
+        }
+        return true;
+    }
+
+    bool operator!=(const VECSET<ITEM_T>& vs) const
+    {
+        return !(*this == vs);
+    }
+
+    SIZE_T Count(const ITEM_T& item) const
+    {
+        SIZE_T count = 0;
+        for (SIZE_T i = 0; i < m_items.size(); i++)
+        {
+            if (m_items[i] == item)
+                count++;
+        }
+        return count;
+    }
+
+    BOOL Contains(const ITEM_T& item) const
+    {
+        for (SIZE_T i = 0; i < m_items.size(); i++)
+        {
+            if (m_items[i] == item)
+                return TRUE;
+        }
+        return FALSE;
+    }
+
+    VOID Sort()
+    {
+        std::sort(m_items.begin(), m_items.end());
+    }
+
+public:
+    std::vector<ITEM_T> m_items;
+};
+
+////////////////////////////////////////////////////////////////////////////
+// ADDR32SET, ADDR64SET
+
+typedef VECSET<ADDR32> ADDR32SET;
+typedef VECSET<ADDR64> ADDR64SET;
+
+////////////////////////////////////////////////////////////////////////////
+// CONDCODE - condition code
+
+enum CONDCODE
 {
     C_A, C_AE, C_B, C_BE, C_C, C_E, C_G, C_GE, C_L, C_LE, C_NA, C_NAE,
     C_NB, C_NBE, C_NC, C_NE, C_NG, C_NGE, C_NL, C_NLE, C_NO, C_NP,
     C_NS, C_NZ, C_O, C_P, C_PE, C_PO, C_S, C_Z,
-    C_none = -1
+    C_NONE = -1
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// X86_REGTYPE, X86_REGINFO
+// x86 registers
 
 enum X86_REGTYPE
 {
@@ -65,27 +168,80 @@ enum X86_REGTYPE
     X86_SEGREG,
     X86_XMMREG,
     X86_YMMREG,
+    X86_COMPREG32,      // compound registry
+    X86_COMPREG64,      // compound registry
+    X86_COMPREG128,     // compound registry
+    X86_FLAG,           // flag
     X86_REGNONE = -1
 };
 
-X86_REGTYPE cr_reg_get_type(const char *name, int bits);
-DWORD cr_reg_get_size(const char *name, int bits);
+X86_REGTYPE cr_reg_get_type(LPCSTR name, INT bits);
+DWORD       cr_reg_get_size(LPCSTR name, INT bits);
 
 ////////////////////////////////////////////////////////////////////////////
-// BRANCHTYPE
+// x86 flags
 
-enum BRANCHTYPE
+enum X86_FLAGTYPE
 {
-    BT_GONEXT,
-    BT_JMP,
-    BT_JCC,
-    BT_CALL,
-    BT_LOOP,
-    BT_RETURN
+    X86_FLAG_NONE = 0,
+    X86_FLAG_CF = (1 << 0),     // carry flag
+    X86_FLAG_PF = (1 << 2),     // parity flag
+    X86_FLAG_AF = (1 << 4),     // auxiliary flag
+    X86_FLAG_ZF = (1 << 6),     // zero flag
+    X86_FLAG_SF = (1 << 7),     // sign flag
+    X86_FLAG_TF = (1 << 8),     // trap flag
+    X86_FLAG_IF = (1 << 9),     // interrupt enable flag
+    X86_FLAG_DF = (1 << 10),    // direction flag
+    X86_FLAG_OF = (1 << 11),    // overflow flag
+};
+
+struct X86_FLAGS
+{
+    union
+    {
+        WORD flags;
+        DWORD eflags;
+        ULONGLONG rflags;
+        struct
+        {
+            DWORD CF        : 1;    // carry flag
+            DWORD ignore1   : 1;
+            DWORD PF        : 1;    // parity flag
+            DWORD ignore2   : 1;
+            DWORD AF        : 1;    // auxiliary flag
+            DWORD ignore3   : 1;
+            DWORD ZF        : 1;    // zero flag
+            DWORD SF        : 1;    // sign flag
+            DWORD TF        : 1;    // trap flag
+            DWORD IF        : 1;    // interrupt flag
+            DWORD DF        : 1;    // direction flag
+            DWORD OF        : 1;    // overflow flag
+            DWORD ignore4   : 4;
+            DWORD ignore5   : 16;
+        } flag;
+    };
+};
+
+X86_FLAGTYPE cr_flag_get_type(LPCSTR name, INT bits);
+LPCSTR       cr_flag_get_name(X86_FLAGTYPE type, INT bits);
+
+////////////////////////////////////////////////////////////////////////////
+// ASMCODETYPE - assembly code type
+
+enum ASMCODETYPE
+{
+    ACT_MISC,    // misc
+    ACT_JMP,     // jump
+    ACT_JCC,     // conditional jump
+    ACT_CALL,    // call
+    ACT_LOOP,    // loop
+    ACT_RETURN,  // ret
+    ACT_STACKOP, // stack operation
+    ACT_UNKNOWN  // unknown
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// OPERANDTYPE
+// OPERANDTYPE - type of operand
 
 enum OPERANDTYPE
 {
@@ -101,207 +257,160 @@ enum OPERANDTYPE
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// OPERANDINFO
+// OPERAND - operand
 
-struct OPERAND
+class OPERAND
 {
-    string      text;
-    OPERANDTYPE type;
-    DWORD       size;
-    ULONGLONG   value;
-    string      exp;
+public:
+    OPERAND();
+    OPERAND(const OPERAND& opr);
+    OPERAND& operator=(const OPERAND& opr);
+    virtual ~OPERAND();
+    VOID Copy(const OPERAND& opr);
+    VOID Clear();
 
-    OPERAND()
-    {
-        Clear();
-    }
+public:
+    VOID SetAPI(LPCSTR api);
+    VOID SetLabel(LPCSTR label);
+    VOID SetMemImm(ADDR64 addr);
+    VOID SetMemExp(LPCSTR exp_);
+    VOID SetImm32(ADDR32 val, BOOL is_signed);
+    VOID SetImm64(ADDR64 val, BOOL is_signed);
 
-    OPERAND(const OPERAND& opr)
-    {
-        Copy(opr);
-    }
+public:
+    // accessors
+    string&         Text();
+    OPERANDTYPE&    OperandType();
+    DWORD&          Size();
+    ADDR32&         Value32();
+    ADDR64&         Value64();
+    string&         Exp();
+    string&         DataType();
+    // const accessors
+    const string&         Text() const;
+    const OPERANDTYPE&    OperandType() const;
+    const DWORD&          Size() const;
+    const ADDR32&         Value32() const;
+    const ADDR64&         Value64() const;
+    const string&         Exp() const;
+    const string&         DataType() const;
 
-    OPERAND& operator=(const OPERAND& opr)
-    {
-        Copy(opr);
-        return *this;
-    }
-
-    VOID Copy(const OPERAND& opr)
-    {
-        text = opr.text;
-        type = opr.type;
-        size = opr.size;
-        value = opr.value;
-        exp = opr.exp;
-    }
-
-    VOID Clear()
-    {
-        text.clear();
-        type = OT_NONE;
-        size = 0;
-        value = 0;
-        exp.clear();
-    }
-
-    VOID SetAPI(const char *api)
-    {
-        text = api;
-        type = OT_API;
-    }
-
-    VOID SetLabel(const char *label)
-    {
-        text = label;
-        type = OT_LABEL;
-    }
-
-    VOID SetMemImm(ADDR64 addr)
-    {
-        type = OT_MEMIMM;
-        value = addr;
-    }
-
-    VOID SetMemExp(const char *exp_)
-    {
-        type = OT_MEMEXP;
-        exp = exp_;
-    }
-
-    VOID SetImm(ULONGLONG val, bool is_signed);
+protected:
+    struct OPERANDIMPL;
+    OPERANDIMPL *m_pImpl;
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// ASMCODE32, ASMCODE64
+// ASMCODE32 - assembly code of 32-bit mode
 
-struct ASMCODE32
+class ASMCODE32
 {
-    ADDR32 func;
-    ADDR32 addr;
-    string name;
-    OPERAND operand1, operand2, operand3;
-    vector<BYTE> codes;
-    BRANCHTYPE bt;
-    CCODE cc;
-    vector<ADDR32> jumped_from;
+public:
+    ASMCODE32();
+    ASMCODE32(const ASMCODE32& ac);
+    ASMCODE32& operator=(const ASMCODE32& ac);
+    virtual ~ASMCODE32();
+    VOID Copy(const ASMCODE32& ac);
+    VOID Clear();
 
-    ASMCODE32()
-    {
-        Clear();
-    }
+public:
+    // accessors
+    ADDR32SET&          Funcs();
+    ADDR32&             Addr();
+    string&             Name();
+    vector<OPERAND>&    Operands();
+    OPERAND*            Operand(SIZE_T index);
+    vector<BYTE>&       Codes();
+    ASMCODETYPE&        AsmCodeType();
+    CONDCODE&           CondCode();
+    // const accessors
+    const ADDR32SET&          Funcs() const;
+    const ADDR32&             Addr() const;
+    const string&             Name() const;
+    const vector<OPERAND>&    Operands() const;
+    const OPERAND*            Operand(SIZE_T index) const;
+    const vector<BYTE>&       Codes() const;
+    const ASMCODETYPE&        AsmCodeType() const;
+    const CONDCODE&           CondCode() const;
 
-    ASMCODE32(const ASMCODE32& ac)
-    {
-        Copy(ac);
-    }
-
-    ASMCODE32& operator=(const ASMCODE32& ac)
-    {
-        Copy(ac);
-        return *this;
-    }
-
-    VOID Copy(const ASMCODE32& ac)
-    {
-        func = ac.func;
-        addr = ac.addr;
-        name = ac.name;
-        operand1 = ac.operand1;
-        operand2 = ac.operand2;
-        operand3 = ac.operand3;
-        codes = ac.codes;
-        bt = ac.bt;
-        cc = ac.cc;
-        jumped_from = ac.jumped_from;
-    }
-
-    VOID Clear()
-    {
-        func = 0;
-        addr = 0;
-        name.clear();
-        operand1.Clear();
-        operand2.Clear();
-        operand3.Clear();
-        codes.clear();
-        bt = BT_GONEXT;
-        cc = C_none;
-        jumped_from.clear();
-    }
+protected:
+    struct ASMCODE32IMPL;
+    ASMCODE32IMPL *m_pImpl;
 };
 typedef ASMCODE32 *LPASMCODE32;
 
-struct ASMCODE64
+////////////////////////////////////////////////////////////////////////////
+// ASMCODE64 - assembly code of 64-bit mode
+
+class ASMCODE64
 {
-    ADDR64 func;
-    ADDR64 addr;
-    string name;
-    OPERAND operand1, operand2, operand3;
-    vector<BYTE> codes;
-    BRANCHTYPE bt;
-    CCODE cc;
-    vector<ADDR32> jumped_from;
+public:
+    ASMCODE64();
+    ASMCODE64(const ASMCODE64& ac);
+    ASMCODE64& operator=(const ASMCODE64& ac);
+    virtual ~ASMCODE64();
+    VOID Copy(const ASMCODE64& ac);
+    VOID Clear();
 
-    ASMCODE64()
-    {
-        Clear();
-    }
+public:
+    // accessors
+    ADDR64SET&          Funcs();
+    ADDR64&             Addr();
+    string&             Name();
+    vector<OPERAND>&    Operands();
+    OPERAND*            Operand(SIZE_T index);
+    vector<BYTE>&       Codes();
+    ASMCODETYPE&        AsmCodeType();
+    CONDCODE&           CondCode();
+    // const accessors
+    const ADDR64SET&          Funcs() const;
+    const ADDR64&             Addr() const;
+    const string&             Name() const;
+    const vector<OPERAND>&    Operands() const;
+    const OPERAND*            Operand(SIZE_T index) const;
+    const vector<BYTE>&       Codes() const;
+    const ASMCODETYPE&        AsmCodeType() const;
+    const CONDCODE&           CondCode() const;
 
-    ASMCODE64(const ASMCODE64& ac)
-    {
-        Copy(ac);
-    }
-
-    ASMCODE64& operator=(const ASMCODE64& ac)
-    {
-        Copy(ac);
-        return *this;
-    }
-
-    VOID Copy(const ASMCODE64& ac)
-    {
-        func = ac.func;
-        addr = ac.addr;
-        name = ac.name;
-        operand1 = ac.operand1;
-        operand2 = ac.operand2;
-        operand3 = ac.operand3;
-        codes = ac.codes;
-        bt = ac.bt;
-        cc = ac.cc;
-        jumped_from = ac.jumped_from;
-    }
-
-    VOID Clear()
-    {
-        func = 0;
-        addr = 0;
-        name.clear();
-        operand1.Clear();
-        operand2.Clear();
-        operand3.Clear();
-        codes.clear();
-        bt = BT_GONEXT;
-        cc = C_none;
-        jumped_from.clear();
-    }
+protected:
+    struct ASMCODE64IMPL;
+    ASMCODE64IMPL *m_pImpl;
 };
 typedef ASMCODE64 *LPASMCODE64;
 
 ////////////////////////////////////////////////////////////////////////////
-// FUNCTIONTYPE
+// FUNCTYPE - function type
 
-enum FUNCTIONTYPE
+enum FUNCTYPE
 {
     FT_UNKNOWN,             // unknown type
+
     FT_CDECL,               // __cdecl
+    FT_CDECLVA,             // __cdecl (va_list)
+
     FT_STDCALL,             // __stdcall
+
     FT_FASTCALL,            // __fastcall
+    FT_MSFASTCALL,          // Microsoft fastcall
+    FT_BORFASTCALL,         // Borland fastcall
+    FT_WCFASTCALL,          // Watcom fastcall
+
+    FT_THISCALL,            // thiscall
+    FT_GNUTHISCALL,         // GNU thiscall
+    FT_MSTHISCALL,          // Microsoft thiscall
+
     FT_JUMPER,              // jumper function
+
     FT_APIIMP,              // __imp
+
+    FT_64BIT,               // 64-bit function
+    FT_64BITVA,             // 64-bit function (va_list)
+
     FT_INVALID              // invalid function
 };
+
+////////////////////////////////////////////////////////////////////////////
+// FUNCTIONFLAGS - function flags
 
 enum FUNCTIONFLAGS
 {
@@ -312,218 +421,155 @@ enum FUNCTIONFLAGS
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// CODEARG
+// CODEFUNC32 - code function for 32-bit
 
-struct CODEARG
-{
-    string type;
-    string name;
-    int size;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC - code function
-
-struct CODEFUNC
-{
-    union
-    {
-        ADDR64 Addr64;
-        ADDR32 Addr32;
-    };
-    string Name;
-    FUNCTIONTYPE Type;
-    INT SizeOfArgs;
-    vector<CODEARG> Args;
-    DWORD Flags;
-
-    CODEFUNC()
-    {
-        Clear();
-    }
-
-    CODEFUNC(const CODEFUNC& cf)
-    {
-        Copy(cf);
-    }
-
-    CODEFUNC& operator=(const CODEFUNC& cf)
-    {
-        Copy(cf);
-        return *this;
-    }
-
-    VOID Copy(const CODEFUNC& cf)
-    {
-        Addr64 = cf.Addr64;
-        Name = cf.Name;
-        Type = cf.Type;
-        SizeOfArgs = cf.SizeOfArgs;
-        Args = cf.Args;
-        Flags = cf.Flags;
-    }
-
-    VOID Clear()
-    {
-        Addr64 = 0;
-        Name.clear();
-        Type = FT_UNKNOWN;
-        SizeOfArgs = -1;
-        Args.clear();
-        Flags = 0;
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////
-// MZC2
-
-#define MzcAssert assert
-#define MzcVerify assert
-
-////////////////////////////////////////////////////////////////////////////
-// MZC2 MSecurityAttributes
-
-class MSecurityAttributes : public SECURITY_ATTRIBUTES
+class CODEFUNC32
 {
 public:
-    MSecurityAttributes(BOOL bInherit = TRUE, LPVOID pSecurityDescriptor = NULL);
-};
+    CODEFUNC32();
+    CODEFUNC32(const CODEFUNC32& cf);
+    CODEFUNC32& operator=(const CODEFUNC32& cf);
+    virtual ~CODEFUNC32();
+    VOID Copy(const CODEFUNC32& cf);
+    VOID Clear();
 
-////////////////////////////////////////////////////////////////////////////
-// MZC2 MFile
-
-class MFile
-{
 public:
-    MFile();
-    MFile(HANDLE hHandle);
-    ~MFile();
-
-    operator HANDLE() const;
-    operator PHANDLE();
-    PHANDLE operator&();
-    bool operator!() const;
-    bool operator==(HANDLE hHandle) const;
-    bool operator!=(HANDLE hHandle) const;
-
-    MFile& operator=(HANDLE hHandle);
-    VOID Attach(HANDLE hHandle);
-    HANDLE Detach();
-    BOOL CloseHandle();
-
-    BOOL DuplicateHandle(PHANDLE phHandle, BOOL bInherit);
-    BOOL DuplicateHandle(
-        PHANDLE phHandle, BOOL bInherit, DWORD dwDesiredAccess);
-    DWORD WaitForSingleObject(DWORD dwTimeout = INFINITE);
-
-    BOOL PeekNamedPipe(
-        LPVOID pBuffer = NULL,
-        DWORD cbBuffer = 0,
-        LPDWORD pcbRead = NULL,
-        LPDWORD pcbAvail = NULL,
-        LPDWORD pBytesLeft = NULL);
-    BOOL ReadFile(LPVOID pBuffer, DWORD cbToRead, LPDWORD pcbRead,
-        LPOVERLAPPED pOverlapped = NULL);
-    BOOL WriteFile(LPCVOID pBuffer, DWORD cbToWrite, LPDWORD pcbWritten,
-        LPOVERLAPPED pOverlapped = NULL);
-    BOOL WriteSzA(LPCSTR psz, LPDWORD pcbWritten,
-        LPOVERLAPPED pOverlapped = NULL);
-    BOOL WriteSzW(LPCWSTR psz, LPDWORD pcbWritten,
-        LPOVERLAPPED pOverlapped = NULL);
-    BOOL WriteSz(LPCTSTR psz, LPDWORD pcbWritten,
-        LPOVERLAPPED pOverlapped = NULL);
-
-    BOOL WriteBinary(LPCVOID pv, DWORD cb);
-    BOOL WriteSzA(LPCSTR psz);
-    BOOL WriteSzW(LPCWSTR psz);
-    BOOL WriteSz(LPCTSTR psz);
-    BOOL __cdecl WriteFormatA(LPCSTR pszFormat, ...);
-    BOOL __cdecl WriteFormatW(LPCWSTR pszFormat, ...);
-    BOOL __cdecl WriteFormat(LPCTSTR pszFormat, ...);
-
-    BOOL OpenFileForInput(
-        LPCTSTR pszFileName, DWORD dwFILE_SHARE_ = FILE_SHARE_READ);
-    BOOL OpenFileForOutput(
-        LPCTSTR pszFileName, DWORD dwFILE_SHARE_ = FILE_SHARE_READ);
-    BOOL OpenFileForRandom(
-        LPCTSTR pszFileName, DWORD dwFILE_SHARE_ = FILE_SHARE_READ);
-    BOOL OpenFileForAppend(
-        LPCTSTR pszFileName, DWORD dwFILE_SHARE_ = FILE_SHARE_READ);
-
-    BOOL CreateFile(LPCTSTR pszFileName, DWORD dwDesiredAccess,
-        DWORD dwShareMode, LPSECURITY_ATTRIBUTES pSA,
-        DWORD dwCreationDistribution,
-        DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL,
-        HANDLE hTemplateFile = NULL);
-    DWORD GetFileSize(LPDWORD pdwHighPart = NULL) const;
-    BOOL SetEndOfFile();
-    DWORD SetFilePointer(
-        LONG nDeltaLow, PLONG pnDeltaHigh = NULL, DWORD dwOrigin = FILE_BEGIN);
-    VOID SeekToBegin();
-    DWORD SeekToEnd();
-    BOOL FlushFileBuffers();
-    BOOL GetFileTime(
-        LPFILETIME pftCreate = NULL,
-        LPFILETIME pftLastAccess = NULL,
-        LPFILETIME pftLastWrite = NULL) const;
+    // accessors
+    ADDR32&             Addr();
+    string&             Name();
+    FUNCTYPE&           FuncType();
+    INT&                SizeOfArgs();
+    vector<OPERAND>&    Args();
+    DWORD&              Flags();
+    string&             ReturnDataType();
+    ADDR32SET&          Jumpees();
+    ADDR32SET&          Jumpers();
+    ADDR32SET&          Callees();
+    ADDR32SET&          Callers();
+    // const accessors
+    const ADDR32&             Addr() const;
+    const string&             Name() const;
+    const FUNCTYPE&           FuncType() const;
+    const INT&                SizeOfArgs() const;
+    const vector<OPERAND>&    Args() const;
+    const DWORD&              Flags() const;
+    const string&             ReturnDataType() const;
+    const ADDR32SET&          Jumpees() const;
+    const ADDR32SET&          Jumpers() const;
+    const ADDR32SET&          Callees() const;
+    const ADDR32SET&          Callers() const;
 
 protected:
-    HANDLE m_hHandle;
+    struct CODEFUNC32IMPL;
+    CODEFUNC32IMPL *m_pImpl;
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// MZC2 MProcessMaker
+// CODEFUNC64 - code function for 64-bit
 
-class MProcessMaker
+class CODEFUNC64
 {
 public:
-    MProcessMaker();
-    ~MProcessMaker();
-
-    bool operator!() const;
-    HANDLE GetHandle() const;
-    DWORD GetExitCode() const;
-
-    VOID SetShowWindow(INT nCmdShow = SW_HIDE);
-    VOID SetCreationFlags(DWORD dwFlags = CREATE_NEW_CONSOLE);
-    VOID SetCurrentDirectory(LPCTSTR pszCurDir);
-
-    VOID SetDesktop(LPTSTR lpDesktop);
-    VOID SetTitle(LPTSTR lpTitle);
-    VOID SetPosition(DWORD dwX, DWORD dwY);
-    VOID SetSize(DWORD dwXSize, DWORD dwYSize);
-    VOID SetCountChars(DWORD dwXCountChars, DWORD dwYCountChars);
-    VOID SetFillAttirbutes(DWORD dwFillAttribute);
-
-    VOID SetStdInput(HANDLE hStdIn);
-    VOID SetStdOutput(HANDLE hStdOut);
-    VOID SetStdError(HANDLE hStdErr);
-    BOOL PrepareForRedirect(
-        PHANDLE phInputWrite, PHANDLE phOutputRead,
-        PHANDLE phErrorRead);
-
-    BOOL CreateProcess(
-        LPCTSTR pszAppName, LPCTSTR pszCommandLine = NULL,
-        LPCTSTR pszzEnvironment = NULL, BOOL bInherit = TRUE,
-        LPSECURITY_ATTRIBUTES lpProcessAttributes = NULL,
-        LPSECURITY_ATTRIBUTES lpThreadAttributes = NULL);
-    BOOL CreateProcessAsUser(
-        HANDLE hToken, LPCTSTR pszAppName, LPCTSTR pszCommandLine = NULL,
-        LPCTSTR pszzEnvironment = NULL, BOOL bInherit = TRUE,
-        LPSECURITY_ATTRIBUTES lpProcessAttributes = NULL,
-        LPSECURITY_ATTRIBUTES lpThreadAttributes = NULL);
-    DWORD WaitForExit(DWORD dwTimeout = INFINITE);
-    BOOL TerminateProcess(UINT uExitCode);
-    BOOL IsRunning() const;
-    VOID Close();
+    CODEFUNC64();
+    CODEFUNC64(const CODEFUNC64& cf);
+    CODEFUNC64& operator=(const CODEFUNC64& cf);
+    virtual ~CODEFUNC64();
+    VOID Copy(const CODEFUNC64& cf);
+    VOID Clear();
 
 public:
-    PROCESS_INFORMATION m_pi;
-    STARTUPINFO m_si;
+    // accessors
+    ADDR64&             Addr();
+    string&             Name();
+    FUNCTYPE&           FuncType();
+    INT&                SizeOfArgs();
+    vector<OPERAND>&    Args();
+    DWORD&              Flags();
+    string&             ReturnDataType();
+    ADDR64SET&          Jumpees();
+    ADDR64SET&          Jumpers();
+    ADDR64SET&          Callees();
+    ADDR64SET&          Callers();
+    // const accessors
+    const ADDR64&             Addr() const;
+    const string&             Name() const;
+    const FUNCTYPE&           FuncType() const;
+    const INT&                SizeOfArgs() const;
+    const vector<OPERAND>&    Args() const;
+    const DWORD&              Flags() const;
+    const string&             ReturnDataType() const;
+    const ADDR64SET&          Jumpees() const;
+    const ADDR64SET&          Jumpers() const;
+    const ADDR64SET&          Callees() const;
+    const ADDR64SET&          Callers() const;
 
 protected:
-    DWORD   m_dwCreationFlags;
-    LPCTSTR m_pszCurDir;
+    struct CODEFUNC64IMPL;
+    CODEFUNC64IMPL *m_pImpl;
+};
+
+////////////////////////////////////////////////////////////////////////////
+// DECOMPSTATUS32 - decompilation status for 32-bit
+
+class DECOMPSTATUS32
+{
+public:
+    DECOMPSTATUS32();
+    DECOMPSTATUS32(const DECOMPSTATUS32& status);
+    DECOMPSTATUS32& operator=(const DECOMPSTATUS32& status);
+    virtual ~DECOMPSTATUS32();
+    VOID Copy(const DECOMPSTATUS32& status);
+    VOID Clear();
+    BOOL DumpDisAsm();
+    BOOL DumpDisAsmFunc(ADDR32 func);
+    BOOL DumpDecomp();
+    BOOL DumpDecompFunc(ADDR32 func);
+
+public:
+    // accessors
+    map<ADDR32, ASMCODE32>&         MapAddrToAsmCode();
+    ADDR32SET&                      Entrances();
+    map<ADDR32, CODEFUNC32>&        MapAddrToCodeFunc();
+    // const accessors
+    const map<ADDR32, ASMCODE32>&   MapAddrToAsmCode() const;
+    const ADDR32SET&                Entrances() const;
+    const map<ADDR32, CODEFUNC32>&  MapAddrToCodeFunc() const;
+
+protected:
+    struct DECOMPSTATUS32IMPL;
+    DECOMPSTATUS32IMPL* m_pImpl;
+};
+
+////////////////////////////////////////////////////////////////////////////
+// DECOMPSTATUS64 - decompilation status for 64-bit
+
+class DECOMPSTATUS64
+{
+public:
+    DECOMPSTATUS64();
+    DECOMPSTATUS64(const DECOMPSTATUS64& status);
+    DECOMPSTATUS64& operator=(const DECOMPSTATUS64& status);
+    virtual ~DECOMPSTATUS64();
+    VOID Copy(const DECOMPSTATUS64& status);
+    VOID Clear();
+    BOOL DumpDisAsm();
+    BOOL DumpDisAsmFunc(ADDR64 func);
+    BOOL DumpDecomp();
+    BOOL DumpDecompFunc(ADDR64 func);
+
+public:
+    // accessors
+    map<ADDR64, ASMCODE64>&         MapAddrToAsmCode();
+    ADDR64SET&                      Entrances();
+    map<ADDR64, CODEFUNC64>&        MapAddrToCodeFunc();
+    // const accessors
+    const map<ADDR64, ASMCODE64>&   MapAddrToAsmCode() const;
+    const ADDR64SET&                Entrances() const;
+    const map<ADDR64, CODEFUNC64>&  MapAddrToCodeFunc() const;
+
+protected:
+    struct DECOMPSTATUS64IMPL;
+    DECOMPSTATUS64IMPL* m_pImpl;
 };
 
 ////////////////////////////////////////////////////////////////////////////
