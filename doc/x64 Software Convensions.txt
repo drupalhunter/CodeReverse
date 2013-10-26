@@ -1,0 +1,224 @@
+
+                          M$ x64 Software Conventions
+                          Katayama Hirofumi MZ
+                          Public Domain
+
+The description of this file may be imperfect or incorrect.
+
+
+Volatile Registers
+------------------
+
+The registers RAX, RCX, RDX, R8, R9, R10 and R11 are considered
+"volatile" and can be destroyed on function calls.
+
+
+Nonvolatile Registers
+---------------------
+
+The registers RBX, RBP, RDI, RSI, RSP, R12, R13, R14 and R15 are considered
+"nonvolatile" and must be saved and restored by a function that uses them.
+
+
+How Parameters Are Passed
+-------------------------
+
+	RCX   RDX   R8    R9    stack
+	--------------------->  <----
+	XMM0  XMM1  XMM2  XMM3
+
+Integer:
+	The first four parameters are stored in
+	RCX, RDX, R8, R9 (left-to-right). 
+	Others passed on stack (right-to-left).
+
+Floating point:
+	The first four parameters are stored in
+	XMM0, XMM1, XMM2, XMM3 (left-to-right). 
+	Others passed on stack (right-to-left).
+
+Aggregates (8, 16, 32, or 64 bits) and __m64:
+	RCX, RDX, R8, R9 (left-to-right).
+	Others passed on stack (right-to-left).
+
+Aggregates (other):
+	By pointer. RCX, RDX, R8, and R9 (left-to-right).
+
+__m128:
+	By pointer. RCX, RDX, R8, and R9 (left-to-right).
+
+Parameters less than 64 bits are not zero extended (ignored).
+
+
+Examples of x64 Parameters Passing
+----------------------------------
+
+func1(int a, int b, int c, int d, int e, int f);
+// a in ECX, b in EDX, c in R8D, d in R9D; f and e pushed on stack
+
+func2(float a, double b, float c, double d, float e, float f);
+// a in XMM0, b in XMM1, c in XMM2, d in XMM3; e and f pushed on stack
+
+func3(int a, double b, size_t c, float d);
+// a in ECX, b in XMM1, c in R8, d in XMM3
+
+func4(__m64 a, _m128 b, struct c, float d);
+// a in RCX, ptr to b in RDX, ptr to c in R8, d in XMM3
+
+
+x64 Return Values
+-----------------
+
+A return value that can fit into __m64 is returned through RAX.
+But __m128, __m128i, __m128d, floats and doubles are returned in XMM0. 
+
+If the return value is a user-defined type that does not fit in 64 bits, 
+then the caller assumes the responsibility of allocating and passing a 
+pointer for the return value as the first argument.
+Subsequent arguments are then shifted one argument to the right. 
+That same pointer must be returned by the callee in RAX. 
+
+User-defined types to be returned directly must be 1, 2, 4, 8, 16, 32 
+or 64 bits in length.
+
+
+Examples of x64 Return Values
+-----------------------------
+
+__int64 func1(int a, float b, int c, size_t d, int e);
+// Caller passes a in ECX, b in XMM1, c in R8D, d in R9, e pushed on stack,
+// callee returns __int64 result in RAX.
+
+__m128 func2(float a, double b, int c, __m64 d); 
+// Caller passes a in XMM0, b in XMM1, c in R8D, d in R9, 
+// callee returns __m128 result in XMM0.
+
+struct1 func3(int a, double b, int c, float d); 
+// Caller allocates memory for struct1 returned and passes pointer in RCX,
+// a in EDX, b in XMM2, c in R9D, d pushed on the stack,
+// callee returns pointer to struct1 result in RAX.
+
+
+Varargs
+-------
+
+If parameters are passed via varargs (for example, ellipsis arguments), 
+then essentially the normal parameter passing applies (including 
+spilling the fifth and subsequent arguments).
+
+It is again the callee's responsibility to dump arguments that have
+their address taken.
+
+
+Stack
+-----
+
+          The Stack on Func1
+
+	+---------------------------+ <-- RSP
+	|                           |\
+	|                           | } Local variables,
+	|                           | } Saved nonvolatile registers,
+	|                           | } alloca space (if any) etc.
+	|                           |/
+	+---------------------------+
+	|Func1 caller return address|
+	+---------------------------+
+	|   ...                     |
+	|Stack parameters for Func1 |
+	|   ...                     |
+	+---------------------------+
+	|   ...                     |
+
+
+Prolog and Epilog
+-----------------
+
+The leaf function is defined as a function that doesn't change RSP, 
+doesn't call any functions, doesn't save any nonvolatile registers, 
+and doesn't do any exception handling.
+
+The non-leaf function begins by prolog code.
+The non-leaf function ends by epilog code.
+
+The function must not change RSP except prolog and epilog.
+
+The non-leaf function begins by a multiply of 16 plus 8.
+RSP must be a multiple of 16 after prolog.
+
+If the fixed allocation size is greater than or equal to one
+page (4096 bytes), then the helper function __chkstk must be 
+called before modifying RSP.  The __chkstk function reads RAX 
+and destroys R10, R11 and flags.
+
+
+Examples of Prolog and Epilog
+-----------------------------
+
+Example 1:
+
+	; prolog
+	push rsi
+	
+	; ...do something...
+
+	; epilog
+	pop rsi
+	ret
+
+Example 2:
+
+	; prolog
+	push rsi
+	push rdi
+	sub rsp, 8	; make RSP a multiple of 16
+	
+	; ...do something...
+	
+	; epilog
+	add rsp, 8
+	pop rdi
+	pop rsi
+	ret
+
+
+Example 3:
+
+	; prolog
+	mov      [RSP + 8], RCX
+	push     R15
+	push     R14
+	push     R13
+	sub      RSP, fixed-allocation-size
+	lea      R13, [RSP + 128]
+
+	; ...do something...
+
+	; epilog
+	add      RSP, fixed-allocation-size
+	pop      R13
+	pop      R14
+	pop      R15
+	ret
+
+
+Example 4:
+
+	; prolog
+	push     R15
+	push     R14
+	push     R13
+	mov      RAX,  fixed-allocation-size
+	call     __chkstk
+	sub      RSP, RAX
+	lea      R13, [RSP + 128]
+
+	; ...do something...
+
+	; epilog
+	lea      RSP, [R13 - 128]
+	add      RSP, fixed-allocation-size
+	pop      R13
+	pop      R14
+	pop      R15
+	ret

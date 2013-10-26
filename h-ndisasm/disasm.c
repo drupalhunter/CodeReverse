@@ -1417,8 +1417,9 @@ int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
             } else if (o->segment & SEG_DISP32) {
                 if (prefix.asize == 64) {
                     const char *prefix;
-                    uint64_t offset = (int64_t)(int32_t)offs;
-                    if ((int32_t)offs < 0 && started) {
+                    /* Hacked by Katayama hirofumi MZ */
+                    uint64_t offset = (int64_t)offs;
+                    if (offs < 0 && started) {
                         offset = (uint64_t)-(int64_t)offset;
                         prefix = "-";
                     } else {

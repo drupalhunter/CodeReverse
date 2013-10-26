@@ -1,3 +1,23 @@
+////////////////////////////////////////////////////////////////////////////
+// winapp.c
+// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+//
+// CodeReverse is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeReverse is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+////////////////////////////////////////////////////////////////////////////
+
 #include <windows.h>
 #include <tchar.h>
 
@@ -6,6 +26,7 @@ LPCTSTR g_pszClassName = _T("Test Application");
 LPCTSTR g_pszTitle = _T("Test Application");
 HWND g_hMainWnd;
 
+__declspec(dllexport)
 LRESULT CALLBACK
 WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -22,6 +43,7 @@ WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+__declspec(dllexport)
 INT WINAPI _tWinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,

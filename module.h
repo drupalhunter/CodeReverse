@@ -80,12 +80,74 @@ typedef EXPORT_SYMBOL *LPEXPORT_SYMBOL;
 ////////////////////////////////////////////////////////////////////////////
 // SYMBOL
 
-struct SYMBOL
+class SYMBOL
 {
-    DWORD dwRVA;
-    LPCSTR pszName;
+public:
+    SYMBOL();
+    SYMBOL(const SYMBOL& s);
+    SYMBOL& operator=(const SYMBOL& s);
+    virtual ~SYMBOL();
+    VOID Copy(const SYMBOL& s);
+    VOID clear();
+
+public: // accessors
+    DWORD&  RVA();
+    string& Name();
+    const DWORD&  RVA() const;
+    const string& Name() const;
+
+protected:
+    struct SYMBOLIMPL;
+    SYMBOLIMPL *m_pImpl;
 };
 typedef SYMBOL *LPSYMBOL;
+
+////////////////////////////////////////////////////////////////////////////
+// SYMBOLINFO
+
+class SYMBOLINFO
+{
+public:
+    SYMBOLINFO();
+    SYMBOLINFO(const SYMBOLINFO& info);
+    SYMBOLINFO& operator=(const SYMBOLINFO& info);
+    virtual ~SYMBOLINFO();
+    VOID Copy(const SYMBOLINFO& info);
+    VOID clear();
+
+public:
+    VOID AddImportDllName(LPCSTR name);
+    VOID AddSymbol(DWORD rva, LPCSTR name);
+    VOID AddSymbol(const SYMBOL& s);
+    VOID AddImportSymbol(const IMPORT_SYMBOL& is);
+    VOID AddExportSymbol(const EXPORT_SYMBOL& es);
+
+public: // accessors
+    VECSET<string>&         GetImportDllNames();
+    VECSET<IMPORT_SYMBOL>&  GetImportSymbols();
+    VECSET<EXPORT_SYMBOL>&  GetExportSymbols();
+    IMPORT_SYMBOL *         GetImportSymbolFromRVA(DWORD RVA);
+    IMPORT_SYMBOL *         GetImportSymbolFromName(LPCSTR name);
+    EXPORT_SYMBOL *         GetExportSymbolFromRVA(DWORD RVA);
+    EXPORT_SYMBOL *         GetExportSymbolFromName(LPCSTR name);
+    SYMBOL *                GetSymbolFromRVA(DWORD RVA);
+    SYMBOL *                GetSymbolFromName(LPCSTR name);
+
+public: // const accessors
+    const VECSET<string>&           GetImportDllNames() const;
+    const VECSET<IMPORT_SYMBOL>&    GetImportSymbols() const;
+    const VECSET<EXPORT_SYMBOL>&    GetExportSymbols() const;
+    const IMPORT_SYMBOL *           GetImportSymbolFromRVA(DWORD RVA) const;
+    const IMPORT_SYMBOL *           GetImportSymbolFromName(LPCSTR name) const;
+    const EXPORT_SYMBOL *           GetExportSymbolFromRVA(DWORD RVA) const;
+    const EXPORT_SYMBOL *           GetExportSymbolFromName(LPCSTR name) const;
+    const SYMBOL *                  GetSymbolFromRVA(DWORD RVA) const;
+    const SYMBOL *                  GetSymbolFromName(LPCSTR name) const;
+
+protected:
+    struct SYMBOLINFOIMPL;
+    SYMBOLINFOIMPL *m_pImpl;
+};
 
 ////////////////////////////////////////////////////////////////////////////
 // PEMODULE
@@ -119,7 +181,8 @@ public:
     BOOL    IsGUIExe() const;
     DWORD   HeaderSum() const;
     BOOL    RVAInDirEntry(DWORD rva, DWORD index) const;
-    BOOL    IsValidAddress(ULONGLONG Address) const;
+    BOOL    IsValidAddr32(ADDR32 addr) const;
+    BOOL    IsValidAddr64(ADDR64 addr) const;
     DWORD   GetBaseOfCode() const;
     DWORD   GetSizeOfHeaders() const;
     DWORD   GetSizeOfImage() const;
@@ -150,7 +213,7 @@ public:
     PIMAGE_NT_HEADERS64         NTHeaders64();
     PIMAGE_OPTIONAL_HEADER32&   OptionalHeader32();
     PIMAGE_OPTIONAL_HEADER64&   OptionalHeader64();
-	PIMAGE_FILE_HEADER          FileHeader();
+    PIMAGE_FILE_HEADER          FileHeader();
     PREAL_IMAGE_DATA_DIRECTORY  DataDirectory(DWORD index);
     PREAL_IMAGE_DATA_DIRECTORY& DataDirectories();
     PREAL_IMAGE_SECTION_HEADER& SectionHeaders();
@@ -159,9 +222,11 @@ public:
     PIMAGE_IMPORT_DESCRIPTOR    ImportDescriptors();
     PIMAGE_EXPORT_DIRECTORY     ExportDirectory();
     PIMAGE_RESOURCE_DIRECTORY   ResourceDirectory();
-    vector<string>&             ImportDllNames();
-    vector<EXPORT_SYMBOL>&      ExportSymbols();
-	vector<ImgDelayDescr>&      DelayLoadDescriptors();
+    vector<ImgDelayDescr>&      DelayLoadDescriptors();
+    VECSET<string>&             ImportDllNames();
+    VECSET<IMPORT_SYMBOL>&      ImportSymbols();
+    VECSET<EXPORT_SYMBOL>&      ExportSymbols();
+    SYMBOLINFO&                 SymbolInfo();
     // const accessors
     const WORD&                       NumberOfSections() const;
     const DWORD&                      LastError() const;
@@ -172,7 +237,7 @@ public:
     const PIMAGE_NT_HEADERS64         NTHeaders64() const;
     const PIMAGE_OPTIONAL_HEADER32&   OptionalHeader32() const;
     const PIMAGE_OPTIONAL_HEADER64&   OptionalHeader64() const;
-	const PIMAGE_FILE_HEADER          FileHeader() const;
+    const PIMAGE_FILE_HEADER          FileHeader() const;
     const PREAL_IMAGE_DATA_DIRECTORY  DataDirectory(DWORD index) const;
     const PREAL_IMAGE_DATA_DIRECTORY& DataDirectories() const;
     const PREAL_IMAGE_SECTION_HEADER& SectionHeaders() const;
@@ -181,9 +246,11 @@ public:
     const PIMAGE_IMPORT_DESCRIPTOR    ImportDescriptors() const;
     const PIMAGE_EXPORT_DIRECTORY     ExportDirectory() const;
     const PIMAGE_RESOURCE_DIRECTORY   ResourceDirectory() const;
-    const vector<string>&             ImportDllNames() const;
-    const vector<EXPORT_SYMBOL>&      ExportSymbols() const;
-	const vector<ImgDelayDescr>&      DelayLoadDescriptors() const;
+    const vector<ImgDelayDescr>&      DelayLoadDescriptors() const;
+    const VECSET<string>&             ImportDllNames() const;
+    const VECSET<IMPORT_SYMBOL>&      ImportSymbols() const;
+    const VECSET<EXPORT_SYMBOL>&      ExportSymbols() const;
+    const SYMBOLINFO&                 SymbolInfo() const;
 
 public:
     // loading
@@ -201,19 +268,24 @@ public:
     const SYMBOL *FindSymbolByName(LPCSTR Name) const;
     const SYMBOL *FindSymbolByAddr32(ADDR32 addr) const;
     const SYMBOL *FindSymbolByAddr64(ADDR64 addr) const;
+    LPCSTR GetSymbolNameFromRVA(DWORD rva) const;
+    LPCSTR GetSymbolNameFromAddr32(ADDR32 addr) const;
+    LPCSTR GetSymbolNameFromAddr64(ADDR64 addr) const;
 
 public:
-    VOID AddMapNameToSymbol(const string& name, const SYMBOL& symbol);
-    VOID AddMapNameToImportSymbol(const string& name, const IMPORT_SYMBOL& symbol);
-    VOID AddMapNameToExportSymbol(const string& name, const EXPORT_SYMBOL& symbol);
-    VOID AddMapRVAToSymbol(DWORD rva, const SYMBOL& symbol);
-    VOID AddMapRVAToImportSymbol(DWORD rva, const IMPORT_SYMBOL& symbol);
-    VOID AddMapRVAToExportSymbol(DWORD rva, const EXPORT_SYMBOL& symbol);
-
     BOOL DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va);
     BOOL DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va);
     BOOL DisAsm32(DECOMPSTATUS32& status);
     BOOL DisAsm64(DECOMPSTATUS64& status);
+
+    BOOL FixUpAsm32(DECOMPSTATUS32& status);
+    BOOL FixUpAsm64(DECOMPSTATUS64& status);
+
+    BOOL DumpDisAsm32(DECOMPSTATUS32& status);
+    BOOL DumpDisAsmFunc32(DECOMPSTATUS32& status, ADDR32 func);
+
+    BOOL DumpDisAsm64(DECOMPSTATUS64& status);
+    BOOL DumpDisAsmFunc64(DECOMPSTATUS64& status, ADDR64 func);
 
     BOOL DecompileAddr32(DECOMPSTATUS32& status, ADDR32 va);
     BOOL DecompileAddr64(DECOMPSTATUS64& status, ADDR64 va);
@@ -221,15 +293,15 @@ public:
     BOOL Decompile64(DECOMPSTATUS64& status);
     BOOL Decompile();
 
-    VOID ParseOperand(OPERAND& opr, INT bits, bool jump = false);
+    VOID ParseOperand(OPERAND& opr, INT bits);
 
 protected:
     BOOL _LoadImage(LPVOID Data);
     BOOL _LoadNTHeaders(LPVOID Data);
 
-    BOOL _GetImportDllNames(vector<string>& names);
-    BOOL _GetImportSymbols(DWORD dll_index, vector<IMPORT_SYMBOL>& symbols);
-    BOOL _GetExportSymbols(vector<EXPORT_SYMBOL>& symbols);
+    BOOL _GetImportDllNames(VECSET<string>& names);
+    BOOL _GetImportSymbols(DWORD dll_index, VECSET<IMPORT_SYMBOL>& symbols);
+    BOOL _GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols);
 
     VOID _ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn);
     VOID _ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn);

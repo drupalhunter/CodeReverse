@@ -1,6 +1,29 @@
-// gcc -m32 -O0 -o test2-32.exe test2.c
-// gcc -m64 -O0 -o test2-64.exe test2.c
-// cl /Od test2.c
+////////////////////////////////////////////////////////////////////////////
+// test2.c
+// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+//
+// CodeReverse is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// CodeReverse is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
+////////////////////////////////////////////////////////////////////////////
+
+// gcc -m32 -O0 -o test2-gcc32.exe test2.c
+// gcc -m64 -O0 -o test2-gcc64.exe test2.c
+// cl /Od test2.c /Fetest2-vc32.exe
+// cl /Od test2.c /Fetest2-vc64.exe
+// bcc32 -etest2-bor32.exe -Od test2.c
+// wcl386 -d0 -od -fe=test2-wat32.exe test2.c
 #include <stdio.h>
 
 // GCC:
