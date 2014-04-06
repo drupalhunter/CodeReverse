@@ -127,7 +127,7 @@ inline OPERANDSET& ASMCODE32::Operands()
     return m_operands;
 }
 
-inline OPERAND* ASMCODE32::Operand(SIZE_T index)
+inline OPERAND* ASMCODE32::Operand(std::size_t index)
 {
     assert(index < m_operands.size());
     if (m_operands.size() > index)
@@ -174,7 +174,7 @@ inline const OPERANDSET& ASMCODE32::Operands() const
     return m_operands;
 }
 
-inline const OPERAND* ASMCODE32::Operand(SIZE_T index) const
+inline const OPERAND* ASMCODE32::Operand(std::size_t index) const
 {
     assert(m_operands.size() > index);
     if (m_operands.size() > index)
@@ -221,7 +221,7 @@ inline OPERANDSET& ASMCODE64::Operands()
     return m_operands;
 }
 
-inline OPERAND* ASMCODE64::Operand(SIZE_T index)
+inline OPERAND* ASMCODE64::Operand(std::size_t index)
 {
     assert(index < m_operands.size());
     if (m_operands.size() > index)
@@ -268,7 +268,7 @@ inline const OPERANDSET& ASMCODE64::Operands() const
     return m_operands;
 }
 
-inline const OPERAND* ASMCODE64::Operand(SIZE_T index) const
+inline const OPERAND* ASMCODE64::Operand(std::size_t index) const
 {
     assert(m_operands.size() > index);
     if (m_operands.size() > index)

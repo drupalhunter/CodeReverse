@@ -53,7 +53,7 @@ IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA)
     return NULL;
 }
 
-IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(LPCSTR name)
+IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name)
 {
     map<string, IMPORT_SYMBOL>::iterator it, end;
     end = MapNameToImportSymbol().end();
@@ -77,7 +77,7 @@ EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA)
     return NULL;
 }
 
-EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(LPCSTR name)
+EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name)
 {
     map<string, EXPORT_SYMBOL>::iterator it, end;
     end = MapNameToExportSymbol().end();
@@ -101,7 +101,7 @@ SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA)
     return NULL;
 }
 
-SYMBOL *SYMBOLINFO::GetSymbolFromName(LPCSTR name)
+SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name)
 {
     map<string, SYMBOL>::iterator it, end;
     end = MapNameToSymbol().end();
@@ -125,7 +125,7 @@ const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA) const
     return NULL;
 }
 
-const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(LPCSTR name) const
+const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name) const
 {
     map<string, IMPORT_SYMBOL>::const_iterator it, end;
     end = MapNameToImportSymbol().end();
@@ -149,7 +149,7 @@ const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA) const
     return NULL;
 }
 
-const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(LPCSTR name) const
+const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name) const
 {
     map<string, EXPORT_SYMBOL>::const_iterator it, end;
     end = MapNameToExportSymbol().end();
@@ -173,7 +173,7 @@ const SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA) const
     return NULL;
 }
 
-const SYMBOL *SYMBOLINFO::GetSymbolFromName(LPCSTR name) const
+const SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name) const
 {
     map<string, SYMBOL>::const_iterator it, end;
     end = MapNameToSymbol().end();
@@ -233,12 +233,12 @@ VOID SYMBOLINFO::clear()
     MapNameToSymbol().clear();
 }
 
-VOID SYMBOLINFO::AddImportDllName(LPCSTR name)
+VOID SYMBOLINFO::AddImportDllName(const char *name)
 {
     GetImportDllNames().insert(name);
 }
 
-VOID SYMBOLINFO::AddSymbol(DWORD rva, LPCSTR name)
+VOID SYMBOLINFO::AddSymbol(DWORD rva, const char *name)
 {
     SYMBOL s;
     s.RVA() = rva;
@@ -474,17 +474,18 @@ const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
 
 BOOL PEMODULE::_LoadImage(LPVOID Data)
 {
-    PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)Data;
+    PIMAGE_DOS_HEADER pDOSHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(Data);
     PIMAGE_NT_HEADERS pNTHeaders;
 
     if (pDOSHeader->e_magic == IMAGE_DOS_SIGNATURE && pDOSHeader->e_lfanew)  // "MZ"
     {
-        pNTHeaders = (PIMAGE_NT_HEADERS)((LPBYTE)Data + pDOSHeader->e_lfanew);
+        pNTHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(
+            reinterpret_cast<LPBYTE>(Data) + pDOSHeader->e_lfanew);
     }
     else
     {
         pDOSHeader = NULL;
-        pNTHeaders = (PIMAGE_NT_HEADERS)Data;
+        pNTHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(Data);
     }
     DOSHeader() = pDOSHeader;
 
@@ -492,11 +493,9 @@ BOOL PEMODULE::_LoadImage(LPVOID Data)
     {
         if (_LoadNTHeaders(pNTHeaders))
         {
-            LoadedImage() = (LPBYTE)VirtualAlloc(
-                NULL,
-                GetSizeOfImage() + 16,
-                MEM_COMMIT,
-                PAGE_READWRITE);
+            LoadedImage() = reinterpret_cast<LPBYTE>(
+                VirtualAlloc(NULL, GetSizeOfImage() + 16,
+                             MEM_COMMIT, PAGE_READWRITE));
             if (LoadedImage() != NULL)
             {
                 CopyMemory(LoadedImage(), FileImage(), GetSizeOfHeaders());
@@ -542,7 +541,7 @@ BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
         if (pOptional32->Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC)
             return FALSE;
 
-        pb = (LPBYTE)pOptional32 + pFileHeader->SizeOfOptionalHeader;
+        pb = reinterpret_cast<LPBYTE>(pOptional32) + pFileHeader->SizeOfOptionalHeader;
         SectionHeaders() = reinterpret_cast<PREAL_IMAGE_SECTION_HEADER>(pb);
         DataDirectories() =
             reinterpret_cast<PREAL_IMAGE_DATA_DIRECTORY>(pOptional32->DataDirectory);
@@ -554,7 +553,7 @@ BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
         if (pOptional64->Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)
             return FALSE;
 
-        pb = (LPBYTE)pOptional64 + pFileHeader->SizeOfOptionalHeader;
+        pb = reinterpret_cast<LPBYTE>(pOptional64) + pFileHeader->SizeOfOptionalHeader;
         SectionHeaders() = reinterpret_cast<PREAL_IMAGE_SECTION_HEADER>(pb);
         DataDirectories() =
             reinterpret_cast<PREAL_IMAGE_DATA_DIRECTORY>(pOptional64->DataDirectory);
@@ -659,7 +658,8 @@ BOOL PEMODULE::LoadExportTable()
     if (!_GetExportSymbols(SymbolInfo().GetExportSymbols()))
         return FALSE;
 
-    for (DWORD i = 0; i < (DWORD)symbols.size(); i++)
+    DWORD siz = static_cast<DWORD>(symbols.size());
+    for (DWORD i = 0; i < siz; i++)
     {
         if (symbols[i].dwRVA == 0 || symbols[i].pszForwarded)
             continue;
@@ -675,13 +675,14 @@ BOOL PEMODULE::LoadDelayLoad()
     if (!IsModuleLoaded())
         return FALSE;
 
-    PREAL_IMAGE_DATA_DIRECTORY pDir = DataDirectory(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
+    PREAL_IMAGE_DATA_DIRECTORY pDir =
+        DataDirectory(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
 
     vector<ImgDelayDescr> Descrs;
-    ImgDelayDescr *pDescrs;
-    pDescrs = (ImgDelayDescr *)(LoadedImage() + pDir->RVA);
+    ImgDelayDescr *pDescrs =
+        reinterpret_cast<ImgDelayDescr *>(LoadedImage() + pDir->RVA);
 
-    size_t i = 0;
+    std::size_t i = 0;
     while (pDescrs[i].rvaHmod)
     {
         Descrs.push_back(pDescrs[i]);
@@ -696,275 +697,6 @@ BOOL PEMODULE::LoadDelayLoad()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// dumping
-
-VOID PEMODULE::DumpHeaders()
-{
-    if (!IsModuleLoaded())
-        return;
-
-#ifdef _UNICODE
-    printf("FileName: %ls, FileSize: 0x%08lX (%lu)\n",
-        GetFileName(), GetFileSize(), GetFileSize());
-#else
-    printf("FileName: %s, FileSize: 0x%08lX (%lu)\n",
-        GetFileName(), GetFileSize(), GetFileSize());
-#endif
-
-    if (DOSHeader())
-    {
-        DumpDOSHeader(DOSHeader());
-    }
-    if (FileHeader())
-    {
-        DumpFileHeader(FileHeader());
-    }
-    if (OptionalHeader32())
-    {
-        DumpOptionalHeader32(OptionalHeader32(), CheckSum());
-    }
-    else if (OptionalHeader64())
-    {
-        DumpOptionalHeader64(OptionalHeader64(), CheckSum());
-    }
-    if (SectionHeaders())
-    {
-        DWORD size = NumberOfSections();
-        for (DWORD i = 0; i < size; i++)
-        {
-            printf("\n### Section #%lu ###\n", i);
-            DumpSectionHeader(SectionHeader(i));
-        }
-    }
-}
-
-VOID PEMODULE::DumpImportSymbols()
-{
-    PIMAGE_IMPORT_DESCRIPTOR descs;
-    VECSET<string> dll_names;
-    VECSET<IMPORT_SYMBOL> symbols;
-
-    descs = ImportDescriptors();
-    if (descs == NULL)
-        return;
-
-    printf("\n### IMPORTS ###\n");
-    printf("  Characteristics: 0x%08lX\n", descs->Characteristics);
-    printf("  TimeDateStamp: 0x%08lX (%s)\n", descs->TimeDateStamp,
-        GetTimeStampString(descs->TimeDateStamp));
-    printf("  ForwarderChain: 0x%08lX\n", descs->ForwarderChain);
-    printf("  Name: 0x%08lX (%s)\n", descs->Name, (LPSTR)GetData(descs->Name));
-    printf("  \n");
-
-    if (!_GetImportDllNames(dll_names))
-        return;
-
-    for (DWORD i = 0; i < dll_names.size(); i++)
-    {
-        printf("  %s\n", dll_names[i].c_str());
-        if (Is64Bit())
-            printf("    RVA      VA               HINT FUNCTION NAME\n");
-        else
-            printf("    RVA      VA       HINT FUNCTION NAME\n");
-
-        if (_GetImportSymbols(i, symbols))
-        {
-            for (DWORD j = 0; j < symbols.size(); j++)
-            {
-                if (Is64Bit())
-                {
-                    ADDR64 addr = VA64FromRVA(symbols[j].dwRVA);
-                    printf("    %08lX %08lX%08lX ", symbols[j].dwRVA,
-                        HILONG(addr), LOLONG(addr));
-                }
-                else if (Is32Bit())
-                {
-                    ADDR32 addr = VA32FromRVA(symbols[j].dwRVA);
-                    printf("    %08lX %08lX ", symbols[j].dwRVA, addr);
-                }
-                if (symbols[j].Name.wImportByName)
-                    printf("%4X %s\n", symbols[j].wHint, symbols[j].pszName);
-                else
-                    printf("Ordinal %d\n", symbols[j].Name.wOrdinal);
-            }
-            printf("  \n");
-        }
-    }
-}
-
-VOID PEMODULE::DumpExportSymbols()
-{
-    PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
-
-    if (pDir == NULL)
-        return;
-
-    //DWORD dwNumberOfNames = pDir->NumberOfNames;
-    //DWORD dwAddressOfFunctions = pDir->AddressOfFunctions;
-    //DWORD dwAddressOfNames = pDir->AddressOfNames;
-    //DWORD dwAddressOfOrdinals = pDir->AddressOfNameOrdinals;
-    //LPDWORD pEAT = (LPDWORD)GetData(dwAddressOfFunctions);
-    //LPDWORD pENPT = (LPDWORD)GetData(dwAddressOfNames);
-    //LPWORD pOT = (LPWORD)GetData(dwAddressOfOrdinals);
-
-    printf("\n### EXPORTS ###\n");
-    printf("  Characteristics: 0x%08lX\n", pDir->Characteristics);
-    printf("  TimeDateStamp: 0x%08lX (%s)\n", pDir->TimeDateStamp, GetTimeStampString(pDir->TimeDateStamp));
-    printf("  Version: %u.%u\n", pDir->MajorVersion, pDir->MinorVersion);
-    printf("  Name: 0x%08lX (%s)\n", pDir->Name, (LPSTR)GetData(pDir->Name));
-    printf("  Base: 0x%08lX (%lu)\n", pDir->Base, pDir->Base);
-    printf("  NumberOfFunctions: 0x%08lX (%lu)\n", pDir->NumberOfFunctions, pDir->NumberOfFunctions);
-    printf("  NumberOfNames: 0x%08lX (%lu)\n", pDir->NumberOfNames, pDir->NumberOfNames);
-    printf("  AddressOfFunctions: 0x%08lX\n", pDir->AddressOfFunctions);
-    printf("  AddressOfNames: 0x%08lX\n", pDir->AddressOfNames);
-    printf("  AddressOfNameOrdinals: 0x%08lX\n", pDir->AddressOfNameOrdinals);
-    printf("  \n");
-
-    printf("  %-50s %-5s ; %-8s %-8s\n", "FUNCTION NAME", "ORDI.", "RVA", "VA");
-
-    for (DWORD i = 0; i < ExportSymbols().size(); i++)
-    {
-        EXPORT_SYMBOL& symbol = ExportSymbols()[i];
-        if (symbol.dwRVA)
-        {
-            if (Is64Bit())
-            {
-                ADDR64 va = VA64FromRVA(symbol.dwRVA);
-                if (symbol.pszName)
-                    printf("  %-50s @%-4lu ; %08lX %08lX%08lX\n", 
-                        symbol.pszName, symbol.dwOrdinal, symbol.dwRVA,
-                        HILONG(va), LOLONG(va));
-                else
-                    printf("  %-50s @%-4lu ; %08lX %08lX%08lX\n", 
-                        "(No Name)", symbol.dwOrdinal, symbol.dwRVA,
-                        HILONG(va), LOLONG(va));
-            }
-            else if (Is32Bit())
-            {
-                ADDR32 va = VA32FromRVA(symbol.dwRVA);
-                if (symbol.pszName)
-                    printf("  %-50s @%-4lu ; %08lX %08lX\n", 
-                        symbol.pszName, symbol.dwOrdinal, symbol.dwRVA, va);
-                else
-                    printf("  %-50s @%-4lu ; %08lX %08lX\n", 
-                        "(No Name)", symbol.dwOrdinal, symbol.dwRVA, va);
-            }
-        }
-        else
-        {
-            if (symbol.pszName)
-                printf("  %-50s @%-4lu ; (forwarded to %s)\n", 
-                    "(No Name)", symbol.dwOrdinal, symbol.pszForwarded);
-            else
-                printf("  %-50s @%-4lu ; (forwarded to %s)\n",
-                    "(No Name)", symbol.dwOrdinal, symbol.pszForwarded);
-        }
-    }
-
-    printf("\n\n");
-}
-
-VOID PEMODULE::DumpDelayLoad()
-{
-    if (DelayLoadDescriptors().empty())
-    {
-        LoadDelayLoad();
-        if (DelayLoadDescriptors().empty())
-            return;
-    }
-
-    printf("### DELAY LOAD ###\n");
-    size_t i, size = DelayLoadDescriptors().size();
-    DWORD rva;
-    if (Is64Bit())
-    {
-        ADDR64 addr;
-        for (i = 0; i < size; i++)
-        {
-            printf("  ### Descr #%u ###\n", (INT)i);
-            printf("    NAME       %-8s %-8s\n", "RVA", "VA");
-
-            rva = DelayLoadDescriptors()[i].grAttrs;
-            addr = VA64FromRVA(rva);
-            printf("    Attrs:     %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            rva = DelayLoadDescriptors()[i].rvaDLLName;
-            addr = VA64FromRVA(rva);
-            printf("    DLL Name:  %s\n", (LPCSTR)(LoadedImage() + rva));
-            printf("            :  %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            rva = DelayLoadDescriptors()[i].rvaHmod;
-            addr = VA64FromRVA(rva);
-            printf("    Module:    %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            rva = DelayLoadDescriptors()[i].rvaIAT;
-            addr = VA64FromRVA(rva);
-            printf("    IAT:       %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            rva = DelayLoadDescriptors()[i].rvaINT;
-            addr = VA64FromRVA(rva);
-            printf("    INT:       %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            rva = DelayLoadDescriptors()[i].rvaBoundIAT;
-            addr = VA64FromRVA(rva);
-            printf("    BoundIAT:  %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            rva = DelayLoadDescriptors()[i].rvaUnloadIAT;
-            addr = VA64FromRVA(rva);
-            printf("    UnloadIAT: %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
-
-            LPCSTR pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
-            printf("    dwTimeStamp:  0x%08lX (%s)",
-                DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
-        }
-    }
-    else if (Is32Bit())
-    {
-        ADDR32 addr;
-        for (i = 0; i < size; i++)
-        {
-            printf("  ### Descr #%u ###\n", (INT)i);
-            printf("    NAME       %-8s %-8s\n", "RVA", "VA");
-
-            rva = DelayLoadDescriptors()[i].grAttrs;
-            addr = VA32FromRVA(rva);
-            printf("    Attrs:     %08lX %08lX\n", rva, addr);
-
-            rva = DelayLoadDescriptors()[i].rvaDLLName;
-            addr = VA32FromRVA(rva);
-            printf("    DLL Name:  %s\n", (LPCSTR)(LoadedImage() + rva));
-            printf("            :  %08lX %08lX\n", rva, addr);
-
-            rva = DelayLoadDescriptors()[i].rvaHmod;
-            addr = VA32FromRVA(rva);
-            printf("    Module:    %08lX %08lX\n", rva, addr);
-
-            rva = DelayLoadDescriptors()[i].rvaIAT;
-            addr = VA32FromRVA(rva);
-            printf("    IAT:       %08lX %08lX\n", rva, addr);
-
-            rva = DelayLoadDescriptors()[i].rvaINT;
-            addr = VA32FromRVA(rva);
-            printf("    INT:       %08lX %08lX\n", rva, addr);
-
-            rva = DelayLoadDescriptors()[i].rvaBoundIAT;
-            addr = VA32FromRVA(rva);
-            printf("    BoundIAT:  %08lX %08lX\n", rva, addr);
-
-            rva = DelayLoadDescriptors()[i].rvaUnloadIAT;
-            addr = VA32FromRVA(rva);
-            printf("    UnloadIAT: %08lX %08lX\n", rva, addr);
-
-            LPCSTR pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
-            printf("    dwTimeStamp:  0x%08lX (%s)",
-                DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
-        }
-    }
-
-    printf("\n\n");
-}
-
-////////////////////////////////////////////////////////////////////////////
 
 BOOL PEMODULE::_GetImportDllNames(VECSET<string>& names)
 {
@@ -975,7 +707,7 @@ BOOL PEMODULE::_GetImportDllNames(VECSET<string>& names)
         return FALSE;
 
     for (DWORD i = 0; descs[i].FirstThunk != 0; i++)
-        names.insert((LPSTR)GetData(descs[i].Name));
+        names.insert(reinterpret_cast<char *>(GetData(descs[i].Name)));
 
     return TRUE;
 }
@@ -1016,13 +748,14 @@ BOOL PEMODULE::_GetImportSymbols(DWORD dll_index, VECSET<IMPORT_SYMBOL>& symbols
                         {
                             symbol.wHint = 0;
                             symbol.Name.wImportByName = 0;
-                            symbol.Name.wOrdinal = (WORD)IMAGE_ORDINAL64(pINT64[j]);
+                            symbol.Name.wOrdinal = WORD(IMAGE_ORDINAL64(pINT64[j]));
                         }
                         else
                         {
-                            pIBN = (PIMAGE_IMPORT_BY_NAME)GetData((DWORD)pINT64[j]);
+                            pIBN = reinterpret_cast<PIMAGE_IMPORT_BY_NAME>(
+                                GetData(DWORD(pINT64[j])));
                             symbol.wHint = pIBN->Hint;
-                            symbol.pszName = (LPSTR)pIBN->Name;
+                            symbol.pszName = reinterpret_cast<char *>(pIBN->Name);
                         }
                         symbols.insert(symbol);
                     }
@@ -1047,13 +780,13 @@ BOOL PEMODULE::_GetImportSymbols(DWORD dll_index, VECSET<IMPORT_SYMBOL>& symbols
                         {
                             symbol.wHint = 0;
                             symbol.Name.wImportByName = 0;
-                            symbol.Name.wOrdinal = (WORD)IMAGE_ORDINAL32(pINT[j]);
+                            symbol.Name.wOrdinal = WORD(IMAGE_ORDINAL32(pINT[j]));
                         }
                         else
                         {
-                            pIBN = (PIMAGE_IMPORT_BY_NAME)GetData(pINT[j]);
+                            pIBN = reinterpret_cast<PIMAGE_IMPORT_BY_NAME>(GetData(pINT[j]));
                             symbol.wHint = pIBN->Hint;
-                            symbol.pszName = (LPSTR)pIBN->Name;
+                            symbol.pszName = reinterpret_cast<char *>(pIBN->Name);
                         }
                         symbols.insert(symbol);
                     }
@@ -1077,11 +810,11 @@ BOOL PEMODULE::_GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols)
         return FALSE;
 
     // export address table (EAT)
-    LPDWORD pEAT = (LPDWORD)GetData(pDir->AddressOfFunctions);
+    LPDWORD pEAT = reinterpret_cast<LPDWORD>(GetData(pDir->AddressOfFunctions));
     // export name pointer table (ENPT)
-    LPDWORD pENPT = (LPDWORD)GetData(pDir->AddressOfNames);
+    LPDWORD pENPT = reinterpret_cast<LPDWORD>(GetData(pDir->AddressOfNames));
     // export ordinal table (EOT)
-    LPWORD pEOT = (LPWORD)GetData(pDir->AddressOfNameOrdinals);
+    LPWORD pEOT = reinterpret_cast<LPWORD>(GetData(pDir->AddressOfNameOrdinals));
 
     DWORD i, j;
     WORD wOrdinal;
@@ -1089,7 +822,7 @@ BOOL PEMODULE::_GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols)
     {
         wOrdinal = pEOT[i];
         symbol.dwRVA = pEAT[wOrdinal];
-        symbol.pszName = (LPSTR)GetData(pENPT[i]);
+        symbol.pszName = reinterpret_cast<char *>(GetData(pENPT[i]));
         symbol.dwOrdinal = pDir->Base + wOrdinal;
         symbol.pszForwarded = NULL;
         symbols.insert(symbol);
@@ -1099,7 +832,7 @@ BOOL PEMODULE::_GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols)
     {
         for (j = 0; j < pDir->NumberOfNames; j++)
         {
-            if ((DWORD)pEOT[j] == i)
+            if (static_cast<DWORD>(pEOT[j]) == i)
                 break;
         }
         if (j < pDir->NumberOfNames)
@@ -1113,7 +846,7 @@ BOOL PEMODULE::_GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols)
         if (RVAInDirEntry(dw, IMAGE_DIRECTORY_ENTRY_EXPORT))
         {
             symbol.dwRVA = 0;
-            symbol.pszForwarded = (LPSTR)GetData(dw);
+            symbol.pszForwarded = reinterpret_cast<char *>(GetData(dw));
         }
         else
         {
@@ -1135,7 +868,7 @@ const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByRVA(DWORD rva) const
     return SymbolInfo().GetImportSymbolFromRVA(rva);
 }
 
-const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByName(LPCSTR Name) const
+const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByName(const char *Name) const
 {
     return SymbolInfo().GetImportSymbolFromName(Name);
 }
@@ -1145,7 +878,7 @@ const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByRVA(DWORD rva) const
     return SymbolInfo().GetExportSymbolFromRVA(rva);
 }
 
-const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByName(LPCSTR Name) const
+const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByName(const char *Name) const
 {
     return SymbolInfo().GetExportSymbolFromName(Name);
 }
@@ -1155,7 +888,7 @@ const SYMBOL *PEMODULE::FindSymbolByRVA(DWORD rva) const
     return SymbolInfo().GetSymbolFromRVA(rva);
 }
 
-const SYMBOL *PEMODULE::FindSymbolByName(LPCSTR Name) const
+const SYMBOL *PEMODULE::FindSymbolByName(const char *Name) const
 {
     return SymbolInfo().GetSymbolFromName(Name);
 }
@@ -1176,19 +909,19 @@ const SYMBOL *PEMODULE::FindSymbolByAddr64(ADDR64 addr) const
         return NULL;
 }
 
-LPCSTR PEMODULE::GetSymbolNameFromRVA(DWORD rva) const
+const char *PEMODULE::GetSymbolNameFromRVA(DWORD rva) const
 {
     const SYMBOL *symbol = FindSymbolByRVA(rva);
     return symbol ? symbol->Name().c_str() : NULL;
 }
 
-LPCSTR PEMODULE::GetSymbolNameFromAddr32(ADDR32 addr) const
+const char *PEMODULE::GetSymbolNameFromAddr32(ADDR32 addr) const
 {
     const SYMBOL *symbol = FindSymbolByAddr32(addr);
     return symbol ? symbol->Name().c_str() : NULL;
 }
 
-LPCSTR PEMODULE::GetSymbolNameFromAddr64(ADDR64 addr) const
+const char *PEMODULE::GetSymbolNameFromAddr64(ADDR64 addr) const
 {
     const SYMBOL *symbol = FindSymbolByAddr64(addr);
     return symbol ? symbol->Name().c_str() : NULL;
@@ -1523,7 +1256,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
 
     // VOID WINAPI WinMainCRTStartup(VOID);
     // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
-    LPCSTR pszEntryPointName;
+    const char *pszEntryPointName;
     if (IsDLL())
         pszEntryPointName = "_DllMainCRTStartup";
     else
@@ -1565,7 +1298,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
         status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 0;
 
     {
-        for (SIZE_T i = 0; i < ExportSymbols().size(); i++)
+        for (std::size_t i = 0; i < ExportSymbols().size(); i++)
         {
             va = VA32FromRVA(ExportSymbols()[i].dwRVA);
 
@@ -1586,7 +1319,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
 
     // disasm entrances
     {
-        SIZE_T i = 0, size;
+        std::size_t i = 0, size;
         ADDR32SET addrset;
         do
         {
@@ -1598,7 +1331,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
                 DisAsmAddr32(status, addrset[i], addrset[i]);
 
                 CODEFUNC32& cf = status.MapAddrToCodeFunc()[addrset[i]];
-                for (SIZE_T j = 0; j < cf.Jumpees().size(); j++)
+                for (std::size_t j = 0; j < cf.Jumpees().size(); j++)
                 {
                     DisAsmAddr32(status, addrset[i], cf.Jumpees()[j]);
                 }
@@ -1618,7 +1351,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
 
     // VOID WINAPI WinMainCRTStartup(VOID);
     // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
-    LPCSTR pszEntryPointName;
+    const char *pszEntryPointName;
     if (IsDLL())
         pszEntryPointName = "_DllMainCRTStartup";
     else
@@ -1659,7 +1392,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
         status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 0;
 
     {
-        for (SIZE_T i = 0; i < ExportSymbols().size(); i++)
+        for (std::size_t i = 0; i < ExportSymbols().size(); i++)
         {
             va = VA64FromRVA(ExportSymbols()[i].dwRVA);
 
@@ -1679,7 +1412,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
 
     // disasm entrances
     {
-        SIZE_T i = 0, size;
+        std::size_t i = 0, size;
         ADDR64SET addrset;
         do
         {
@@ -1691,7 +1424,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
                 DisAsmAddr64(status, addrset[i], addrset[i]);
 
                 CODEFUNC64& cf = status.MapAddrToCodeFunc()[addrset[i]];
-                for (SIZE_T j = 0; j < cf.Jumpees().size(); j++)
+                for (std::size_t j = 0; j < cf.Jumpees().size(); j++)
                 {
                     DisAsmAddr64(status, addrset[i], cf.Jumpees()[j]);
                 }
@@ -1712,7 +1445,7 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
     for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
         OPERANDSET& operands =  it->second.Operands();
-        SIZE_T i, size = operands.size();
+        std::size_t i, size = operands.size();
         for (i = 0; i < size; i++)
         {
             if (operands[i].OperandType() == OT_MEMIMM)
@@ -1741,14 +1474,14 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
             if (operands[0].OperandType() == OT_MEMIMM)
             {
                 ADDR32 addr = operands[0].Value32();
-                LPCSTR pName = GetSymbolNameFromAddr32(addr);
+                const char *pName = GetSymbolNameFromAddr32(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
             }
             else if (operands[0].OperandType() == OT_IMM)
             {
                 ADDR32 addr = operands[0].Value32();
-                LPCSTR pName = GetSymbolNameFromAddr32(addr);
+                const char *pName = GetSymbolNameFromAddr32(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
                 else if (AddressInCode32(addr))
@@ -1803,7 +1536,7 @@ BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
     for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
         OPERANDSET& operands =  it->second.Operands();
-        SIZE_T i, size = operands.size();
+        std::size_t i, size = operands.size();
         for (i = 0; i < size; i++)
         {
             if (operands[i].OperandType() == OT_MEMIMM)
@@ -1832,14 +1565,14 @@ BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
             if (operands[0].OperandType() == OT_MEMIMM)
             {
                 ADDR64 addr = operands[0].Value64();
-                LPCSTR pName = GetSymbolNameFromAddr64(addr);
+                const char *pName = GetSymbolNameFromAddr64(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
             }
             else if (operands[0].OperandType() == OT_IMM)
             {
                 ADDR64 addr = operands[0].Value64();
-                LPCSTR pName = GetSymbolNameFromAddr64(addr);
+                const char *pName = GetSymbolNameFromAddr64(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
                 else if (AddressInCode64(addr))
@@ -1934,7 +1667,7 @@ EnumResNameProc(
     return TRUE;
 }
 
-const LPCSTR cr_res_types[] =
+const char * const cr_res_types[] =
 {
     NULL,               // 0
     "RT_CURSOR",        // 1
@@ -1971,8 +1704,8 @@ EnumResTypeProc(
 {
     if (IS_INTRESOURCE(lpszType))
     {
-        UINT nType = (UINT)(UINT_PTR)lpszType;
-        UINT size = (UINT)(sizeof(cr_res_types) / sizeof(cr_res_types[0]));
+        UINT nType = static_cast<UINT>(reinterpret_cast<UINT_PTR>(lpszType));
+        UINT size = static_cast<UINT>(sizeof(cr_res_types) / sizeof(cr_res_types[0]));
         if (nType < size && cr_res_types[nType])
         {
             printf("  Resource Type: %s\n", cr_res_types[nType]);
@@ -2099,8 +1832,8 @@ VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
 
     if (q[0] == 'r' && q[1] == 'e')
     {
-        const size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
-        for (size_t i = 0; i < size; i++)
+        const std::size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
+        for (std::size_t i = 0; i < size; i++)
         {
             if (_stricmp(q, cr_rep_insns[i]) == 0)
             {
@@ -2153,8 +1886,8 @@ VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
 
     if (q[0] == 'c' || q[0] == 'l' || q[0] == 'j')
     {
-        const size_t size = sizeof(cr_ccentries) / sizeof(cr_ccentries[0]);
-        for (size_t i = 0; i < size; i++)
+        const std::size_t size = sizeof(cr_ccentries) / sizeof(cr_ccentries[0]);
+        for (std::size_t i = 0; i < size; i++)
         {
             if (strncmp(q, cr_ccentries[i].name, strlen(cr_ccentries[i].name)) == 0)
             {
@@ -2246,8 +1979,8 @@ VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
 
     if (q[0] == 'r' && q[1] == 'e')
     {
-        const size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
-        for (size_t i = 0; i < size; i++)
+        const std::size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
+        for (std::size_t i = 0; i < size; i++)
         {
             if (_stricmp(q, cr_rep_insns[i]) == 0)
             {
@@ -2297,8 +2030,8 @@ VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
 
     if (q[0] == 'c' || q[0] == 'l' || q[0] == 'j')
     {
-        size_t size = sizeof(cr_ccentries) / sizeof(cr_ccentries[0]);
-        for (size_t i = 0; i < size; i++)
+        const std::size_t size = sizeof(cr_ccentries) / sizeof(cr_ccentries[0]);
+        for (std::size_t i = 0; i < size; i++)
         {
             if (strncmp(q, cr_ccentries[i].name, strlen(cr_ccentries[i].name)) == 0)
             {
@@ -2499,191 +2232,6 @@ VOID PEMODULE::ParseOperand(OPERAND& opr, INT bits)
             opr.SetMemExp(p);
         }
     }
-}
-
-////////////////////////////////////////////////////////////////////////////
-// PEMODULE::DumpDisAsm32
-
-BOOL PEMODULE::DumpDisAsm32(DECOMPSTATUS32& status)
-{
-    printf("### DISASSEMBLY ###\n\n");
-
-    status.Entrances().sort();
-    status.Entrances().uniq();
-    const SIZE_T size = status.Entrances().size();
-    for (SIZE_T i = 0; i < size; i++)
-    {
-        const CODEFUNC32& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
-        if (cf.Flags() & FF_IGNORE)
-            continue;
-
-        LPCSTR pszName = GetSymbolNameFromAddr32(cf.Addr());
-        if (pszName)
-            printf(";; Function %s @ L%08lX\n", pszName, cf.Addr());
-        else
-            printf(";; Function L%08lX\n", cf.Addr());
-        switch (cf.FuncType())
-        {
-        case FT_JUMPER:
-            printf("ft = FT_JUMPER, ");
-            break;
-
-        case FT_CDECL:
-            printf("ft = FT_CDECL, ");
-            break;
-
-        case FT_CDECLVA:
-            printf("ft = FT_CDECLVA, ");
-            break;
-
-        case FT_STDCALL:
-            printf("ft = FT_STDCALL, ");
-            break;
-
-        case FT_FASTCALL:
-            printf("ft = FT_FASTCALL, ");
-            break;
-
-        default:
-            printf("ft = unknown, ");
-            break;
-        }
-        printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
-        DumpDisAsmFunc32(status, status.Entrances()[i]);
-
-        if (pszName)
-            printf(";; End of Function %s @ L%08lX\n\n", pszName, cf.Addr());
-        else
-            printf(";; End of Function L%08lX\n\n", cf.Addr());
-    }
-    return TRUE;
-}
-
-BOOL PEMODULE::DumpDisAsmFunc32(DECOMPSTATUS32& status, ADDR32 func)
-{
-    map<ADDR32, ASMCODE32>::const_iterator it, end;
-    end = status.MapAddrToAsmCode().end();
-    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
-    {
-        const ASMCODE32& ac = it->second;
-
-        if (func != 0 && !ac.Funcs().Find(func))
-            continue;
-
-        printf("L%08lX: ", ac.Addr());
-
-        DumpCodes(ac.Codes(), 32);
-
-        switch (ac.Operands().size())
-        {
-        case 3:
-            printf("%s %s,%s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str(),
-                ac.Operand(2)->Text().c_str());
-            break;
-
-        case 2:
-            printf("%s %s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str());
-            break;
-
-        case 1:
-            printf("%s %s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str());
-            break;
-
-        case 0:
-            printf("%s\n", ac.Name().c_str());
-            break;
-        }
-    }
-
-    return TRUE;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// PEMODULE::DumpDisAsm64
-
-BOOL PEMODULE::DumpDisAsm64(DECOMPSTATUS64& status)
-{
-    printf("### DISASSEMBLY ###\n\n");
-
-    status.Entrances().sort();
-    status.Entrances().uniq();
-    const SIZE_T size = status.Entrances().size();
-    for (SIZE_T i = 0; i < size; i++)
-    {
-        const CODEFUNC64& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
-        if (cf.Flags() & FF_IGNORE)
-            continue;
-
-        LPCSTR pszName = GetSymbolNameFromAddr64(cf.Addr());
-        if (pszName)
-            printf(";; Function %s @ L%08lX%08lX\n", pszName,
-                HILONG(cf.Addr()), LOLONG(cf.Addr()));
-        else
-            printf(";; Function L%08lX%08lX\n", HILONG(cf.Addr()), LOLONG(cf.Addr()));
-        if (cf.FuncType() == FT_JUMPER)
-        {
-            printf("ft = FT_JUMPER, ");
-        }
-        else
-        {
-            printf("ft = normal, ");
-        }
-        printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
-        DumpDisAsmFunc64(status, status.Entrances()[i]);
-
-        if (pszName)
-            printf(";; End of Function %s @ L%08lX%08lX\n\n", pszName,
-                HILONG(cf.Addr()), LOLONG(cf.Addr()));
-        else
-            printf(";; End of Function L%08lX%08lX\n\n",
-                HILONG(cf.Addr()), LOLONG(cf.Addr()));
-    }
-    return TRUE;
-}
-
-BOOL PEMODULE::DumpDisAsmFunc64(DECOMPSTATUS64& status, ADDR64 func)
-{
-    map<ADDR64, ASMCODE64>::const_iterator it, end;
-    end = status.MapAddrToAsmCode().end();
-    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
-    {
-        const ASMCODE64& ac = it->second;
-
-        if (func != 0 && !ac.Funcs().Find(func))
-            continue;
-
-        printf("L%08lX%08lX: ", HILONG(ac.Addr()), LOLONG(ac.Addr()));
-
-        DumpCodes(ac.Codes(), 64);
-
-        switch (ac.Operands().size())
-        {
-        case 3:
-            printf("%s %s,%s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str(),
-                ac.Operand(2)->Text().c_str());
-            break;
-
-        case 2:
-            printf("%s %s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str());
-            break;
-
-        case 1:
-            printf("%s %s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str());
-            break;
-
-        case 0:
-            printf("%s\n", ac.Name().c_str());
-            break;
-        }
-    }
-
-    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////

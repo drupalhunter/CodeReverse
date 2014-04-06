@@ -12,7 +12,7 @@
 
 VOID MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator)
 {
-    size_t i = 0, j = s.find_first_of(separator);
+    std::size_t i = 0, j = s.find_first_of(separator);
 
     v.clear();
     while(j != tstring::npos)
@@ -26,12 +26,12 @@ VOID MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator)
 
 VOID MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators)
 {
-    size_t i = s.find_first_not_of(separators), n = s.size();
+    std::size_t i = s.find_first_not_of(separators), n = s.size();
 
     v.clear();
     while (0 <= i && i < n)
     {
-        size_t stop = s.find_first_of(separators, i);
+        std::size_t stop = s.find_first_of(separators, i);
         if (stop == tstring::npos || stop > n) stop = n;
         v.push_back(s.substr(i, stop - i));
         i = s.find_first_not_of(separators, stop + 1);
@@ -40,7 +40,7 @@ VOID MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators)
 
 VOID Join(tstring& s, const std::vector<tstring>& v, LPCTSTR separator)
 {
-    size_t i, c;
+    std::size_t i, c;
 
     s.clear();
     c = v.size();
@@ -90,7 +90,7 @@ VOID MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName)
 VOID MzcAddBackslash(LPTSTR pszPath)
 {
     using namespace std;
-    SIZE_T cchPath = lstrlen(pszPath);
+    std::size_t cchPath = lstrlen(pszPath);
     LPTSTR pchPrev = CharPrev(pszPath, pszPath + cchPath);
     if (*pchPrev != _T('\\') && *pchPrev != _T('/'))
     {
@@ -102,7 +102,7 @@ VOID MzcAddBackslash(LPTSTR pszPath)
 VOID MzcRemoveBackslashA(LPTSTR pszPath)
 {
     using namespace std;
-    SIZE_T cchPath = lstrlen(pszPath);
+    std::size_t cchPath = lstrlen(pszPath);
     LPTSTR pchPrev = CharPrev(pszPath, pszPath + cchPath);
     if (*pchPrev == _T('\\') || *pchPrev == _T('/'))
     {

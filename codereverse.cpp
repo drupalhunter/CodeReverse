@@ -9,9 +9,9 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-LPCSTR cr_logo =
+const char * const cr_logo =
     "/////////////////////////////////////\n"
-    "// CodeReverse 0.0.6                  //\n"
+    "// CodeReverse 0.0.6               //\n"
     "// katayama.hirofumi.mz@gmail.com  //\n"
     "/////////////////////////////////////\n";
 
@@ -150,9 +150,9 @@ TBOOL& TBOOL::NotEqual(const TBOOL& tb1, const TBOOL& tb2)
 
 struct X86_REGINFO
 {
-    LPCSTR      name;
+    const char *name;
     X86_REGTYPE type;
-    INT         bits;
+    int         bits;
 };
 
 const X86_REGINFO cr_reg_entries[] =
@@ -311,10 +311,11 @@ const X86_REGINFO cr_reg_entries[] =
     {"SFeqOF", X86_FLAG, 0}  // extension (means SF == OF)
 };
 
-X86_REGTYPE cr_reg_get_type(LPCSTR name, INT bits)
+X86_REGTYPE cr_reg_get_type(const char *name, INT bits)
 {
-    size_t size = sizeof(cr_reg_entries) / sizeof(cr_reg_entries[0]);
-    for (size_t i = 0; i < size; i++)
+    const std::size_t size =
+        sizeof(cr_reg_entries) / sizeof(cr_reg_entries[0]);
+    for (std::size_t i = 0; i < size; i++)
     {
         if (bits >= cr_reg_entries[i].bits &&
             _stricmp(cr_reg_entries[i].name, name) == 0)
@@ -325,7 +326,7 @@ X86_REGTYPE cr_reg_get_type(LPCSTR name, INT bits)
     return X86_REGNONE;
 }
 
-DWORD cr_reg_get_size(LPCSTR name, INT bits)
+DWORD cr_reg_get_size(const char *name, INT bits)
 {
     switch (cr_reg_get_type(name, bits))
     {
@@ -355,12 +356,12 @@ DWORD cr_reg_get_size(LPCSTR name, INT bits)
     return 0;
 }
 
-BOOL cr_reg_in_reg(LPCSTR reg1, LPCSTR reg2)
+BOOL cr_reg_in_reg(const char *reg1, const char *reg2)
 {
     if (strcmp(reg1, reg2) == 0)
         return TRUE;
 
-    static LPCSTR s[][4] =
+    static const char *s[][4] =
     {
         {"al", "ax", "eax", "rax"},
         {"bl", "bx", "ebx", "rbx"},
@@ -391,8 +392,8 @@ BOOL cr_reg_in_reg(LPCSTR reg1, LPCSTR reg2)
         {"r15b", "r15w", "r15d", "r15"},
     };
 
-    size_t i, size = sizeof(s) / sizeof(s[0]);
-    for (i = 0; i < size; i++)
+    const std::size_t size = sizeof(s) / sizeof(s[0]);
+    for (std::size_t i = 0; i < size; i++)
     {
         if (strcmp(reg1, s[i][0]) == 0)
         {
@@ -421,7 +422,7 @@ BOOL cr_reg_in_reg(LPCSTR reg1, LPCSTR reg2)
     return FALSE;
 }
 
-BOOL cr_reg_overlaps_reg(LPCSTR reg1, LPCSTR reg2)
+BOOL cr_reg_overlaps_reg(const char *reg1, const char *reg2)
 {
     return cr_reg_in_reg(reg1, reg2) || cr_reg_in_reg(reg2, reg1);
 }
@@ -429,7 +430,7 @@ BOOL cr_reg_overlaps_reg(LPCSTR reg1, LPCSTR reg2)
 ////////////////////////////////////////////////////////////////////////////
 // x86 flags
 
-X86_FLAGTYPE cr_flag_get_type(LPCSTR name, INT bits)
+X86_FLAGTYPE cr_flag_get_type(const char *name, INT bits)
 {
     if (name[0] != '\0' && name[1] == 'F' && name[2] == '\0')
     {
@@ -449,7 +450,7 @@ X86_FLAGTYPE cr_flag_get_type(LPCSTR name, INT bits)
     return X86_FLAG_NONE;
 }
 
-LPCSTR cr_flag_get_name(X86_FLAGTYPE type, INT bits)
+const char *cr_flag_get_name(X86_FLAGTYPE type, INT bits)
 {
     switch (type)
     {
@@ -516,20 +517,20 @@ VOID OPERAND::clear()
     IsFunction().clear();
 }
 
-VOID OPERAND::SetReg(LPCSTR name)
+VOID OPERAND::SetReg(const char *name)
 {
     Text() = name;
     OperandType() = OT_REG;
     Size() = cr_reg_get_size(name, 64);
 }
 
-VOID OPERAND::SetAPI(LPCSTR api)
+VOID OPERAND::SetAPI(const char *api)
 {
     Text() = api;
     OperandType() = OT_API;
 }
 
-VOID OPERAND::SetLabel(LPCSTR label)
+VOID OPERAND::SetLabel(const char *label)
 {
     Text() = label;
     OperandType() = OT_IMM;
@@ -541,7 +542,7 @@ VOID OPERAND::SetMemImm(ADDR64 addr)
     Value64() = addr;
 }
 
-VOID OPERAND::SetMemExp(LPCSTR exp_)
+VOID OPERAND::SetMemExp(const char *exp_)
 {
     OperandType() = OT_MEMEXP;
     Exp() = exp_;
@@ -662,8 +663,8 @@ bool STACK::operator==(const STACK& s) const
     if (size() != s.size())
         return false;
 
-    size_t size = s.size();
-    for (size_t i = 0; i < size; i++)
+    const std::size_t size = s.size();
+    for (std::size_t i = 0; i < size; i++)
     {
         if (m_items[i] != s.m_items[i])
             return false;
@@ -677,26 +678,26 @@ bool STACK::operator!=(const STACK& s) const
     return !(*this == s);
 }
 
-VOID STACK::AddSP(SIZE_T size)
+VOID STACK::AddSP(std::size_t size)
 {
     assert(m_items.size() >= size);
     resize(m_items.size() - size);
     m_minussp -= size;
 }
 
-VOID STACK::SubSP(SIZE_T size)
+VOID STACK::SubSP(std::size_t size)
 {
     resize(m_items.size() + size);
     m_minussp += size;
 }
 
-VOID STACK::AddBP(SIZE_T size)
+VOID STACK::AddBP(std::size_t size)
 {
     assert(m_items.size() >= size);
     m_minusbp -= size;
 }
 
-VOID STACK::SubBP(SIZE_T size)
+VOID STACK::SubBP(std::size_t size)
 {
     m_minusbp += size;
 }
@@ -713,22 +714,22 @@ VOID STACK::Pop(OPERAND& opr)
     AddSP(opr.Size());
 }
 
-VOID STACK::GetFromSP(SIZE_T index, OPERAND& opr)
+VOID STACK::GetFromSP(std::size_t index, OPERAND& opr)
 {
     opr = m_items[m_minussp - index];
 }
 
-VOID STACK::SetFromSP(SIZE_T index, const OPERAND& opr)
+VOID STACK::SetFromSP(std::size_t index, const OPERAND& opr)
 {
     m_items[m_minussp - index] = opr;
 }
 
-VOID STACK::GetFromBP(SIZE_T index, OPERAND& opr)
+VOID STACK::GetFromBP(std::size_t index, OPERAND& opr)
 {
     opr = m_items[m_minusbp - index];
 }
 
-VOID STACK::SetFromBP(SIZE_T index, const OPERAND& opr)
+VOID STACK::SetFromBP(std::size_t index, const OPERAND& opr)
 {
     m_items[m_minusbp - index] = opr;
 }
@@ -980,8 +981,8 @@ VOID CODEFUNC32::clear()
 
 BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr)
 {
-    size_t i, size = Blocks().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = Blocks().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         if (Blocks()[i].Addr() == addr)
             return &Blocks()[i];
@@ -991,8 +992,8 @@ BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr)
 
 const BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr) const
 {
-    size_t i, size = Blocks().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = Blocks().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         if (Blocks()[i].Addr() == addr)
             return &Blocks()[i];
@@ -1049,8 +1050,8 @@ VOID CODEFUNC64::clear()
 
 BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
 {
-    size_t i, size = Blocks().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = Blocks().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         if (Blocks()[i].Addr() == addr)
             return &Blocks()[i];
@@ -1060,8 +1061,8 @@ BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
 
 const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
 {
-    size_t i, size = Blocks().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = Blocks().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         if (Blocks()[i].Addr() == addr)
             return &Blocks()[i];
@@ -1072,11 +1073,11 @@ const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
 ////////////////////////////////////////////////////////////////////////////
 // cr_get_asmio_16, cr_get_asmio_32, cr_get_asmio_64
 
-void cr_str_split_to_set(set<string>& s, LPCSTR psz, LPCSTR seps)
+void cr_str_split_to_set(set<string>& s, const char *psz, const char *seps)
 {
     s.clear();
-    LPSTR str = _strdup(psz);
-    LPSTR p = strtok(str, seps);
+    char *str = _strdup(psz);
+    char *p = strtok(str, seps);
     while (p != NULL)
     {
         s.insert(p);
@@ -1088,10 +1089,10 @@ void cr_str_split_to_set(set<string>& s, LPCSTR psz, LPCSTR seps)
 // assembly instruction input/output information
 struct X86ASMIO
 {
-    LPCSTR name;
+    const char *name;
     INT num_args;
-    LPCSTR in;
-    LPCSTR out;
+    const char *in;
+    const char *out;
     INT osize;
 };
 
@@ -1237,7 +1238,7 @@ BOOL cr_get_asmio_16(X86ASMIO *key, set<string>& in, set<string>& out, INT osize
         {"xor", 2, "$0,$1", "$0,ZF,SF,OF,CF,PF,AF,SFeqOF", 0},
     };
 
-    const SIZE_T size = sizeof(s_table) / sizeof(s_table[0]);
+    const std::size_t size = sizeof(s_table) / sizeof(s_table[0]);
     const X86ASMIO *p = 
         (const X86ASMIO *)bsearch(key, s_table, size, sizeof(X86ASMIO),
                                   cr_compare_asmio);
@@ -1473,7 +1474,7 @@ BOOL cr_get_asmio_32(X86ASMIO *key, set<string>& in, set<string>& out, INT osize
         {"xor", 2, "$0,$1", "$0,ZF,SF,OF,CF,PF,AF,SFeqOF", 0},
     };
 
-    const SIZE_T size = sizeof(s_table) / sizeof(s_table[0]);
+    const std::size_t size = sizeof(s_table) / sizeof(s_table[0]);
     const X86ASMIO *p =
         (const X86ASMIO *)bsearch(key, s_table, size, sizeof(X86ASMIO),
                                   cr_compare_asmio);
@@ -1727,7 +1728,7 @@ BOOL cr_get_asmio_64(X86ASMIO *key, set<string>& in, set<string>& out, INT osize
         {"xor", 2, "$0,$1", "$0,ZF,SF,OF,CF,PF,AF,SFeqOF", 0},
     };
 
-    const SIZE_T size = sizeof(s_table) / sizeof(s_table[0]);
+    const std::size_t size = sizeof(s_table) / sizeof(s_table[0]);
     const X86ASMIO *p =
         (const X86ASMIO *)bsearch(key, s_table, size, sizeof(X86ASMIO),
                                   cr_compare_asmio);
@@ -1842,8 +1843,8 @@ const ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr) const
 
 BOOL DECOMPSTATUS32::AnalyzeCFG()
 {
-    size_t i, size = Entrances().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = Entrances().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         AnalyzeFuncCFGStage1(Entrances()[i], Entrances()[i]);
         AnalyzeFuncCFGStage2(Entrances()[i]);
@@ -1909,7 +1910,7 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage1(ADDR32 func, ADDR32 addr)
             cf->Blocks().insert(block);
     } while (!bEnd);
 
-    SIZE_T i, size = vJumpees.size();
+    std::size_t i, size = vJumpees.size();
     for (i = 0; i < size; i++)
     {
         if (cf->FindBlockOfAddr(vJumpees[i]))
@@ -1927,11 +1928,11 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage2(ADDR32 func)
     if (cf == NULL)
         return FALSE;
 
-    size_t i, j, size = cf->Blocks().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = cf->Blocks().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         BLOCK32 *b1 = &cf->Blocks()[i];
-        for (j = 0; j < size; j++)
+        for (std::size_t j = 0; j < size; j++)
         {
             BLOCK32 *b2 = &cf->Blocks()[j];
             if (b2->Addr() == 0)
@@ -2040,8 +2041,8 @@ VOID DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr, const CODEFUNC64& cf)
 
 BOOL DECOMPSTATUS64::AnalyzeCFG()
 {
-    size_t i, size = Entrances().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = Entrances().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         AnalyzeFuncCFGStage1(Entrances()[i], Entrances()[i]);
         AnalyzeFuncCFGStage2(Entrances()[i]);
@@ -2107,7 +2108,7 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage1(ADDR64 func, ADDR64 addr)
             cf->Blocks().insert(block);
     } while (!bEnd);
 
-    SIZE_T i, size = vJumpees.size();
+    std::size_t i, size = vJumpees.size();
     for (i = 0; i < size; i++)
     {
         if (cf->FindBlockOfAddr(vJumpees[i]))
@@ -2125,11 +2126,11 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage2(ADDR64 func)
     if (cf == NULL)
         return FALSE;
 
-    size_t i, j, size = cf->Blocks().size();
-    for (i = 0; i < size; i++)
+    const std::size_t size = cf->Blocks().size();
+    for (std::size_t i = 0; i < size; i++)
     {
         BLOCK64 *b1 = &cf->Blocks()[i];
-        for (j = 0; j < size; j++)
+        for (std::size_t j = 0; j < size; j++)
         {
             BLOCK64 *b2 = &cf->Blocks()[j];
             if (b2->Addr() == 0)
@@ -2150,14 +2151,27 @@ int _tmain(int argc, _TCHAR **argv)
 {
     puts(cr_logo);
 
-    if (argc != 2)
+    if (argc <= 1 || argc > 3 ||
+        lstrcmp(argv[1], TEXT("/?")) == 0 ||
+        lstrcmp(argv[1], TEXT("--help")) == 0)
     {
 #ifdef _WIN64
-        fprintf(stderr, "Usage: coderev64 exefile.exe\n");
+        fprintf(stderr, "Usage: coderev64 exefile.exe [input-file.i]\n\n");
 #else
-        fprintf(stderr, "Usage: coderev exefile.exe\n");
+        fprintf(stderr, "Usage: coderev exefile.exe [input-file.i]\n\n");
 #endif
+        fprintf(stderr, "NOTE: input-file.i must be preprocessed C source.\n");
         return 0;
+    }
+
+    if (argc >= 2 && lstrcmp(argv[1], TEXT("--version")) == 0)
+    {
+        return 0;
+    }
+
+    if (argc == 3)
+    {
+        // TODO: parse argv[2]
     }
 
     PEMODULE module;

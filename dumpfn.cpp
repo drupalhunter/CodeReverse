@@ -9,23 +9,23 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-LPCSTR GetTimeStampString(DWORD TimeStamp)
+const char *GetTimeStampString(DWORD TimeStamp)
 {
-    time_t t;
+    std::time_t t;
     char *p;
-    size_t len;
+    std::size_t len;
     if (TimeStamp == 0)
         return "NULL";
 
-    t = (time_t)TimeStamp;
-    p = asctime(gmtime(&t));
-    len = strlen(p);
+    t = static_cast<time_t>(TimeStamp);
+    p = std::asctime(gmtime(&t));
+    len = std::strlen(p);
     if (len > 0 && p[len - 1] == '\n')
         p[len - 1] = '\0';
     return p;
 }
 
-LPCSTR GetMachineString(WORD Machine)
+const char *GetMachineString(WORD Machine)
 {
 #ifndef IMAGE_FILE_MACHINE_SH3DSP
     #define IMAGE_FILE_MACHINE_SH3DSP 0x01A3
@@ -95,7 +95,7 @@ LPCSTR GetMachineString(WORD Machine)
     }
 }
 
-LPCSTR GetFileCharacteristicsString(WORD w)
+const char *GetFileCharacteristicsString(WORD w)
 {
     static char buf[512];
     buf[0] = 0;
@@ -119,7 +119,7 @@ LPCSTR GetFileCharacteristicsString(WORD w)
     return buf;
 }
 
-LPCSTR GetSectionFlagsString(DWORD dw)
+const char *GetSectionFlagsString(DWORD dw)
 {
 #ifndef IMAGE_SCN_TYPE_DSECT
     #define IMAGE_SCN_TYPE_DSECT 0x00000001
@@ -306,7 +306,7 @@ LPCSTR GetSectionFlagsString(DWORD dw)
     return buf;
 }
 
-LPCSTR GetDllCharacteristicsString(WORD w)
+const char *GetDllCharacteristicsString(WORD w)
 {
 #ifndef IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
     #define IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE 0x0040
@@ -348,7 +348,7 @@ LPCSTR GetDllCharacteristicsString(WORD w)
     return buf;
 }
 
-LPCSTR GetSubsystemString(WORD w)
+const char *GetSubsystemString(WORD w)
 {
 #ifndef IMAGE_SUBSYSTEM_UNKNOWN
     #define IMAGE_SUBSYSTEM_UNKNOWN 0
@@ -664,7 +664,7 @@ VOID DumpSectionHeader(LPVOID Data)
 
 VOID DumpCodes(const vector<BYTE>& codes, INT bits)
 {
-    size_t codesperline;
+    std::size_t codesperline;
 
     if (bits == 64)
         codesperline = 16;
@@ -673,7 +673,7 @@ VOID DumpCodes(const vector<BYTE>& codes, INT bits)
     else
         codesperline = 9;
 
-    size_t i;
+    std::size_t i;
     for (i = 0; i < codesperline; i++)
     {
         if (i < codes.size())
@@ -690,3 +690,455 @@ VOID DumpCodes(const vector<BYTE>& codes, INT bits)
 }
 
 ////////////////////////////////////////////////////////////////////////////
+// PEMODULE dumping
+
+VOID PEMODULE::DumpHeaders()
+{
+    if (!IsModuleLoaded())
+        return;
+
+#ifdef _UNICODE
+    printf("FileName: %ls, FileSize: 0x%08lX (%lu)\n",
+        GetFileName(), GetFileSize(), GetFileSize());
+#else
+    printf("FileName: %s, FileSize: 0x%08lX (%lu)\n",
+        GetFileName(), GetFileSize(), GetFileSize());
+#endif
+
+    if (DOSHeader())
+    {
+        DumpDOSHeader(DOSHeader());
+    }
+    if (FileHeader())
+    {
+        DumpFileHeader(FileHeader());
+    }
+    if (OptionalHeader32())
+    {
+        DumpOptionalHeader32(OptionalHeader32(), CheckSum());
+    }
+    else if (OptionalHeader64())
+    {
+        DumpOptionalHeader64(OptionalHeader64(), CheckSum());
+    }
+    if (SectionHeaders())
+    {
+        DWORD size = NumberOfSections();
+        for (DWORD i = 0; i < size; i++)
+        {
+            printf("\n### Section #%lu ###\n", i);
+            DumpSectionHeader(SectionHeader(i));
+        }
+    }
+}
+
+VOID PEMODULE::DumpImportSymbols()
+{
+    PIMAGE_IMPORT_DESCRIPTOR descs;
+    VECSET<string> dll_names;
+    VECSET<IMPORT_SYMBOL> symbols;
+
+    descs = ImportDescriptors();
+    if (descs == NULL)
+        return;
+
+    printf("\n### IMPORTS ###\n");
+    printf("  Characteristics: 0x%08lX\n", descs->Characteristics);
+    printf("  TimeDateStamp: 0x%08lX (%s)\n", descs->TimeDateStamp,
+        GetTimeStampString(descs->TimeDateStamp));
+    printf("  ForwarderChain: 0x%08lX\n", descs->ForwarderChain);
+    printf("  Name: 0x%08lX (%s)\n", descs->Name, reinterpret_cast<char *>(GetData(descs->Name)));
+    printf("  \n");
+
+    if (!_GetImportDllNames(dll_names))
+        return;
+
+    for (DWORD i = 0; i < dll_names.size(); i++)
+    {
+        printf("  %s\n", dll_names[i].c_str());
+        if (Is64Bit())
+            printf("    RVA      VA               HINT FUNCTION NAME\n");
+        else
+            printf("    RVA      VA       HINT FUNCTION NAME\n");
+
+        if (_GetImportSymbols(i, symbols))
+        {
+            for (DWORD j = 0; j < symbols.size(); j++)
+            {
+                if (Is64Bit())
+                {
+                    ADDR64 addr = VA64FromRVA(symbols[j].dwRVA);
+                    printf("    %08lX %08lX%08lX ", symbols[j].dwRVA,
+                        HILONG(addr), LOLONG(addr));
+                }
+                else if (Is32Bit())
+                {
+                    ADDR32 addr = VA32FromRVA(symbols[j].dwRVA);
+                    printf("    %08lX %08lX ", symbols[j].dwRVA, addr);
+                }
+                if (symbols[j].Name.wImportByName)
+                    printf("%4X %s\n", symbols[j].wHint, symbols[j].pszName);
+                else
+                    printf("Ordinal %d\n", symbols[j].Name.wOrdinal);
+            }
+            printf("  \n");
+        }
+    }
+}
+
+VOID PEMODULE::DumpExportSymbols()
+{
+    PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
+
+    if (pDir == NULL)
+        return;
+
+    //DWORD dwNumberOfNames = pDir->NumberOfNames;
+    //DWORD dwAddressOfFunctions = pDir->AddressOfFunctions;
+    //DWORD dwAddressOfNames = pDir->AddressOfNames;
+    //DWORD dwAddressOfOrdinals = pDir->AddressOfNameOrdinals;
+    //LPDWORD pEAT = (LPDWORD)GetData(dwAddressOfFunctions);
+    //LPDWORD pENPT = (LPDWORD)GetData(dwAddressOfNames);
+    //LPWORD pOT = (LPWORD)GetData(dwAddressOfOrdinals);
+
+    printf("\n### EXPORTS ###\n");
+    printf("  Characteristics: 0x%08lX\n", pDir->Characteristics);
+    printf("  TimeDateStamp: 0x%08lX (%s)\n", pDir->TimeDateStamp, GetTimeStampString(pDir->TimeDateStamp));
+    printf("  Version: %u.%u\n", pDir->MajorVersion, pDir->MinorVersion);
+    printf("  Name: 0x%08lX (%s)\n", pDir->Name, reinterpret_cast<char *>(GetData(pDir->Name)));
+    printf("  Base: 0x%08lX (%lu)\n", pDir->Base, pDir->Base);
+    printf("  NumberOfFunctions: 0x%08lX (%lu)\n", pDir->NumberOfFunctions, pDir->NumberOfFunctions);
+    printf("  NumberOfNames: 0x%08lX (%lu)\n", pDir->NumberOfNames, pDir->NumberOfNames);
+    printf("  AddressOfFunctions: 0x%08lX\n", pDir->AddressOfFunctions);
+    printf("  AddressOfNames: 0x%08lX\n", pDir->AddressOfNames);
+    printf("  AddressOfNameOrdinals: 0x%08lX\n", pDir->AddressOfNameOrdinals);
+    printf("  \n");
+
+    printf("  %-50s %-5s ; %-8s %-8s\n", "FUNCTION NAME", "ORDI.", "RVA", "VA");
+
+    for (DWORD i = 0; i < ExportSymbols().size(); i++)
+    {
+        EXPORT_SYMBOL& symbol = ExportSymbols()[i];
+        if (symbol.dwRVA)
+        {
+            if (Is64Bit())
+            {
+                ADDR64 va = VA64FromRVA(symbol.dwRVA);
+                if (symbol.pszName)
+                    printf("  %-50s @%-4lu ; %08lX %08lX%08lX\n", 
+                        symbol.pszName, symbol.dwOrdinal, symbol.dwRVA,
+                        HILONG(va), LOLONG(va));
+                else
+                    printf("  %-50s @%-4lu ; %08lX %08lX%08lX\n", 
+                        "(No Name)", symbol.dwOrdinal, symbol.dwRVA,
+                        HILONG(va), LOLONG(va));
+            }
+            else if (Is32Bit())
+            {
+                ADDR32 va = VA32FromRVA(symbol.dwRVA);
+                if (symbol.pszName)
+                    printf("  %-50s @%-4lu ; %08lX %08lX\n", 
+                        symbol.pszName, symbol.dwOrdinal, symbol.dwRVA, va);
+                else
+                    printf("  %-50s @%-4lu ; %08lX %08lX\n", 
+                        "(No Name)", symbol.dwOrdinal, symbol.dwRVA, va);
+            }
+        }
+        else
+        {
+            if (symbol.pszName)
+                printf("  %-50s @%-4lu ; (forwarded to %s)\n", 
+                    "(No Name)", symbol.dwOrdinal, symbol.pszForwarded);
+            else
+                printf("  %-50s @%-4lu ; (forwarded to %s)\n",
+                    "(No Name)", symbol.dwOrdinal, symbol.pszForwarded);
+        }
+    }
+
+    printf("\n\n");
+}
+
+VOID PEMODULE::DumpDelayLoad()
+{
+    if (DelayLoadDescriptors().empty())
+    {
+        LoadDelayLoad();
+        if (DelayLoadDescriptors().empty())
+            return;
+    }
+
+    printf("### DELAY LOAD ###\n");
+    const std::size_t size = DelayLoadDescriptors().size();
+    DWORD rva;
+    if (Is64Bit())
+    {
+        ADDR64 addr;
+        for (std::size_t i = 0; i < size; i++)
+        {
+            printf("  ### Descr #%u ###\n", static_cast<int>(i));
+            printf("    NAME       %-8s %-8s\n", "RVA", "VA");
+
+            rva = DelayLoadDescriptors()[i].grAttrs;
+            addr = VA64FromRVA(rva);
+            printf("    Attrs:     %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            rva = DelayLoadDescriptors()[i].rvaDLLName;
+            addr = VA64FromRVA(rva);
+            printf("    DLL Name:  %s\n", (LPCSTR)(LoadedImage() + rva));
+            printf("            :  %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            rva = DelayLoadDescriptors()[i].rvaHmod;
+            addr = VA64FromRVA(rva);
+            printf("    Module:    %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            rva = DelayLoadDescriptors()[i].rvaIAT;
+            addr = VA64FromRVA(rva);
+            printf("    IAT:       %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            rva = DelayLoadDescriptors()[i].rvaINT;
+            addr = VA64FromRVA(rva);
+            printf("    INT:       %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            rva = DelayLoadDescriptors()[i].rvaBoundIAT;
+            addr = VA64FromRVA(rva);
+            printf("    BoundIAT:  %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            rva = DelayLoadDescriptors()[i].rvaUnloadIAT;
+            addr = VA64FromRVA(rva);
+            printf("    UnloadIAT: %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
+
+            const char *pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
+            printf("    dwTimeStamp:  0x%08lX (%s)",
+                DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
+        }
+    }
+    else if (Is32Bit())
+    {
+        ADDR32 addr;
+        for (std::size_t i = 0; i < size; i++)
+        {
+            printf("  ### Descr #%u ###\n", static_cast<INT>(i));
+            printf("    NAME       %-8s %-8s\n", "RVA", "VA");
+
+            rva = DelayLoadDescriptors()[i].grAttrs;
+            addr = VA32FromRVA(rva);
+            printf("    Attrs:     %08lX %08lX\n", rva, addr);
+
+            rva = DelayLoadDescriptors()[i].rvaDLLName;
+            addr = VA32FromRVA(rva);
+            printf("    DLL Name:  %s\n", (LPCSTR)(LoadedImage() + rva));
+            printf("            :  %08lX %08lX\n", rva, addr);
+
+            rva = DelayLoadDescriptors()[i].rvaHmod;
+            addr = VA32FromRVA(rva);
+            printf("    Module:    %08lX %08lX\n", rva, addr);
+
+            rva = DelayLoadDescriptors()[i].rvaIAT;
+            addr = VA32FromRVA(rva);
+            printf("    IAT:       %08lX %08lX\n", rva, addr);
+
+            rva = DelayLoadDescriptors()[i].rvaINT;
+            addr = VA32FromRVA(rva);
+            printf("    INT:       %08lX %08lX\n", rva, addr);
+
+            rva = DelayLoadDescriptors()[i].rvaBoundIAT;
+            addr = VA32FromRVA(rva);
+            printf("    BoundIAT:  %08lX %08lX\n", rva, addr);
+
+            rva = DelayLoadDescriptors()[i].rvaUnloadIAT;
+            addr = VA32FromRVA(rva);
+            printf("    UnloadIAT: %08lX %08lX\n", rva, addr);
+
+            const char *pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
+            printf("    dwTimeStamp:  0x%08lX (%s)",
+                DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
+        }
+    }
+
+    printf("\n\n");
+}
+
+////////////////////////////////////////////////////////////////////////////
+// PEMODULE::DumpDisAsm32
+
+BOOL PEMODULE::DumpDisAsm32(DECOMPSTATUS32& status)
+{
+    printf("### DISASSEMBLY ###\n\n");
+
+    status.Entrances().sort();
+    status.Entrances().uniq();
+    const std::size_t size = status.Entrances().size();
+    for (std::size_t i = 0; i < size; i++)
+    {
+        const CODEFUNC32& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
+        if (cf.Flags() & FF_IGNORE)
+            continue;
+
+        const char *pszName = GetSymbolNameFromAddr32(cf.Addr());
+        if (pszName)
+            printf(";; Function %s @ L%08lX\n", pszName, cf.Addr());
+        else
+            printf(";; Function L%08lX\n", cf.Addr());
+        switch (cf.FuncType())
+        {
+        case FT_JUMPER:
+            printf("ft = FT_JUMPER, ");
+            break;
+
+        case FT_CDECL:
+            printf("ft = FT_CDECL, ");
+            break;
+
+        case FT_CDECLVA:
+            printf("ft = FT_CDECLVA, ");
+            break;
+
+        case FT_STDCALL:
+            printf("ft = FT_STDCALL, ");
+            break;
+
+        case FT_FASTCALL:
+            printf("ft = FT_FASTCALL, ");
+            break;
+
+        default:
+            printf("ft = unknown, ");
+            break;
+        }
+        printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
+        DumpDisAsmFunc32(status, status.Entrances()[i]);
+
+        if (pszName)
+            printf(";; End of Function %s @ L%08lX\n\n", pszName, cf.Addr());
+        else
+            printf(";; End of Function L%08lX\n\n", cf.Addr());
+    }
+    return TRUE;
+}
+
+BOOL PEMODULE::DumpDisAsmFunc32(DECOMPSTATUS32& status, ADDR32 func)
+{
+    map<ADDR32, ASMCODE32>::const_iterator it, end;
+    end = status.MapAddrToAsmCode().end();
+    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    {
+        const ASMCODE32& ac = it->second;
+
+        if (func != 0 && !ac.Funcs().Find(func))
+            continue;
+
+        printf("L%08lX: ", ac.Addr());
+
+        DumpCodes(ac.Codes(), 32);
+
+        switch (ac.Operands().size())
+        {
+        case 3:
+            printf("%s %s,%s,%s\n", ac.Name().c_str(),
+                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str(),
+                ac.Operand(2)->Text().c_str());
+            break;
+
+        case 2:
+            printf("%s %s,%s\n", ac.Name().c_str(),
+                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str());
+            break;
+
+        case 1:
+            printf("%s %s\n", ac.Name().c_str(),
+                ac.Operand(0)->Text().c_str());
+            break;
+
+        case 0:
+            printf("%s\n", ac.Name().c_str());
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// PEMODULE::DumpDisAsm64
+
+BOOL PEMODULE::DumpDisAsm64(DECOMPSTATUS64& status)
+{
+    printf("### DISASSEMBLY ###\n\n");
+
+    status.Entrances().sort();
+    status.Entrances().uniq();
+    const std::size_t size = status.Entrances().size();
+    for (std::size_t i = 0; i < size; i++)
+    {
+        const CODEFUNC64& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
+        if (cf.Flags() & FF_IGNORE)
+            continue;
+
+        const char *pszName = GetSymbolNameFromAddr64(cf.Addr());
+        if (pszName)
+            printf(";; Function %s @ L%08lX%08lX\n", pszName,
+                HILONG(cf.Addr()), LOLONG(cf.Addr()));
+        else
+            printf(";; Function L%08lX%08lX\n", HILONG(cf.Addr()), LOLONG(cf.Addr()));
+        if (cf.FuncType() == FT_JUMPER)
+        {
+            printf("ft = FT_JUMPER, ");
+        }
+        else
+        {
+            printf("ft = normal, ");
+        }
+        printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
+        DumpDisAsmFunc64(status, status.Entrances()[i]);
+
+        if (pszName)
+            printf(";; End of Function %s @ L%08lX%08lX\n\n", pszName,
+                HILONG(cf.Addr()), LOLONG(cf.Addr()));
+        else
+            printf(";; End of Function L%08lX%08lX\n\n",
+                HILONG(cf.Addr()), LOLONG(cf.Addr()));
+    }
+    return TRUE;
+}
+
+BOOL PEMODULE::DumpDisAsmFunc64(DECOMPSTATUS64& status, ADDR64 func)
+{
+    map<ADDR64, ASMCODE64>::const_iterator it, end;
+    end = status.MapAddrToAsmCode().end();
+    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    {
+        const ASMCODE64& ac = it->second;
+
+        if (func != 0 && !ac.Funcs().Find(func))
+            continue;
+
+        printf("L%08lX%08lX: ", HILONG(ac.Addr()), LOLONG(ac.Addr()));
+
+        DumpCodes(ac.Codes(), 64);
+
+        switch (ac.Operands().size())
+        {
+        case 3:
+            printf("%s %s,%s,%s\n", ac.Name().c_str(),
+                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str(),
+                ac.Operand(2)->Text().c_str());
+            break;
+
+        case 2:
+            printf("%s %s,%s\n", ac.Name().c_str(),
+                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str());
+            break;
+
+        case 1:
+            printf("%s %s\n", ac.Name().c_str(),
+                ac.Operand(0)->Text().c_str());
+            break;
+
+        case 0:
+            printf("%s\n", ac.Name().c_str());
+            break;
+        }
+    }
+
+    return TRUE;
+}

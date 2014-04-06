@@ -13,18 +13,18 @@
 #include <delayimp.h>   // ImgDelayDescr
 #include <imagehlp.h>   // CheckSumMappedFile
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
+#include <cstring>
+#include <cassert>
 #include <vector>
 #include <string>
 #include <set>
 #include <map>
 #include <stack>
 #include <algorithm>
-#include <stdint.h>
+#include <cstdint>
 using namespace std;
 
 #include "codereverse.h"

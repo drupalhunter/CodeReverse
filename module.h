@@ -50,7 +50,7 @@ struct IMPORT_SYMBOL
             WORD wImportByName;
             WORD wOrdinal;
         } Name;
-        LPCSTR pszName;
+        const char *pszName;
     };
 };
 typedef IMPORT_SYMBOL *LPIMPORT_SYMBOL;
@@ -62,8 +62,8 @@ struct EXPORT_SYMBOL
 {
     DWORD   dwRVA;
     DWORD   dwOrdinal;
-    LPCSTR  pszName;
-    LPCSTR  pszForwarded;
+    const char * pszName;
+    const char * pszForwarded;
 };
 typedef EXPORT_SYMBOL *LPEXPORT_SYMBOL;
 
@@ -106,8 +106,8 @@ public:
     VOID clear();
 
 public:
-    VOID AddImportDllName(LPCSTR name);
-    VOID AddSymbol(DWORD rva, LPCSTR name);
+    VOID AddImportDllName(const char *name);
+    VOID AddSymbol(DWORD rva, const char *name);
     VOID AddSymbol(const SYMBOL& s);
     VOID AddImportSymbol(const IMPORT_SYMBOL& is);
     VOID AddExportSymbol(const EXPORT_SYMBOL& es);
@@ -117,11 +117,11 @@ public: // accessors
     VECSET<IMPORT_SYMBOL>&              GetImportSymbols();
     VECSET<EXPORT_SYMBOL>&              GetExportSymbols();
     IMPORT_SYMBOL *                     GetImportSymbolFromRVA(DWORD RVA);
-    IMPORT_SYMBOL *                     GetImportSymbolFromName(LPCSTR name);
+    IMPORT_SYMBOL *                     GetImportSymbolFromName(const char *name);
     EXPORT_SYMBOL *                     GetExportSymbolFromRVA(DWORD RVA);
-    EXPORT_SYMBOL *                     GetExportSymbolFromName(LPCSTR name);
+    EXPORT_SYMBOL *                     GetExportSymbolFromName(const char *name);
     SYMBOL *                            GetSymbolFromRVA(DWORD RVA);
-    SYMBOL *                            GetSymbolFromName(LPCSTR name);
+    SYMBOL *                            GetSymbolFromName(const char *name);
     map<DWORD, IMPORT_SYMBOL>&          MapRVAToImportSymbol();
     map<string, IMPORT_SYMBOL>&         MapNameToImportSymbol();
     map<DWORD, EXPORT_SYMBOL>&          MapRVAToExportSymbol();
@@ -134,11 +134,11 @@ public: // const accessors
     const VECSET<IMPORT_SYMBOL>&        GetImportSymbols() const;
     const VECSET<EXPORT_SYMBOL>&        GetExportSymbols() const;
     const IMPORT_SYMBOL *               GetImportSymbolFromRVA(DWORD RVA) const;
-    const IMPORT_SYMBOL *               GetImportSymbolFromName(LPCSTR name) const;
+    const IMPORT_SYMBOL *               GetImportSymbolFromName(const char *name) const;
     const EXPORT_SYMBOL *               GetExportSymbolFromRVA(DWORD RVA) const;
-    const EXPORT_SYMBOL *               GetExportSymbolFromName(LPCSTR name) const;
+    const EXPORT_SYMBOL *               GetExportSymbolFromName(const char *name) const;
     const SYMBOL *                      GetSymbolFromRVA(DWORD RVA) const;
-    const SYMBOL *                      GetSymbolFromName(LPCSTR name) const;
+    const SYMBOL *                      GetSymbolFromName(const char *name) const;
     const map<DWORD, IMPORT_SYMBOL>&    MapRVAToImportSymbol() const;
     const map<string, IMPORT_SYMBOL>&   MapNameToImportSymbol() const;
     const map<DWORD, EXPORT_SYMBOL>&    MapRVAToExportSymbol() const;
@@ -286,16 +286,16 @@ public:
 public:
     // finding
     const IMPORT_SYMBOL *FindImportSymbolByRVA(DWORD rva) const;
-    const IMPORT_SYMBOL *FindImportSymbolByName(LPCSTR Name) const;
+    const IMPORT_SYMBOL *FindImportSymbolByName(const char *Name) const;
     const EXPORT_SYMBOL *FindExportSymbolByRVA(DWORD rva) const;
-    const EXPORT_SYMBOL *FindExportSymbolByName(LPCSTR Name) const;
+    const EXPORT_SYMBOL *FindExportSymbolByName(const char *Name) const;
     const SYMBOL *FindSymbolByRVA(DWORD rva) const;
-    const SYMBOL *FindSymbolByName(LPCSTR Name) const;
+    const SYMBOL *FindSymbolByName(const char *Name) const;
     const SYMBOL *FindSymbolByAddr32(ADDR32 addr) const;
     const SYMBOL *FindSymbolByAddr64(ADDR64 addr) const;
-    LPCSTR GetSymbolNameFromRVA(DWORD rva) const;
-    LPCSTR GetSymbolNameFromAddr32(ADDR32 addr) const;
-    LPCSTR GetSymbolNameFromAddr64(ADDR64 addr) const;
+    const char *GetSymbolNameFromRVA(DWORD rva) const;
+    const char *GetSymbolNameFromAddr32(ADDR32 addr) const;
+    const char *GetSymbolNameFromAddr64(ADDR64 addr) const;
 
 public:
     BOOL DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va);
@@ -380,12 +380,12 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 // dumpfn.cpp
 
-LPCSTR GetTimeStampString(DWORD TimeStamp);
-LPCSTR GetMachineString(WORD Machine);
-LPCSTR GetFileCharacteristicsString(WORD w);
-LPCSTR GetSectionFlagsString(DWORD dw);
-LPCSTR GetDllCharacteristicsString(WORD w);
-LPCSTR GetSubsystemString(WORD w);
+const char *GetTimeStampString(DWORD TimeStamp);
+const char *GetMachineString(WORD Machine);
+const char *GetFileCharacteristicsString(WORD w);
+const char *GetSectionFlagsString(DWORD dw);
+const char *GetDllCharacteristicsString(WORD w);
+const char *GetSubsystemString(WORD w);
 VOID DumpDataDirectory(LPVOID Data, DWORD index);
 VOID DumpDOSHeader(LPVOID Data);
 VOID DumpFileHeader(LPVOID Data);

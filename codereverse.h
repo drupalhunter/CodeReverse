@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////////////////////
 // logo
 
-extern LPCSTR cr_logo;
+extern const char * const cr_logo;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -68,22 +68,22 @@ public:
     void Copy(const VECSET<ITEM_T>& vs);
     virtual ~VECSET();
 
-          ITEM_T& operator[](SIZE_T index);
-    const ITEM_T& operator[](SIZE_T index) const;
-    SIZE_T size() const;
+          ITEM_T& operator[](std::size_t index);
+    const ITEM_T& operator[](std::size_t index) const;
+    std::size_t size() const;
     bool empty() const;
     VOID clear();
     VOID insert(const ITEM_T& item);
     VOID insertIfNotFound(const ITEM_T& item);
     bool operator==(const VECSET<ITEM_T>& vs) const;
     bool operator!=(const VECSET<ITEM_T>& vs) const;
-    SIZE_T count(const ITEM_T& item) const;
+    std::size_t count(const ITEM_T& item) const;
     BOOL Find(const ITEM_T& item) const;
     VOID sort();
     VOID uniq();
     VOID erase(const ITEM_T& item);
     VOID swap(VECSET<ITEM_T>& vs);
-    VOID resize(SIZE_T size);
+    VOID resize(std::size_t size);
 
 public:
     typedef ITEM_T item_type;
@@ -122,19 +122,19 @@ template <typename ITEM_T>
 }
 
 template <typename ITEM_T>
-ITEM_T& VECSET<ITEM_T>::operator[](SIZE_T index)
+ITEM_T& VECSET<ITEM_T>::operator[](std::size_t index)
 {
     return m_items[index];
 }
 
 template <typename ITEM_T>
-const ITEM_T& VECSET<ITEM_T>::operator[](SIZE_T index) const
+const ITEM_T& VECSET<ITEM_T>::operator[](std::size_t index) const
 {
     return m_items[index];
 }
 
 template <typename ITEM_T>
-SIZE_T VECSET<ITEM_T>::size() const
+std::size_t VECSET<ITEM_T>::size() const
 {
     return m_items.size();
 }
@@ -170,7 +170,7 @@ bool VECSET<ITEM_T>::operator==(const VECSET<ITEM_T>& vs) const
     if (m_items.size() != vs.m_items.size())
         return false;
 
-    for (SIZE_T i = 0; i < m_items.size(); i++)
+    for (std::size_t i = 0; i < m_items.size(); i++)
     {
         if (m_items[i] != vs.m_items[i])
             return false;
@@ -185,10 +185,10 @@ bool VECSET<ITEM_T>::operator!=(const VECSET<ITEM_T>& vs) const
 }
 
 template <typename ITEM_T>
-SIZE_T VECSET<ITEM_T>::count(const ITEM_T& item) const
+std::size_t VECSET<ITEM_T>::count(const ITEM_T& item) const
 {
-    SIZE_T count = 0;
-    for (SIZE_T i = 0; i < m_items.size(); i++)
+    std::size_t count = 0;
+    for (std::size_t i = 0; i < m_items.size(); i++)
     {
         if (m_items[i] == item)
             count++;
@@ -199,7 +199,7 @@ SIZE_T VECSET<ITEM_T>::count(const ITEM_T& item) const
 template <typename ITEM_T>
 BOOL VECSET<ITEM_T>::Find(const ITEM_T& item) const
 {
-    for (SIZE_T i = 0; i < m_items.size(); i++)
+    for (std::size_t i = 0; i < m_items.size(); i++)
     {
         if (m_items[i] == item)
             return TRUE;
@@ -222,7 +222,7 @@ VOID VECSET<ITEM_T>::uniq()
 template <typename ITEM_T>
 VOID VECSET<ITEM_T>::erase(const ITEM_T& item)
 {
-    SIZE_T i, j, count = m_items.size();
+    std::size_t i, j, count = m_items.size();
     for (i = j = 0; i < count; i++)
     {
         if (m_items[i] != item)
@@ -241,7 +241,7 @@ VOID VECSET<ITEM_T>::swap(VECSET<ITEM_T>& vs)
 }
 
 template <typename ITEM_T>
-VOID VECSET<ITEM_T>::resize(SIZE_T size)
+VOID VECSET<ITEM_T>::resize(std::size_t size)
 {
     m_items.resize(size);
 }
@@ -296,10 +296,10 @@ enum X86_REGTYPE
     X86_REGNONE = -1
 };
 
-X86_REGTYPE cr_reg_get_type(LPCSTR name, INT bits);
-DWORD       cr_reg_get_size(LPCSTR name, INT bits);
-BOOL        cr_reg_in_reg(LPCSTR reg1, LPCSTR reg2);
-BOOL        cr_reg_overlaps_reg(LPCSTR reg1, LPCSTR reg2);
+X86_REGTYPE cr_reg_get_type(const char *name, INT bits);
+DWORD       cr_reg_get_size(const char *name, INT bits);
+BOOL        cr_reg_in_reg(const char *reg1, const char *reg2);
+BOOL        cr_reg_overlaps_reg(const char *reg1, const char *reg2);
 
 ////////////////////////////////////////////////////////////////////////////
 // x86 flags
@@ -345,8 +345,8 @@ struct X86_FLAGS
     };
 };
 
-X86_FLAGTYPE cr_flag_get_type(LPCSTR name, INT bits);
-LPCSTR       cr_flag_get_name(X86_FLAGTYPE type, INT bits);
+X86_FLAGTYPE cr_flag_get_type(const char *name, INT bits);
+const char *      cr_flag_get_name(X86_FLAGTYPE type, INT bits);
 
 ////////////////////////////////////////////////////////////////////////////
 // ASMCODETYPE - assembly code type
@@ -393,11 +393,11 @@ public:
     bool operator!=(const OPERAND& opr) const;
 
 public:
-    VOID SetReg(LPCSTR name);
-    VOID SetAPI(LPCSTR api);
-    VOID SetLabel(LPCSTR label);
+    VOID SetReg(const char *name);
+    VOID SetAPI(const char *api);
+    VOID SetLabel(const char *label);
     VOID SetMemImm(ADDR64 addr);
-    VOID SetMemExp(LPCSTR exp_);
+    VOID SetMemExp(const char *exp_);
     VOID SetImm32(ADDR32 val, BOOL is_signed);
     VOID SetImm64(ADDR64 val, BOOL is_signed);
 
@@ -467,21 +467,21 @@ public:
 
     DWORD GetSP();
     VOID SetSP(DWORD sp);
-    VOID AddSP(SIZE_T size);
-    VOID SubSP(SIZE_T size);
-    VOID GetFromSP(SIZE_T index, OPERAND& opr);
-    VOID SetFromSP(SIZE_T index, const OPERAND& opr);
+    VOID AddSP(std::size_t size);
+    VOID SubSP(std::size_t size);
+    VOID GetFromSP(std::size_t index, OPERAND& opr);
+    VOID SetFromSP(std::size_t index, const OPERAND& opr);
 
     DWORD GetBP();
     VOID SetBP(DWORD bp);
-    VOID AddBP(SIZE_T size);
-    VOID SubBP(SIZE_T size);
-    VOID GetFromBP(SIZE_T index, OPERAND& opr);
-    VOID SetFromBP(SIZE_T index, const OPERAND& opr);
+    VOID AddBP(std::size_t size);
+    VOID SubBP(std::size_t size);
+    VOID GetFromBP(std::size_t index, OPERAND& opr);
+    VOID SetFromBP(std::size_t index, const OPERAND& opr);
 
 protected:
-    SIZE_T m_minussp;
-    SIZE_T m_minusbp;
+    std::size_t m_minussp;
+    std::size_t m_minusbp;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -508,7 +508,7 @@ public:
     ADDR32&                 Addr();
     string&                 Name();
     OPERANDSET&             Operands();
-    OPERAND*                Operand(SIZE_T index);
+    OPERAND*                Operand(std::size_t index);
     vector<BYTE>&           Codes();
     ASMCODETYPE&            AsmCodeType();
     CONDCODE&               CondCode();
@@ -517,7 +517,7 @@ public:
     const ADDR32&           Addr() const;
     const string&           Name() const;
     const OPERANDSET&       Operands() const;
-    const OPERAND*          Operand(SIZE_T index) const;
+    const OPERAND*          Operand(std::size_t index) const;
     const vector<BYTE>&     Codes() const;
     const ASMCODETYPE&      AsmCodeType() const;
     const CONDCODE&         CondCode() const;
@@ -552,7 +552,7 @@ public:
     ADDR64&             Addr();
     string&             Name();
     OPERANDSET&         Operands();
-    OPERAND*            Operand(SIZE_T index);
+    OPERAND*            Operand(std::size_t index);
     vector<BYTE>&       Codes();
     ASMCODETYPE&        AsmCodeType();
     CONDCODE&           CondCode();
@@ -561,7 +561,7 @@ public:
     const ADDR64&       Addr() const;
     const string&       Name() const;
     const OPERANDSET&   Operands() const;
-    const OPERAND*      Operand(SIZE_T index) const;
+    const OPERAND*      Operand(std::size_t index) const;
     const vector<BYTE>& Codes() const;
     const ASMCODETYPE&  AsmCodeType() const;
     const CONDCODE&     CondCode() const;
