@@ -1,67 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////
 // module.cpp
-// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+// Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
-//
-// CodeReverse is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// CodeReverse is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with CodeReverse.  If .OperandType(), see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOL::SYMBOLIMPL
-
-struct SYMBOL::SYMBOLIMPL
-{
-    DWORD rva;
-    string name;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// SYMBOL accessors
-
-DWORD& SYMBOL::RVA()
-{
-    return m_pImpl->rva;
-}
-
-string& SYMBOL::Name()
-{
-    return m_pImpl->name;
-}
-
-const DWORD& SYMBOL::RVA() const
-{
-    return m_pImpl->rva;
-}
-
-const string& SYMBOL::Name() const
-{
-    return m_pImpl->name;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // SYMBOL
 
 SYMBOL::SYMBOL()
-    : m_pImpl(new SYMBOL::SYMBOLIMPL)
 {
 }
 
 SYMBOL::SYMBOL(const SYMBOL& s)
-    : m_pImpl(new SYMBOL::SYMBOLIMPL)
 {
     Copy(s);
 }
@@ -74,7 +27,6 @@ SYMBOL& SYMBOL::operator=(const SYMBOL& s)
 
 /*virtual*/ SYMBOL::~SYMBOL()
 {
-    delete m_pImpl;
 }
 
 VOID SYMBOL::Copy(const SYMBOL& s)
@@ -89,50 +41,11 @@ VOID SYMBOL::clear()
     RVA() = 0;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO::SYMBOLINFOIMPL
-
-struct SYMBOLINFO::SYMBOLINFOIMPL
-{
-    // import symbols
-    VECSET<string>              vImportDllNames;
-    VECSET<IMPORT_SYMBOL>       vImportSymbols;
-    map<DWORD, IMPORT_SYMBOL>   mRVAToImportSymbol;
-    map<string, IMPORT_SYMBOL>  mNameToImportSymbol;
-
-    // export symbols
-    VECSET<EXPORT_SYMBOL>       vExportSymbols;
-    map<DWORD, EXPORT_SYMBOL>   mRVAToExportSymbol;
-    map<string, EXPORT_SYMBOL>  mNameToExportSymbol;
-
-    // symbols
-    map<DWORD, SYMBOL>          mRVAToSymbol;
-    map<string, SYMBOL>         mNameToSymbol;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO accessors
-
-VECSET<string>& SYMBOLINFO::GetImportDllNames()
-{
-    return m_pImpl->vImportDllNames;
-}
-
-VECSET<IMPORT_SYMBOL>& SYMBOLINFO::GetImportSymbols()
-{
-    return m_pImpl->vImportSymbols;
-}
-
-VECSET<EXPORT_SYMBOL>& SYMBOLINFO::GetExportSymbols()
-{
-    return m_pImpl->vExportSymbols;
-}
-
 IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA)
 {
     map<DWORD, IMPORT_SYMBOL>::iterator it, end;
-    end = m_pImpl->mRVAToImportSymbol.end();
-    for (it = m_pImpl->mRVAToImportSymbol.begin(); it != end; it++)
+    end = MapRVAToImportSymbol().end();
+    for (it = MapRVAToImportSymbol().begin(); it != end; it++)
     {
         if (it->first == RVA)
             return &it->second;
@@ -143,8 +56,8 @@ IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA)
 IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(LPCSTR name)
 {
     map<string, IMPORT_SYMBOL>::iterator it, end;
-    end = m_pImpl->mNameToImportSymbol.end();
-    for (it = m_pImpl->mNameToImportSymbol.begin(); it != end; it++)
+    end = MapNameToImportSymbol().end();
+    for (it = MapNameToImportSymbol().begin(); it != end; it++)
     {
         if (it->first == name)
             return &it->second;
@@ -155,8 +68,8 @@ IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(LPCSTR name)
 EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA)
 {
     map<DWORD, EXPORT_SYMBOL>::iterator it, end;
-    end = m_pImpl->mRVAToExportSymbol.end();
-    for (it = m_pImpl->mRVAToExportSymbol.begin(); it != end; it++)
+    end = MapRVAToExportSymbol().end();
+    for (it = MapRVAToExportSymbol().begin(); it != end; it++)
     {
         if (it->first == RVA)
             return &it->second;
@@ -167,8 +80,8 @@ EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA)
 EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(LPCSTR name)
 {
     map<string, EXPORT_SYMBOL>::iterator it, end;
-    end = m_pImpl->mNameToExportSymbol.end();
-    for (it = m_pImpl->mNameToExportSymbol.begin(); it != end; it++)
+    end = MapNameToExportSymbol().end();
+    for (it = MapNameToExportSymbol().begin(); it != end; it++)
     {
         if (it->first == name)
             return &it->second;
@@ -179,8 +92,8 @@ EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(LPCSTR name)
 SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA)
 {
     map<DWORD, SYMBOL>::iterator it, end;
-    end = m_pImpl->mRVAToSymbol.end();
-    for (it = m_pImpl->mRVAToSymbol.begin(); it != end; it++)
+    end = MapRVAToSymbol().end();
+    for (it = MapRVAToSymbol().begin(); it != end; it++)
     {
         if (it->first == RVA)
             return &it->second;
@@ -191,8 +104,8 @@ SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA)
 SYMBOL *SYMBOLINFO::GetSymbolFromName(LPCSTR name)
 {
     map<string, SYMBOL>::iterator it, end;
-    end = m_pImpl->mNameToSymbol.end();
-    for (it = m_pImpl->mNameToSymbol.begin(); it != end; it++)
+    end = MapNameToSymbol().end();
+    for (it = MapNameToSymbol().begin(); it != end; it++)
     {
         if (it->first == name)
             return &it->second;
@@ -200,29 +113,11 @@ SYMBOL *SYMBOLINFO::GetSymbolFromName(LPCSTR name)
     return NULL;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO const accessors
-
-const VECSET<string>& SYMBOLINFO::GetImportDllNames() const
-{
-    return m_pImpl->vImportDllNames;
-}
-
-const VECSET<IMPORT_SYMBOL>& SYMBOLINFO::GetImportSymbols() const
-{
-    return m_pImpl->vImportSymbols;
-}
-
-const VECSET<EXPORT_SYMBOL>& SYMBOLINFO::GetExportSymbols() const
-{
-    return m_pImpl->vExportSymbols;
-}
-
 const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA) const
 {
     map<DWORD, IMPORT_SYMBOL>::const_iterator it, end;
-    end = m_pImpl->mRVAToImportSymbol.end();
-    for (it = m_pImpl->mRVAToImportSymbol.begin(); it != end; it++)
+    end = MapRVAToImportSymbol().end();
+    for (it = MapRVAToImportSymbol().begin(); it != end; it++)
     {
         if (it->first == RVA)
             return &it->second;
@@ -233,8 +128,8 @@ const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA) const
 const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(LPCSTR name) const
 {
     map<string, IMPORT_SYMBOL>::const_iterator it, end;
-    end = m_pImpl->mNameToImportSymbol.end();
-    for (it = m_pImpl->mNameToImportSymbol.begin(); it != end; it++)
+    end = MapNameToImportSymbol().end();
+    for (it = MapNameToImportSymbol().begin(); it != end; it++)
     {
         if (it->first == name)
             return &it->second;
@@ -245,8 +140,8 @@ const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(LPCSTR name) const
 const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA) const
 {
     map<DWORD, EXPORT_SYMBOL>::const_iterator it, end;
-    end = m_pImpl->mRVAToExportSymbol.end();
-    for (it = m_pImpl->mRVAToExportSymbol.begin(); it != end; it++)
+    end = MapRVAToExportSymbol().end();
+    for (it = MapRVAToExportSymbol().begin(); it != end; it++)
     {
         if (it->first == RVA)
             return &it->second;
@@ -257,8 +152,8 @@ const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA) const
 const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(LPCSTR name) const
 {
     map<string, EXPORT_SYMBOL>::const_iterator it, end;
-    end = m_pImpl->mNameToExportSymbol.end();
-    for (it = m_pImpl->mNameToExportSymbol.begin(); it != end; it++)
+    end = MapNameToExportSymbol().end();
+    for (it = MapNameToExportSymbol().begin(); it != end; it++)
     {
         if (it->first == name)
             return &it->second;
@@ -269,8 +164,8 @@ const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(LPCSTR name) const
 const SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA) const
 {
     map<DWORD, SYMBOL>::const_iterator it, end;
-    end = m_pImpl->mRVAToSymbol.end();
-    for (it = m_pImpl->mRVAToSymbol.begin(); it != end; it++)
+    end = MapRVAToSymbol().end();
+    for (it = MapRVAToSymbol().begin(); it != end; it++)
     {
         if (it->first == RVA)
             return &it->second;
@@ -281,8 +176,8 @@ const SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA) const
 const SYMBOL *SYMBOLINFO::GetSymbolFromName(LPCSTR name) const
 {
     map<string, SYMBOL>::const_iterator it, end;
-    end = m_pImpl->mNameToSymbol.end();
-    for (it = m_pImpl->mNameToSymbol.begin(); it != end; it++)
+    end = MapNameToSymbol().end();
+    for (it = MapNameToSymbol().begin(); it != end; it++)
     {
         if (it->first == name)
             return &it->second;
@@ -294,12 +189,10 @@ const SYMBOL *SYMBOLINFO::GetSymbolFromName(LPCSTR name) const
 // SYMBOLINFO
 
 SYMBOLINFO::SYMBOLINFO()
-    : m_pImpl(new SYMBOLINFO::SYMBOLINFOIMPL)
 {
 }
 
 SYMBOLINFO::SYMBOLINFO(const SYMBOLINFO& info)
-    : m_pImpl(new SYMBOLINFO::SYMBOLINFOIMPL)
 {
     Copy(info);
 }
@@ -312,33 +205,32 @@ SYMBOLINFO& SYMBOLINFO::operator=(const SYMBOLINFO& info)
 
 /*virtual*/ SYMBOLINFO::~SYMBOLINFO()
 {
-    delete m_pImpl;
 }
 
 VOID SYMBOLINFO::Copy(const SYMBOLINFO& info)
 {
-    m_pImpl->vImportDllNames = info.m_pImpl->vImportDllNames;
-    m_pImpl->vImportSymbols = info.m_pImpl->vImportSymbols;
-    m_pImpl->mRVAToImportSymbol = info.m_pImpl->mRVAToImportSymbol;
-    m_pImpl->mNameToImportSymbol = info.m_pImpl->mNameToImportSymbol;
-    m_pImpl->vExportSymbols = info.m_pImpl->vExportSymbols;
-    m_pImpl->mRVAToExportSymbol = info.m_pImpl->mRVAToExportSymbol;
-    m_pImpl->mNameToExportSymbol = info.m_pImpl->mNameToExportSymbol;
-    m_pImpl->mRVAToSymbol = info.m_pImpl->mRVAToSymbol;
-    m_pImpl->mNameToSymbol = info.m_pImpl->mNameToSymbol;
+    GetImportDllNames() = info.GetImportDllNames();
+    GetImportSymbols() = info.GetImportSymbols();
+    MapRVAToImportSymbol() = info.MapRVAToImportSymbol();
+    MapNameToImportSymbol() = info.MapNameToImportSymbol();
+    GetExportSymbols() = info.GetExportSymbols();
+    MapRVAToExportSymbol() = info.MapRVAToExportSymbol();
+    MapNameToExportSymbol() = info.MapNameToExportSymbol();
+    MapRVAToSymbol() = info.MapRVAToSymbol();
+    MapNameToSymbol() = info.MapNameToSymbol();
 }
 
 VOID SYMBOLINFO::clear()
 {
-    m_pImpl->vImportDllNames.clear();
-    m_pImpl->vImportSymbols.clear();
-    m_pImpl->mRVAToImportSymbol.clear();
-    m_pImpl->mNameToImportSymbol.clear();
-    m_pImpl->vExportSymbols.clear();
-    m_pImpl->mRVAToExportSymbol.clear();
-    m_pImpl->mNameToExportSymbol.clear();
-    m_pImpl->mRVAToSymbol.clear();
-    m_pImpl->mNameToSymbol.clear();
+    GetImportDllNames().clear();
+    GetImportSymbols().clear();
+    MapRVAToImportSymbol().clear();
+    MapNameToImportSymbol().clear();
+    GetExportSymbols().clear();
+    MapRVAToExportSymbol().clear();
+    MapNameToExportSymbol().clear();
+    MapRVAToSymbol().clear();
+    MapNameToSymbol().clear();
 }
 
 VOID SYMBOLINFO::AddImportDllName(LPCSTR name)
@@ -352,9 +244,9 @@ VOID SYMBOLINFO::AddSymbol(DWORD rva, LPCSTR name)
     s.RVA() = rva;
     if (name)
         s.Name() = name;
-    m_pImpl->mRVAToSymbol.insert(make_pair(rva, s));
+    MapRVAToSymbol().insert(make_pair(rva, s));
     if (name)
-        m_pImpl->mNameToSymbol.insert(make_pair(name, s));
+        MapNameToSymbol().insert(make_pair(name, s));
 }
 
 VOID SYMBOLINFO::AddSymbol(const SYMBOL& s)
@@ -364,320 +256,138 @@ VOID SYMBOLINFO::AddSymbol(const SYMBOL& s)
 
 VOID SYMBOLINFO::AddImportSymbol(const IMPORT_SYMBOL& is)
 {
-    m_pImpl->vImportSymbols.insert(is);
-    m_pImpl->mRVAToImportSymbol.insert(make_pair(is.dwRVA, is));
+    GetImportSymbols().insert(is);
+    MapRVAToImportSymbol().insert(make_pair(is.dwRVA, is));
     if (is.Name.wImportByName)
     {
-        m_pImpl->mNameToImportSymbol.insert(make_pair(is.pszName, is));
+        MapNameToImportSymbol().insert(make_pair(is.pszName, is));
         AddSymbol(is.dwRVA, is.pszName);
     }
 }
 
 VOID SYMBOLINFO::AddExportSymbol(const EXPORT_SYMBOL& es)
 {
-    m_pImpl->vExportSymbols.insert(es);
-    m_pImpl->mRVAToExportSymbol.insert(make_pair(es.dwRVA, es));
+    GetExportSymbols().insert(es);
+    MapRVAToExportSymbol().insert(make_pair(es.dwRVA, es));
     if (es.pszName)
     {
-        m_pImpl->mNameToExportSymbol.insert(make_pair(es.pszName, es));
+        MapNameToExportSymbol().insert(make_pair(es.pszName, es));
         AddSymbol(es.dwRVA, es.pszName);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE::PEMODULEIMPL
+// PEMODULE
 
-struct PEMODULE::PEMODULEIMPL
+PEMODULE::PEMODULE() :
+    m_pszFileName(NULL),
+    m_hFile(INVALID_HANDLE_VALUE),
+    m_hFileMapping(NULL),
+    m_pFileImage(NULL),
+    m_dwFileSize(0),
+    m_dwLastError(ERROR_SUCCESS),
+    m_bModuleLoaded(FALSE),
+    m_bDisAsmed(FALSE),
+    m_bDecompiled(FALSE),
+    m_pDOSHeader(NULL),
+    m_pNTHeaders(NULL),
+    m_pFileHeader(NULL),
+    m_pOptional32(NULL),
+    m_pOptional64(NULL),
+    m_pLoadedImage(NULL),
+    m_dwHeaderSum(0),
+    m_dwCheckSum(0),
+    m_dwSizeOfOptionalHeader(0),
+    m_dwAddressOfEntryPoint(0),
+    m_dwBaseOfCode(0),
+    m_dwSizeOfHeaders(0),
+    m_pSectionHeaders(NULL),
+    m_pCodeSectionHeader(NULL),
+    m_pDataDirectories(NULL)
 {
-    LPCTSTR     pszFileName;
-    HANDLE      hFile;
-    HANDLE      hFileMapping;
-    LPBYTE      pFileImage;
-    DWORD       dwFileSize;
-    DWORD       dwLastError;
-    BOOL        bModuleLoaded;
-    BOOL        bDisAsmed;
-    BOOL        bDecompiled;
+}
 
-    PIMAGE_DOS_HEADER           pDOSHeader;
-    union
+PEMODULE::PEMODULE(LPCTSTR FileName) :
+    m_pszFileName(NULL),
+    m_hFile(INVALID_HANDLE_VALUE),
+    m_hFileMapping(NULL),
+    m_pFileImage(NULL),
+    m_dwFileSize(0),
+    m_dwLastError(ERROR_SUCCESS),
+    m_bModuleLoaded(FALSE),
+    m_bDisAsmed(FALSE),
+    m_bDecompiled(FALSE),
+    m_pDOSHeader(NULL),
+    m_pNTHeaders(NULL),
+    m_pFileHeader(NULL),
+    m_pOptional32(NULL),
+    m_pOptional64(NULL),
+    m_pLoadedImage(NULL),
+    m_dwHeaderSum(0),
+    m_dwCheckSum(0),
+    m_dwSizeOfOptionalHeader(0),
+    m_dwAddressOfEntryPoint(0),
+    m_dwBaseOfCode(0),
+    m_dwSizeOfHeaders(0),
+    m_pSectionHeaders(NULL),
+    m_pCodeSectionHeader(NULL),
+    m_pDataDirectories(NULL)
+{
+    LoadModule(FileName);
+}
+
+/*virtual*/ PEMODULE::~PEMODULE()
+{
+    if (IsModuleLoaded())
+        UnloadModule();
+}
+
+VOID PEMODULE::UnloadModule()
+{
+    if (m_pLoadedImage != NULL)
     {
-        PIMAGE_NT_HEADERS       pNTHeaders;
-        PIMAGE_NT_HEADERS32     pNTHeaders32;
-        PIMAGE_NT_HEADERS64     pNTHeaders64;
-    };
-    PIMAGE_FILE_HEADER          pFileHeader;
-    PIMAGE_OPTIONAL_HEADER32    pOptional32;
-    PIMAGE_OPTIONAL_HEADER64    pOptional64;
-
-    LPBYTE  pLoadedImage;
-    DWORD   dwHeaderSum, dwCheckSum;
-    DWORD   dwSizeOfOptionalHeader;
-    DWORD   dwAddressOfEntryPoint;
-    DWORD   dwBaseOfCode;
-    DWORD   dwSizeOfHeaders;
-
-    PREAL_IMAGE_SECTION_HEADER  pSectionHeaders;
-    mutable
-    PREAL_IMAGE_SECTION_HEADER  pCodeSectionHeader;
-    PREAL_IMAGE_DATA_DIRECTORY  pDataDirectories;
-
-    SYMBOLINFO                  SymbolInfo;
-
-    // delay loading
-    vector<ImgDelayDescr>       vImgDelayDescrs;
-
-    PEMODULEIMPL()
-    {
-        pszFileName = NULL;
-        hFile = INVALID_HANDLE_VALUE;
-        hFileMapping = NULL;
-        pFileImage = NULL;
-        dwFileSize = 0;
-        dwLastError = ERROR_SUCCESS;
-        bModuleLoaded = FALSE;
-        bDisAsmed = FALSE;
-        bDecompiled = FALSE;
-        pDOSHeader = NULL;
-        pNTHeaders = NULL;
-        pFileHeader = NULL;
-        pOptional32 = NULL;
-        pOptional64 = NULL;
-        pLoadedImage = NULL;
-        dwHeaderSum = 0;
-        dwCheckSum = 0;
-        dwSizeOfOptionalHeader = 0;
-        dwAddressOfEntryPoint = 0;
-        dwBaseOfCode = 0;
-        dwSizeOfHeaders = 0;
-        pSectionHeaders = NULL;
-        pCodeSectionHeader = NULL;
-        pDataDirectories = NULL;
+        VirtualFree(m_pLoadedImage, 0, MEM_RELEASE);
+        m_pLoadedImage = NULL;
     }
-
-    virtual ~PEMODULEIMPL()
+    if (m_pFileImage != NULL)
     {
-        clear();
+        UnmapViewOfFile(m_pFileImage);
+        m_pFileImage = NULL;
     }
-
-    VOID clear()
+    if (m_hFileMapping != NULL)
     {
-        if (pLoadedImage != NULL)
-        {
-            VirtualFree(pLoadedImage, 0, MEM_RELEASE);
-            pLoadedImage = NULL;
-        }
-        if (pFileImage != NULL)
-        {
-            UnmapViewOfFile(pFileImage);
-            pFileImage = NULL;
-        }
-        if (hFileMapping != NULL)
-        {
-            CloseHandle(hFileMapping);
-            hFileMapping = NULL;
-        }
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
-            CloseHandle(hFile);
-            hFile = INVALID_HANDLE_VALUE;
-        }
-        pszFileName = NULL;
-        dwFileSize = 0;
-        bModuleLoaded = FALSE;
-        pDOSHeader = NULL;
-        pNTHeaders = NULL;
-        pFileHeader = NULL;
-        pOptional32 = NULL;
-        pOptional64 = NULL;
-        dwHeaderSum = 0;
-        dwCheckSum = 0;
-        dwSizeOfOptionalHeader = 0;
-        dwAddressOfEntryPoint = 0;
-        dwBaseOfCode = 0;
-        dwSizeOfHeaders = 0;
-        pSectionHeaders = NULL;
-        pCodeSectionHeader = NULL;
-        pDataDirectories = NULL;
-
-        SymbolInfo.clear();
-
-        bDisAsmed = FALSE;
-        bDecompiled = FALSE;
-
-        vImgDelayDescrs.clear();
+        CloseHandle(m_hFileMapping);
+        m_hFileMapping = NULL;
     }
-
-private:
-    // Don't copy this!
-    PEMODULEIMPL(const PEMODULE::PEMODULEIMPL& impl);
-    PEMODULEIMPL& operator=(const PEMODULE::PEMODULEIMPL& impl);
-};
-
-////////////////////////////////////////////////////////////////////////////
-// PEMODULE attributes
-
-BOOL PEMODULE::IsDLL() const
-{
-    if (!IsModuleLoaded())
-        return FALSE;
-
-    return (FileHeader()->Characteristics & IMAGE_FILE_DLL) != 0;
-}
-
-BOOL PEMODULE::IsCUIExe() const
-{
-    if (!IsModuleLoaded() || IsDLL())
-        return FALSE;
-
-    if (Is64Bit())
-        return OptionalHeader64()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI;
-    else if (Is32Bit())
-        return OptionalHeader32()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI;
-    else
-        return FALSE;
-}
-
-BOOL PEMODULE::IsGUIExe() const
-{
-    if (!IsModuleLoaded() || IsDLL())
-        return FALSE;
-
-    if (Is64Bit())
-        return OptionalHeader64()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
-    else if (Is32Bit())
-        return OptionalHeader32()->Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
-    else
-        return FALSE;
-}
-
-DWORD PEMODULE::GetFileSize() const
-{
-    return m_pImpl->dwFileSize;
-}
-
-LPCTSTR PEMODULE::GetFileName() const
-{
-    return m_pImpl->pszFileName;
-}
-
-BOOL PEMODULE::Is32Bit() const
-{
-    return OptionalHeader32() != NULL;
-}
-
-BOOL PEMODULE::Is64Bit() const
-{
-    return OptionalHeader64() != NULL;
-}
-
-BOOL PEMODULE::IsModuleLoaded() const
-{
-    return m_pImpl->bModuleLoaded;
-}
-
-BOOL PEMODULE::RVAInDirEntry(DWORD rva, DWORD index) const
-{
-    if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES &&
-        DataDirectories()[index].RVA <= rva &&
-        rva < DataDirectories()[index].RVA + DataDirectories()[index].Size)
+    if (m_hFile != INVALID_HANDLE_VALUE)
     {
-        return TRUE;
+        CloseHandle(m_hFile);
+        m_hFile = INVALID_HANDLE_VALUE;
     }
-    return FALSE;
-}
+    m_pszFileName = NULL;
+    m_dwFileSize = 0;
+    m_bModuleLoaded = FALSE;
+    m_pDOSHeader = NULL;
+    m_pNTHeaders = NULL;
+    m_pFileHeader = NULL;
+    m_pOptional32 = NULL;
+    m_pOptional64 = NULL;
+    m_dwHeaderSum = 0;
+    m_dwCheckSum = 0;
+    m_dwSizeOfOptionalHeader = 0;
+    m_dwAddressOfEntryPoint = 0;
+    m_dwBaseOfCode = 0;
+    m_dwSizeOfHeaders = 0;
+    m_pSectionHeaders = NULL;
+    m_pCodeSectionHeader = NULL;
+    m_pDataDirectories = NULL;
 
-BOOL PEMODULE::IsValidAddr32(ADDR32 addr) const
-{
-    if (!Is32Bit())
-        return FALSE;
+    m_SymbolInfo.clear();
 
-    const ADDR32 begin = OptionalHeader32()->ImageBase;
-    const ADDR32 end = begin + OptionalHeader32()->SizeOfImage;
-    return begin <= addr && addr < end;
-}
+    m_bDisAsmed = FALSE;
+    m_bDecompiled = FALSE;
 
-BOOL PEMODULE::IsValidAddr64(ADDR64 addr) const
-{
-    if (!Is64Bit())
-        return FALSE;
-
-    const ADDR64 begin = OptionalHeader64()->ImageBase;
-    const ADDR64 end = begin + OptionalHeader64()->SizeOfImage;
-    return begin <= addr && addr < end;
-}
-
-DWORD PEMODULE::GetBaseOfCode() const
-{
-    if (Is64Bit())
-        return OptionalHeader64()->BaseOfCode;
-    else if (Is32Bit())
-        return OptionalHeader32()->BaseOfCode;
-    else
-        return 0;
-}
-
-DWORD PEMODULE::GetSizeOfHeaders() const
-{
-    if (Is64Bit())
-        return OptionalHeader64()->SizeOfHeaders;
-    else if (Is32Bit())
-        return OptionalHeader32()->SizeOfHeaders;
-    else
-        return 0;
-}
-
-DWORD PEMODULE::GetSizeOfImage() const
-{
-    if (Is64Bit())
-        return OptionalHeader64()->SizeOfImage;
-    else if (Is32Bit())
-        return OptionalHeader32()->SizeOfImage;
-    else
-        return 0;
-}
-
-PIMAGE_IMPORT_DESCRIPTOR PEMODULE::ImportDescriptors()
-{
-    return (PIMAGE_IMPORT_DESCRIPTOR)DirEntryData(IMAGE_DIRECTORY_ENTRY_IMPORT);
-}
-
-PIMAGE_EXPORT_DIRECTORY PEMODULE::ExportDirectory()
-{
-    return (PIMAGE_EXPORT_DIRECTORY)DirEntryData(IMAGE_DIRECTORY_ENTRY_EXPORT);
-}
-
-PIMAGE_RESOURCE_DIRECTORY PEMODULE::ResourceDirectory()
-{
-    return (PIMAGE_RESOURCE_DIRECTORY)DirEntryData(IMAGE_DIRECTORY_ENTRY_RESOURCE);
-}
-
-LPBYTE PEMODULE::GetData(DWORD rva)
-{
-    return (LoadedImage() ? LoadedImage() + rva : NULL);
-}
-
-LPBYTE& PEMODULE::LoadedImage()
-{
-    return m_pImpl->pLoadedImage;
-}
-
-LPBYTE& PEMODULE::FileImage()
-{
-    return m_pImpl->pFileImage;
-}
-
-DWORD PEMODULE::GetSizeOfOptionalHeader() const
-{
-    if (FileHeader())
-        return FileHeader()->SizeOfOptionalHeader;
-    else
-        return 0;
-}
-
-DWORD PEMODULE::DirEntryDataSize(DWORD index) const
-{
-    return (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES ? DataDirectories()[index].Size : 0);
+    m_vImgDelayDescrs.clear();
 }
 
 LPBYTE PEMODULE::DirEntryData(DWORD index)
@@ -707,11 +417,6 @@ BOOL PEMODULE::AddressInCode32(ADDR32 va) const
     return begin <= va && va < end;
 }
 
-BOOL PEMODULE::AddressInData32(ADDR32 va) const
-{
-    return (Is32Bit() && IsValidAddr32(va) && !AddressInCode32(va));
-}
-
 BOOL PEMODULE::AddressInCode64(ADDR64 va) const
 {
     if (!Is64Bit())
@@ -726,300 +431,42 @@ BOOL PEMODULE::AddressInCode64(ADDR64 va) const
     return begin <= va && va < end;
 }
 
-BOOL PEMODULE::AddressInData64(ADDR64 va) const
-{
-    return (Is64Bit() && IsValidAddr64(va) && !AddressInCode64(va));
-}
-
-DWORD PEMODULE::RVAOfEntryPoint() const
-{
-    if (Is64Bit())
-        return OptionalHeader64()->AddressOfEntryPoint;
-    else if (Is32Bit())
-        return OptionalHeader32()->AddressOfEntryPoint;
-    else
-        return 0;
-}
-
-DWORD PEMODULE::RVAFromVA32(ADDR32 va) const
-{
-    assert(OptionalHeader32());
-    return va - OptionalHeader32()->ImageBase;
-}
-
-DWORD PEMODULE::RVAFromVA64(ADDR64 va) const
-{
-    assert(OptionalHeader64());
-    return (DWORD)(va - OptionalHeader64()->ImageBase);
-}
-
-ADDR32 PEMODULE::VA32FromRVA(DWORD rva) const
-{
-    assert(OptionalHeader32());
-    return OptionalHeader32()->ImageBase + rva;
-}
-
-ADDR64 PEMODULE::VA64FromRVA(DWORD rva) const
-{
-    assert(OptionalHeader64());
-    return OptionalHeader64()->ImageBase + rva;
-}
-
-DWORD PEMODULE::CheckSum() const
-{
-    return m_pImpl->dwCheckSum;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// PEMODULE accessors
-
-WORD& PEMODULE::NumberOfSections()
-{
-    assert(FileHeader());
-    return FileHeader()->NumberOfSections;
-}
-
-DWORD& PEMODULE::LastError()
-{
-    return m_pImpl->dwLastError;
-}
-
-PIMAGE_DOS_HEADER PEMODULE::DOSHeader()
-{
-    return m_pImpl->pDOSHeader;
-}
-
-PIMAGE_NT_HEADERS32 PEMODULE::NTHeaders32()
-{
-    return Is32Bit() ? m_pImpl->pNTHeaders32 : NULL;
-}
-
-PIMAGE_NT_HEADERS64 PEMODULE::NTHeaders64()
-{
-    return Is64Bit() ? m_pImpl->pNTHeaders64 : NULL;
-}
-
-PIMAGE_FILE_HEADER PEMODULE::FileHeader()
-{
-    return m_pImpl->pFileHeader;
-}
-
-PIMAGE_OPTIONAL_HEADER32& PEMODULE::OptionalHeader32()
-{
-    return m_pImpl->pOptional32;
-}
-
-PIMAGE_OPTIONAL_HEADER64& PEMODULE::OptionalHeader64()
-{
-    return m_pImpl->pOptional64;
-}
-
-PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories()
-{
-    return m_pImpl->pDataDirectories;
-}
-
-PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index)
-{
-    assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
-    return &m_pImpl->pDataDirectories[index];
-}
-
 PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
 {
-    if (m_pImpl->pCodeSectionHeader)
-        return m_pImpl->pCodeSectionHeader;
+    if (CodeSectionHeader())
+        return CodeSectionHeader();
 
-    assert(m_pImpl->pSectionHeaders);
+    assert(SectionHeaders());
     const DWORD size = NumberOfSections();
     for (DWORD i = 0; i < size; i++)
     {
         PREAL_IMAGE_SECTION_HEADER pHeader = SectionHeader(i);
         if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
         {
-            m_pImpl->pCodeSectionHeader = pHeader;
+            CodeSectionHeader() = pHeader;
             return pHeader;
         }
     }
     return NULL;
-}
-
-PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders()
-{
-    return m_pImpl->pSectionHeaders;
-}
-
-PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index)
-{
-    assert(m_pImpl->pSectionHeaders);
-    if (index < NumberOfSections())
-    {
-        return &m_pImpl->pSectionHeaders[index];
-    }
-    return NULL;
-}
-
-vector<ImgDelayDescr>& PEMODULE::DelayLoadDescriptors()
-{
-    return m_pImpl->vImgDelayDescrs;
-}
-
-VECSET<string>& PEMODULE::ImportDllNames()
-{
-    return SymbolInfo().GetImportDllNames();
-}
-
-VECSET<IMPORT_SYMBOL>& PEMODULE::ImportSymbols()
-{
-    return SymbolInfo().GetImportSymbols();
-}
-
-VECSET<EXPORT_SYMBOL>& PEMODULE::ExportSymbols()
-{
-    return SymbolInfo().GetExportSymbols();
-}
-
-SYMBOLINFO& PEMODULE::SymbolInfo()
-{
-    return m_pImpl->SymbolInfo;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// PEMODULE const accessors
-
-const WORD& PEMODULE::NumberOfSections() const
-{
-    return FileHeader()->NumberOfSections;
-}
-
-const DWORD& PEMODULE::LastError() const
-{
-    return m_pImpl->dwLastError;
-}
-
-const PIMAGE_DOS_HEADER PEMODULE::DOSHeader() const
-{
-    return m_pImpl->pDOSHeader;
-}
-
-const PIMAGE_NT_HEADERS32 PEMODULE::NTHeaders32() const
-{
-    return Is32Bit() ? m_pImpl->pNTHeaders32 : NULL;
-}
-
-const PIMAGE_NT_HEADERS64 PEMODULE::NTHeaders64() const
-{
-    return Is64Bit() ? m_pImpl->pNTHeaders64 : NULL;
-}
-
-const PIMAGE_FILE_HEADER PEMODULE::FileHeader() const
-{
-    return m_pImpl->pFileHeader;
-}
-
-const PIMAGE_OPTIONAL_HEADER32& PEMODULE::OptionalHeader32() const
-{
-    return m_pImpl->pOptional32;
-}
-
-const PIMAGE_OPTIONAL_HEADER64& PEMODULE::OptionalHeader64() const
-{
-    return m_pImpl->pOptional64;
-}
-
-const PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories() const
-{
-    return m_pImpl->pDataDirectories;
-}
-
-const PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index) const
-{
-    assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
-    return &m_pImpl->pDataDirectories[index];
 }
 
 const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
 {
-    if (m_pImpl->pCodeSectionHeader)
-        return m_pImpl->pCodeSectionHeader;
+    if (CodeSectionHeader())
+        return CodeSectionHeader();
 
-    assert(m_pImpl->pSectionHeaders != NULL);
+    assert(SectionHeaders());
     const DWORD size = NumberOfSections();
     for (DWORD i = 0; i < size; i++)
     {
         PREAL_IMAGE_SECTION_HEADER pHeader = SectionHeader(i);
         if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
         {
-            m_pImpl->pCodeSectionHeader = pHeader;
+            CodeSectionHeader() = pHeader;
             return pHeader;
         }
     }
     return NULL;
-}
-
-const PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders() const
-{
-    return m_pImpl->pSectionHeaders;
-}
-
-const PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index) const
-{
-    assert(m_pImpl->pSectionHeaders);
-    if (index < NumberOfSections())
-    {
-        return &m_pImpl->pSectionHeaders[index];
-    }
-    return NULL;
-}
-
-const vector<ImgDelayDescr>& PEMODULE::DelayLoadDescriptors() const
-{
-    return m_pImpl->vImgDelayDescrs;
-}
-
-const VECSET<string>& PEMODULE::ImportDllNames() const
-{
-    return SymbolInfo().GetImportDllNames();
-}
-
-const VECSET<IMPORT_SYMBOL>& PEMODULE::ImportSymbols() const
-{
-    return SymbolInfo().GetImportSymbols();
-}
-
-const VECSET<EXPORT_SYMBOL>& PEMODULE::ExportSymbols() const
-{
-    return SymbolInfo().GetExportSymbols();
-}
-
-const SYMBOLINFO& PEMODULE::SymbolInfo() const
-{
-    return m_pImpl->SymbolInfo;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// PEMODULE
-
-PEMODULE::PEMODULE() : m_pImpl(new PEMODULE::PEMODULEIMPL)
-{
-}
-
-PEMODULE::PEMODULE(LPCTSTR FileName) : m_pImpl(new PEMODULE::PEMODULEIMPL)
-{
-    LoadModule(FileName);
-}
-
-/*virtual*/ PEMODULE::~PEMODULE()
-{
-    if (IsModuleLoaded())
-        UnloadModule();
-
-    delete m_pImpl;
-}
-
-VOID PEMODULE::UnloadModule()
-{
-    m_pImpl->clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1039,7 +486,7 @@ BOOL PEMODULE::_LoadImage(LPVOID Data)
         pDOSHeader = NULL;
         pNTHeaders = (PIMAGE_NT_HEADERS)Data;
     }
-    m_pImpl->pDOSHeader = pDOSHeader;
+    DOSHeader() = pDOSHeader;
 
     if (pNTHeaders->Signature == IMAGE_NT_SIGNATURE) // "PE\0\0"
     {
@@ -1083,39 +530,41 @@ BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
     PIMAGE_FILE_HEADER pFileHeader;
     PIMAGE_OPTIONAL_HEADER32 pOptional32;
     PIMAGE_OPTIONAL_HEADER64 pOptional64;
-    m_pImpl->pNTHeaders = (PIMAGE_NT_HEADERS)Data;
-    pFileHeader = &m_pImpl->pNTHeaders->FileHeader;
+    NTHeaders() = reinterpret_cast<PIMAGE_NT_HEADERS>(Data);
+    pFileHeader = &NTHeaders()->FileHeader;
 
     LPBYTE pb;
-    switch(pFileHeader->SizeOfOptionalHeader)
+    switch (pFileHeader->SizeOfOptionalHeader)
     {
     case IMAGE_SIZEOF_NT_OPTIONAL32_HEADER:
-        m_pImpl->pFileHeader = pFileHeader;
-        m_pImpl->pOptional32 = pOptional32 = &m_pImpl->pNTHeaders32->OptionalHeader;;
+        FileHeader() = pFileHeader;
+        OptionalHeader32() = pOptional32 = &NTHeaders32()->OptionalHeader;;
         if (pOptional32->Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC)
             return FALSE;
 
         pb = (LPBYTE)pOptional32 + pFileHeader->SizeOfOptionalHeader;
-        m_pImpl->pSectionHeaders = (PREAL_IMAGE_SECTION_HEADER)pb;
-        DataDirectories() = (PREAL_IMAGE_DATA_DIRECTORY)pOptional32->DataDirectory;
+        SectionHeaders() = reinterpret_cast<PREAL_IMAGE_SECTION_HEADER>(pb);
+        DataDirectories() =
+            reinterpret_cast<PREAL_IMAGE_DATA_DIRECTORY>(pOptional32->DataDirectory);
         break;
 
     case IMAGE_SIZEOF_NT_OPTIONAL64_HEADER:
-        m_pImpl->pFileHeader = pFileHeader;
-        m_pImpl->pOptional64 = pOptional64 = &m_pImpl->pNTHeaders64->OptionalHeader;
+        FileHeader() = pFileHeader;
+        OptionalHeader64() = pOptional64 = &NTHeaders64()->OptionalHeader;
         if (pOptional64->Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)
             return FALSE;
 
         pb = (LPBYTE)pOptional64 + pFileHeader->SizeOfOptionalHeader;
-        m_pImpl->pSectionHeaders = (PREAL_IMAGE_SECTION_HEADER)pb;
-        DataDirectories() = (PREAL_IMAGE_DATA_DIRECTORY)pOptional64->DataDirectory;
+        SectionHeaders() = reinterpret_cast<PREAL_IMAGE_SECTION_HEADER>(pb);
+        DataDirectories() =
+            reinterpret_cast<PREAL_IMAGE_DATA_DIRECTORY>(pOptional64->DataDirectory);
         break;
 
     default:
-        m_pImpl->pFileHeader = NULL;
-        m_pImpl->pNTHeaders = NULL;
-        m_pImpl->pOptional32 = NULL;
-        m_pImpl->pOptional64 = NULL;
+        FileHeader() = NULL;
+        NTHeaders() = NULL;
+        OptionalHeader32() = NULL;
+        OptionalHeader64() = NULL;
         return FALSE;
     }
 
@@ -1124,45 +573,45 @@ BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
 
 BOOL PEMODULE::LoadModule(LPCTSTR FileName)
 {
-    m_pImpl->hFile = CreateFile(FileName, GENERIC_READ,
+    File() = CreateFile(FileName, GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         NULL, OPEN_EXISTING, 0, NULL);
-    if (m_pImpl->hFile == INVALID_HANDLE_VALUE)
+    if (File() == INVALID_HANDLE_VALUE)
     {
         LastError() = GetLastError();
         return FALSE;
     }
 
-    m_pImpl->dwFileSize = ::GetFileSize(m_pImpl->hFile, NULL);
-    if (m_pImpl->dwFileSize == 0xFFFFFFFF)
+    FileSize() = ::GetFileSize(File(), NULL);
+    if (FileSize() == 0xFFFFFFFF)
     {
         LastError() = GetLastError();
-        CloseHandle(m_pImpl->hFile);
+        CloseHandle(File());
         return FALSE;
     }
 
-    m_pImpl->hFileMapping = CreateFileMappingA(
-        m_pImpl->hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-    if (m_pImpl->hFileMapping != NULL)
+    FileMapping() = CreateFileMappingA(
+        File(), NULL, PAGE_READONLY, 0, 0, NULL);
+    if (FileMapping() != NULL)
     {
-        FileImage() = (LPBYTE)MapViewOfFile(
-            m_pImpl->hFileMapping,
-            FILE_MAP_READ,
-            0, 0,
-            m_pImpl->dwFileSize);
+        FileImage() = reinterpret_cast<LPBYTE>(
+            MapViewOfFile(
+                FileMapping(),
+                FILE_MAP_READ,
+                0, 0,
+                FileSize());
         if (FileImage() != NULL)
         {
 #ifndef NO_CHECKSUM
-            CheckSumMappedFile(
-                FileImage(), m_pImpl->dwFileSize,
-                &m_pImpl->dwHeaderSum, &m_pImpl->dwCheckSum);
+            CheckSumMappedFile(FileImage(), FileSize(),
+                &m_dwHeaderSum, &m_dwCheckSum);
 #endif
             if (_LoadImage(FileImage()))
             {
                 LoadImportTables();
                 LoadExportTable();
-                m_pImpl->bModuleLoaded = TRUE;
-                m_pImpl->pszFileName = FileName;
+                ModuleLoaded() = TRUE;
+                FileName() = FileName;
                 return TRUE;
             }
             LastError() = ERROR_INVALID_DATA;
@@ -1171,16 +620,16 @@ BOOL PEMODULE::LoadModule(LPCTSTR FileName)
         {
             LastError() = GetLastError();
         }
-        CloseHandle(m_pImpl->hFileMapping);
-        m_pImpl->hFileMapping = NULL;
+        CloseHandle(FileMapping());
+        FileMapping() = NULL;
     }
     else
     {
         LastError() = GetLastError();
     }
 
-    CloseHandle(m_pImpl->hFile);
-    m_pImpl->hFile = INVALID_HANDLE_VALUE;
+    CloseHandle(File());
+    File() = INVALID_HANDLE_VALUE;
 
     return FALSE;
 }
@@ -1281,7 +730,7 @@ VOID PEMODULE::DumpHeaders()
     {
         DumpOptionalHeader64(OptionalHeader64(), CheckSum());
     }
-    if (m_pImpl->pSectionHeaders)
+    if (SectionHeaders())
     {
         DWORD size = NumberOfSections();
         for (DWORD i = 0; i < size; i++)

@@ -1,21 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 // codereverse.h
-// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+// Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
-//
-// CodeReverse is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// CodeReverse is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////
 // logo
 
@@ -414,31 +401,42 @@ public:
 
 public:
     // accessors
-    string&         Text();
-    OPERANDTYPE&    OperandType();
-    DWORD&          Size();
-    ADDR32&         Value32();
-    ADDR64&         Value64();
-    string&         Exp();
-    string&         DataType();
-    TBOOL&          IsInteger();
-    TBOOL&          IsPointer();
-    TBOOL&          IsFunction();
+    string&             Text();
+    OPERANDTYPE&        OperandType();
+    DWORD&              Size();
+    ADDR32&             Value32();
+    ADDR64&             Value64();
+    string&             Exp();
+    string&             DataType();
+    TBOOL&              IsInteger();
+    TBOOL&              IsPointer();
+    TBOOL&              IsFunction();
     // const accessors
-    const string&         Text() const;
-    const OPERANDTYPE&    OperandType() const;
-    const DWORD&          Size() const;
-    const ADDR32&         Value32() const;
-    const ADDR64&         Value64() const;
-    const string&         Exp() const;
-    const string&         DataType() const;
-    const TBOOL&          IsInteger() const;
-    const TBOOL&          IsPointer() const;
-    const TBOOL&          IsFunction() const;
+    const string&       Text() const;
+    const OPERANDTYPE&  OperandType() const;
+    const DWORD&        Size() const;
+    const ADDR32&       Value32() const;
+    const ADDR64&       Value64() const;
+    const string&       Exp() const;
+    const string&       DataType() const;
+    const TBOOL&        IsInteger() const;
+    const TBOOL&        IsPointer() const;
+    const TBOOL&        IsFunction() const;
 
 protected:
-    struct OPERANDIMPL;
-    OPERANDIMPL *m_pImpl;
+    string          m_text;
+    OPERANDTYPE     m_ot;
+    DWORD           m_size;
+    union
+    {
+        ADDR64      m_value64;
+        ADDR32      m_value32;
+    };
+    string          m_exp;
+    string          m_datatype;
+    TBOOL           m_is_integer;
+    TBOOL           m_is_pointer;
+    TBOOL           m_is_function;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -504,27 +502,32 @@ public:
 
 public:
     // accessors
-    ADDR32SET&          Funcs();
-    ADDR32&             Addr();
-    string&             Name();
-    OPERANDSET&         Operands();
-    OPERAND*            Operand(SIZE_T index);
-    vector<BYTE>&       Codes();
-    ASMCODETYPE&        AsmCodeType();
-    CONDCODE&           CondCode();
+    ADDR32SET&              Funcs();
+    ADDR32&                 Addr();
+    string&                 Name();
+    OPERANDSET&             Operands();
+    OPERAND*                Operand(SIZE_T index);
+    vector<BYTE>&           Codes();
+    ASMCODETYPE&            AsmCodeType();
+    CONDCODE&               CondCode();
     // const accessors
-    const ADDR32SET&          Funcs() const;
-    const ADDR32&             Addr() const;
-    const string&             Name() const;
-    const OPERANDSET&         Operands() const;
-    const OPERAND*            Operand(SIZE_T index) const;
-    const vector<BYTE>&       Codes() const;
-    const ASMCODETYPE&        AsmCodeType() const;
-    const CONDCODE&           CondCode() const;
+    const ADDR32SET&        Funcs() const;
+    const ADDR32&           Addr() const;
+    const string&           Name() const;
+    const OPERANDSET&       Operands() const;
+    const OPERAND*          Operand(SIZE_T index) const;
+    const vector<BYTE>&     Codes() const;
+    const ASMCODETYPE&      AsmCodeType() const;
+    const CONDCODE&         CondCode() const;
 
 protected:
-    struct ASMCODE32IMPL;
-    ASMCODE32IMPL *m_pImpl;
+    ADDR32SET               m_funcs;
+    ADDR32                  m_addr;
+    string                  m_name;
+    OPERANDSET              m_operands;
+    vector<BYTE>            m_codes;
+    ASMCODETYPE             m_act;
+    CONDCODE                m_ccode;
 };
 typedef ASMCODE32 *LPASMCODE32;
 
@@ -552,18 +555,23 @@ public:
     ASMCODETYPE&        AsmCodeType();
     CONDCODE&           CondCode();
     // const accessors
-    const ADDR64SET&          Funcs() const;
-    const ADDR64&             Addr() const;
-    const string&             Name() const;
-    const OPERANDSET&         Operands() const;
-    const OPERAND*            Operand(SIZE_T index) const;
-    const vector<BYTE>&       Codes() const;
-    const ASMCODETYPE&        AsmCodeType() const;
-    const CONDCODE&           CondCode() const;
+    const ADDR64SET&    Funcs() const;
+    const ADDR64&       Addr() const;
+    const string&       Name() const;
+    const OPERANDSET&   Operands() const;
+    const OPERAND*      Operand(SIZE_T index) const;
+    const vector<BYTE>& Codes() const;
+    const ASMCODETYPE&  AsmCodeType() const;
+    const CONDCODE&     CondCode() const;
 
 protected:
-    struct ASMCODE64IMPL;
-    ASMCODE64IMPL *m_pImpl;
+    ADDR64SET           m_funcs;
+    ADDR64              m_addr;
+    string              m_name;
+    OPERANDSET          m_operands;
+    vector<BYTE>        m_codes;
+    ASMCODETYPE         m_act;
+    CONDCODE            m_ccode;
 };
 typedef ASMCODE64 *LPASMCODE64;
 
@@ -593,8 +601,12 @@ public: // accessors
     const ADDR32& NextAddr2() const;
 
 protected:
-    struct BLOCK32IMPL;
-    BLOCK32IMPL *m_pImpl;
+    ADDR32              m_addr;
+    VECSET<ASMCODE32>   m_asmcodes;
+    BLOCK32 *           m_nextblock1;
+    BLOCK32 *           m_nextblock2;
+    ADDR32              m_nextaddr1;
+    ADDR32              m_nextaddr2;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -623,8 +635,12 @@ public: // accessors
     const ADDR64& NextAddr2() const;
 
 protected:
-    struct BLOCK64IMPL;
-    BLOCK64IMPL *m_pImpl;
+    ADDR64              m_addr;
+    VECSET<ASMCODE64>   m_asmcodes;
+    BLOCK64 *           m_nextblock1;
+    BLOCK64 *           m_nextblock2;
+    ADDR64              m_nextaddr1;
+    ADDR64              m_nextaddr2;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -697,23 +713,33 @@ public:
     VECSET<BLOCK32>&            Blocks();
     BLOCK32*                    FindBlockOfAddr(ADDR32 addr);
     // const accessors
-    const ADDR32&                       Addr() const;
-    const string&                       Name() const;
-    const FUNCTYPE&                     FuncType() const;
-    const INT&                          SizeOfStackArgs() const;
-    const OPERANDSET&                   Args() const;
-    const DWORD&                        Flags() const;
-    const string&                       ReturnDataType() const;
-    const ADDR32SET&                    Jumpees() const;
-    const ADDR32SET&                    Jumpers() const;
-    const ADDR32SET&                    Callees() const;
-    const ADDR32SET&                    Callers() const;
-    const VECSET<BLOCK32>&              Blocks() const;
-    const BLOCK32*                      FindBlockOfAddr(ADDR32 addr) const;
+    const ADDR32&               Addr() const;
+    const string&               Name() const;
+    const FUNCTYPE&             FuncType() const;
+    const INT&                  SizeOfStackArgs() const;
+    const OPERANDSET&           Args() const;
+    const DWORD&                Flags() const;
+    const string&               ReturnDataType() const;
+    const ADDR32SET&            Jumpees() const;
+    const ADDR32SET&            Jumpers() const;
+    const ADDR32SET&            Callees() const;
+    const ADDR32SET&            Callers() const;
+    const VECSET<BLOCK32>&      Blocks() const;
+    const BLOCK32*              FindBlockOfAddr(ADDR32 addr) const;
 
 protected:
-    struct CODEFUNC32IMPL;
-    CODEFUNC32IMPL *m_pImpl;
+    ADDR32                      m_addr;
+    string                      m_name;
+    FUNCTYPE                    m_ft;
+    INT                         m_SizeOfStackArgs;
+    OPERANDSET                  m_args;
+    DWORD                       m_flags;
+    string                      m_returndatatype;
+    ADDR32SET                   m_jumpees;
+    ADDR32SET                   m_jumpers;
+    ADDR32SET                   m_callees;
+    ADDR32SET                   m_callers;
+    VECSET<BLOCK32>             m_blocks;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -745,23 +771,33 @@ public:
     VECSET<BLOCK64>&            Blocks();
     BLOCK64*                    FindBlockOfAddr(ADDR64 addr);
     // const accessors
-    const ADDR64&                       Addr() const;
-    const string&                       Name() const;
-    const FUNCTYPE&                     FuncType() const;
-    const INT&                          SizeOfStackArgs() const;
-    const OPERANDSET&                   Args() const;
-    const DWORD&                        Flags() const;
-    const string&                       ReturnDataType() const;
-    const ADDR64SET&                    Jumpees() const;
-    const ADDR64SET&                    Jumpers() const;
-    const ADDR64SET&                    Callees() const;
-    const ADDR64SET&                    Callers() const;
-    const VECSET<BLOCK64>&              Blocks() const;
-    const BLOCK64*                      FindBlockOfAddr(ADDR64 addr) const;
+    const ADDR64&               Addr() const;
+    const string&               Name() const;
+    const FUNCTYPE&             FuncType() const;
+    const INT&                  SizeOfStackArgs() const;
+    const OPERANDSET&           Args() const;
+    const DWORD&                Flags() const;
+    const string&               ReturnDataType() const;
+    const ADDR64SET&            Jumpees() const;
+    const ADDR64SET&            Jumpers() const;
+    const ADDR64SET&            Callees() const;
+    const ADDR64SET&            Callers() const;
+    const VECSET<BLOCK64>&      Blocks() const;
+    const BLOCK64*              FindBlockOfAddr(ADDR64 addr) const;
 
 protected:
-    struct CODEFUNC64IMPL;
-    CODEFUNC64IMPL *m_pImpl;
+    ADDR64                      m_addr;
+    string                      m_name;
+    FUNCTYPE                    m_ft;
+    INT                         m_SizeOfStackArgs;
+    OPERANDSET                  m_args;
+    DWORD                       m_flags;
+    string                      m_returndatatype;
+    ADDR64SET                   m_jumpees;
+    ADDR64SET                   m_jumpers;
+    ADDR64SET                   m_callees;
+    ADDR64SET                   m_callers;
+    VECSET<BLOCK64>             m_blocks;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -801,8 +837,12 @@ protected:
     BOOL AnalyzeFuncCFGStage2(ADDR32 func);
 
 protected:
-    struct DECOMPSTATUS32IMPL;
-    DECOMPSTATUS32IMPL* m_pImpl;
+    // map virtual address to asm code
+    map<ADDR32, ASMCODE32>          m_mAddrToAsmCode;
+    // entrances
+    ADDR32SET                       m_sEntrances;
+    // map addr to code function
+    map<ADDR32, CODEFUNC32>         m_mAddrToCodeFunc;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -842,8 +882,12 @@ protected:
     BOOL AnalyzeFuncCFGStage2(ADDR64 func);
 
 protected:
-    struct DECOMPSTATUS64IMPL;
-    DECOMPSTATUS64IMPL* m_pImpl;
+    // map virtual address to asm code
+    map<ADDR64, ASMCODE64>          m_mAddrToAsmCode;
+    // entrances
+    ADDR64SET                       m_sEntrances;
+    // map addr to code function
+    map<ADDR64, CODEFUNC64>         m_mAddrToCodeFunc;
 };
 
 ////////////////////////////////////////////////////////////////////////////

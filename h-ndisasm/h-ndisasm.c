@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------- *
  *   
- *   Copyright 2013 Katayama Hirofumi MZ.  All rights reserved.
+ *   Copyright 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
  *   Copyright 1996-2009 The NASM Authors - All Rights Reserved
  *
  *   Redistribution and use in source and binary forms, with or without

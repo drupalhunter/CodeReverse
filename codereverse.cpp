@@ -1,21 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////
 // codereverse.cpp
-// Copyright (C) 2013 Katayama Hirofumi MZ.  All rights reserved.
+// Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
-//
-// CodeReverse is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// CodeReverse is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with CodeReverse.  If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -24,7 +11,7 @@
 
 LPCSTR cr_logo =
     "/////////////////////////////////////\n"
-    "// CodeReverse 0.0.4               //\n"
+    "// CodeReverse 0.0.5               //\n"
     "// katayama.hirofumi.mz@gmail.com  //\n"
     "/////////////////////////////////////\n";
 
@@ -481,148 +468,20 @@ LPCSTR cr_flag_get_name(X86_FLAGTYPE type, INT bits)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// OPERAND::OPERANDIMPL
-
-struct OPERAND::OPERANDIMPL
-{
-    string      text;
-    OPERANDTYPE ot;
-    DWORD       size;
-    union
-    {
-        ADDR64 value64;
-        ADDR32 value32;
-    };
-    string      exp;
-    string      datatype;
-    TBOOL       is_integer;
-    TBOOL       is_pointer;
-    TBOOL       is_function;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// OPERAND accessors
-
-string& OPERAND::Text()
-{
-    return m_pImpl->text;
-}
-
-OPERANDTYPE& OPERAND::OperandType()
-{
-    return m_pImpl->ot;
-}
-
-DWORD& OPERAND::Size()
-{
-    return m_pImpl->size;
-}
-
-ADDR32& OPERAND::Value32()
-{
-    return m_pImpl->value32;
-}
-
-ADDR64& OPERAND::Value64()
-{
-    return m_pImpl->value64;
-}
-
-string& OPERAND::Exp()
-{
-    return m_pImpl->exp;
-}
-
-string& OPERAND::DataType()
-{
-    return m_pImpl->datatype;
-}
-
-TBOOL& OPERAND::IsInteger()
-{
-    return m_pImpl->is_integer;
-}
-
-TBOOL& OPERAND::IsPointer()
-{
-    return m_pImpl->is_pointer;
-}
-
-TBOOL& OPERAND::IsFunction()
-{
-    return m_pImpl->is_function;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// OPERAND const accessors
-
-const string& OPERAND::Text() const
-{
-    return m_pImpl->text;
-}
-
-const OPERANDTYPE& OPERAND::OperandType() const
-{
-    return m_pImpl->ot;
-}
-
-const DWORD& OPERAND::Size() const
-{
-    return m_pImpl->size;
-}
-
-const ADDR32& OPERAND::Value32() const
-{
-    return m_pImpl->value32;
-}
-
-const ADDR64& OPERAND::Value64() const
-{
-    return m_pImpl->value64;
-}
-
-const string& OPERAND::Exp() const
-{
-    return m_pImpl->exp;
-}
-
-const string& OPERAND::DataType() const
-{
-    return m_pImpl->datatype;
-}
-
-const TBOOL& OPERAND::IsInteger() const
-{
-    return m_pImpl->is_integer;
-}
-
-const TBOOL& OPERAND::IsPointer() const
-{
-    return m_pImpl->is_pointer;
-}
-
-const TBOOL& OPERAND::IsFunction() const
-{
-    return m_pImpl->is_function;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // OPERAND
 
-OPERAND::OPERAND() : m_pImpl(new OPERAND::OPERANDIMPL)
+OPERAND::OPERAND()
 {
     clear();
 }
 
 OPERAND::OPERAND(const OPERAND& opr)
-    : m_pImpl(new OPERAND::OPERANDIMPL)
 {
     Copy(opr);
 }
 
 /*virtual*/ OPERAND::~OPERAND()
 {
-    delete m_pImpl;
 }
 
 OPERAND& OPERAND::operator=(const OPERAND& opr)
@@ -895,130 +754,20 @@ VOID STACK::SetSP(DWORD sp)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// ASMCODE32::ASMCODE32IMPL
-
-struct ASMCODE32::ASMCODE32IMPL
-{
-    ADDR32SET           funcs;
-    ADDR32              addr;
-    string              name;
-    OPERANDSET          operands;
-    vector<BYTE>        codes;
-    ASMCODETYPE         act;
-    CONDCODE            ccode;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// ASMCODE32 accessors
-
-ADDR32SET& ASMCODE32::Funcs()
-{
-    return m_pImpl->funcs;
-}
-
-ADDR32& ASMCODE32::Addr()
-{
-    return m_pImpl->addr;
-}
-
-string& ASMCODE32::Name()
-{
-    return m_pImpl->name;
-}
-
-OPERANDSET& ASMCODE32::Operands()
-{
-    return m_pImpl->operands;
-}
-
-OPERAND* ASMCODE32::Operand(SIZE_T index)
-{
-    assert(index < m_pImpl->operands.size());
-    if (m_pImpl->operands.size() > index)
-        return &m_pImpl->operands[index];
-    else
-        return NULL;
-}
-
-vector<BYTE>& ASMCODE32::Codes()
-{
-    return m_pImpl->codes;
-}
-
-ASMCODETYPE& ASMCODE32::AsmCodeType()
-{
-    return m_pImpl->act;
-}
-
-CONDCODE& ASMCODE32::CondCode()
-{
-    return m_pImpl->ccode;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// ASMCODE32 const accessors
-
-const ADDR32SET& ASMCODE32::Funcs() const
-{
-    return m_pImpl->funcs;
-}
-
-const ADDR32& ASMCODE32::Addr() const
-{
-    return m_pImpl->addr;
-}
-
-const string& ASMCODE32::Name() const
-{
-    return m_pImpl->name;
-}
-
-const OPERANDSET& ASMCODE32::Operands() const
-{
-    return m_pImpl->operands;
-}
-
-const OPERAND* ASMCODE32::Operand(SIZE_T index) const
-{
-    assert(m_pImpl->operands.size() > index);
-    if (m_pImpl->operands.size() > index)
-        return &m_pImpl->operands[index];
-    else
-        return NULL;
-}
-
-const vector<BYTE>& ASMCODE32::Codes() const
-{
-    return m_pImpl->codes;
-}
-
-const ASMCODETYPE& ASMCODE32::AsmCodeType() const
-{
-    return m_pImpl->act;
-}
-
-const CONDCODE& ASMCODE32::CondCode() const
-{
-    return m_pImpl->ccode;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // ASMCODE32
 
-ASMCODE32::ASMCODE32() : m_pImpl(new ASMCODE32::ASMCODE32IMPL)
+ASMCODE32::ASMCODE32()
 {
     clear();
 }
 
 ASMCODE32::ASMCODE32(const ASMCODE32& ac)
-    : m_pImpl(new ASMCODE32::ASMCODE32IMPL)
 {
     Copy(ac);
 }
 
 /*virtual*/ ASMCODE32::~ASMCODE32()
 {
-    delete m_pImpl;
 }
 
 ASMCODE32& ASMCODE32::operator=(const ASMCODE32& ac)
@@ -1050,129 +799,20 @@ VOID ASMCODE32::clear()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// ASMCODE64::ASMCODE64IMPL
-
-struct ASMCODE64::ASMCODE64IMPL
-{
-    ADDR64SET       funcs;
-    ADDR64          addr;
-    string          name;
-    OPERANDSET      operands;
-    vector<BYTE>    codes;
-    ASMCODETYPE     act;
-    CONDCODE        ccode;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// ASMCODE64 accessors
-
-ADDR64SET& ASMCODE64::Funcs()
-{
-    return m_pImpl->funcs;
-}
-
-ADDR64& ASMCODE64::Addr()
-{
-    return m_pImpl->addr;
-}
-
-string& ASMCODE64::Name()
-{
-    return m_pImpl->name;
-}
-
-OPERANDSET& ASMCODE64::Operands()
-{
-    return m_pImpl->operands;
-}
-
-OPERAND* ASMCODE64::Operand(SIZE_T index)
-{
-    assert(index < m_pImpl->operands.size());
-    if (m_pImpl->operands.size() > index)
-        return &m_pImpl->operands[index];
-    else
-        return NULL;
-}
-
-vector<BYTE>& ASMCODE64::Codes()
-{
-    return m_pImpl->codes;
-}
-
-ASMCODETYPE& ASMCODE64::AsmCodeType()
-{
-    return m_pImpl->act;
-}
-
-CONDCODE& ASMCODE64::CondCode()
-{
-    return m_pImpl->ccode;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// ASMCODE64 const accessors
-
-const ADDR64SET& ASMCODE64::Funcs() const
-{
-    return m_pImpl->funcs;
-}
-
-const ADDR64& ASMCODE64::Addr() const
-{
-    return m_pImpl->addr;
-}
-
-const string& ASMCODE64::Name() const
-{
-    return m_pImpl->name;
-}
-
-const OPERANDSET& ASMCODE64::Operands() const
-{
-    return m_pImpl->operands;
-}
-
-const OPERAND* ASMCODE64::Operand(SIZE_T index) const
-{
-    assert(m_pImpl->operands.size() > index);
-    if (m_pImpl->operands.size() > index)
-        return &m_pImpl->operands[index];
-    else
-        return NULL;
-}
-
-const vector<BYTE>& ASMCODE64::Codes() const
-{
-    return m_pImpl->codes;
-}
-
-const ASMCODETYPE& ASMCODE64::AsmCodeType() const
-{
-    return m_pImpl->act;
-}
-
-const CONDCODE& ASMCODE64::CondCode() const
-{
-    return m_pImpl->ccode;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // ASMCODE64
 
-ASMCODE64::ASMCODE64() : m_pImpl(new ASMCODE64IMPL)
+ASMCODE64::ASMCODE64()
 {
     clear();
 }
 
-ASMCODE64::ASMCODE64(const ASMCODE64& ac) : m_pImpl(new ASMCODE64IMPL)
+ASMCODE64::ASMCODE64(const ASMCODE64& ac)
 {
     Copy(ac);
 }
 
 /*virtual*/ ASMCODE64::~ASMCODE64()
 {
-    delete m_pImpl;
 }
 
 ASMCODE64& ASMCODE64::operator=(const ASMCODE64& ac)
@@ -1206,28 +846,16 @@ VOID ASMCODE64::clear()
 ////////////////////////////////////////////////////////////////////////////
 // BLOCK32
 
-struct BLOCK32::BLOCK32IMPL
+BLOCK32::BLOCK32() :
+    m_addr(0),
+    m_nextblock1(NULL),
+    m_nextblock2(NULL),
+    m_nextaddr1(0),
+    m_nextaddr2(0)
 {
-    ADDR32 addr;
-    VECSET<ASMCODE32> asmcodes;
-    BLOCK32 *nextblock1;
-    BLOCK32 *nextblock2;
-    ADDR32 nextaddr1;
-    ADDR32 nextaddr2;
-};
-
-BLOCK32::BLOCK32()
-    : m_pImpl(new BLOCK32::BLOCK32IMPL)
-{
-    m_pImpl->addr = 0;
-    m_pImpl->nextblock1 = NULL;
-    m_pImpl->nextblock2 = NULL;
-    m_pImpl->nextaddr1 = 0;
-    m_pImpl->nextaddr2 = 0;
 }
 
 BLOCK32::BLOCK32(const BLOCK32& b)
-    : m_pImpl(new BLOCK32::BLOCK32IMPL)
 {
     Copy(b);
 }
@@ -1242,99 +870,36 @@ VOID BLOCK32::Copy(const BLOCK32& b)
 {
     Addr() = b.Addr();
     AsmCodes() = b.AsmCodes();
-    m_pImpl->nextblock1 = b.m_pImpl->nextblock1;
-    m_pImpl->nextblock2 = b.m_pImpl->nextblock2;
+    NextBlock1() = b.NextBlock1();
+    NextBlock2() = b.NextBlock2();
 }
 
 /*virtual*/ BLOCK32::~BLOCK32()
 {
-    delete m_pImpl;
-}
-
-ADDR32& BLOCK32::Addr()
-{
-    return m_pImpl->addr;
-}
-
-const ADDR32& BLOCK32::Addr() const
-{
-    return m_pImpl->addr;
-}
-
-VECSET<ASMCODE32>& BLOCK32::AsmCodes()
-{
-    return m_pImpl->asmcodes;
-}
-
-const VECSET<ASMCODE32>& BLOCK32::AsmCodes() const
-{
-    return m_pImpl->asmcodes;
-}
-
-BLOCK32*& BLOCK32::NextBlock1()
-{
-    return m_pImpl->nextblock1;
-}
-
-BLOCK32*& BLOCK32::NextBlock2()
-{
-    return m_pImpl->nextblock2;
-}
-
-ADDR32& BLOCK32::NextAddr1()
-{
-    return m_pImpl->nextaddr1;
-}
-
-const ADDR32& BLOCK32::NextAddr1() const
-{
-    return m_pImpl->nextaddr1;
-}
-
-ADDR32& BLOCK32::NextAddr2()
-{
-    return m_pImpl->nextaddr2;
-}
-
-const ADDR32& BLOCK32::NextAddr2() const
-{
-    return m_pImpl->nextaddr2;
 }
 
 VOID BLOCK32::clear()
 {
-    m_pImpl->asmcodes.clear();
-    m_pImpl->nextblock1 = NULL;
-    m_pImpl->nextblock2 = NULL;
-    m_pImpl->nextaddr1 = 0;
-    m_pImpl->nextaddr2 = 0;
+    AsmCodes().clear();
+    NextBlock1() = NULL;
+    NextBlock2() = NULL;
+    NextAddr1() = 0;
+    NextAddr2() = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // BLOCK64
 
-struct BLOCK64::BLOCK64IMPL
+BLOCK64::BLOCK64() :
+    m_addr(0),
+    m_nextblock1(NULL),
+    m_nextblock2(NULL),
+    m_nextaddr1(0),
+    m_nextaddr2(0)
 {
-    ADDR64 addr;
-    VECSET<ASMCODE64> asmcodes;
-    BLOCK64 *nextblock1;
-    BLOCK64 *nextblock2;
-    ADDR64 nextaddr1;
-    ADDR64 nextaddr2;
-};
-
-BLOCK64::BLOCK64()
-    : m_pImpl(new BLOCK64::BLOCK64IMPL)
-{
-    m_pImpl->addr = 0;
-    m_pImpl->nextblock1 = NULL;
-    m_pImpl->nextblock2 = NULL;
-    m_pImpl->nextaddr1 = 0;
-    m_pImpl->nextaddr2 = 0;
 }
 
 BLOCK64::BLOCK64(const BLOCK64& b)
-    : m_pImpl(new BLOCK64::BLOCK64IMPL)
 {
     Copy(b);
 }
@@ -1349,251 +914,32 @@ VOID BLOCK64::Copy(const BLOCK64& b)
 {
     Addr() = b.Addr();
     AsmCodes() = b.AsmCodes();
-    m_pImpl->nextblock1 = b.m_pImpl->nextblock1;
-    m_pImpl->nextblock2 = b.m_pImpl->nextblock2;
-}
-
-ADDR64& BLOCK64::Addr()
-{
-    return m_pImpl->addr;
-}
-
-const ADDR64& BLOCK64::Addr() const
-{
-    return m_pImpl->addr;
+    NextBlock1() = b.NextBlock1();
+    NextBlock2() = b.NextBlock2();
 }
 
 /*virtual*/ BLOCK64::~BLOCK64()
 {
-    delete m_pImpl;
-}
-
-VECSET<ASMCODE64>& BLOCK64::AsmCodes()
-{
-    return m_pImpl->asmcodes;
-}
-
-const VECSET<ASMCODE64>& BLOCK64::AsmCodes() const
-{
-    return m_pImpl->asmcodes;
-}
-
-BLOCK64*& BLOCK64::NextBlock1()
-{
-    return m_pImpl->nextblock1;
-}
-
-BLOCK64*& BLOCK64::NextBlock2()
-{
-    return m_pImpl->nextblock2;
-}
-
-ADDR64& BLOCK64::NextAddr1()
-{
-    return m_pImpl->nextaddr1;
-}
-
-const ADDR64& BLOCK64::NextAddr1() const
-{
-    return m_pImpl->nextaddr1;
-}
-
-ADDR64& BLOCK64::NextAddr2()
-{
-    return m_pImpl->nextaddr2;
-}
-
-const ADDR64& BLOCK64::NextAddr2() const
-{
-    return m_pImpl->nextaddr2;
 }
 
 VOID BLOCK64::clear()
 {
-    m_pImpl->asmcodes.clear();
-    m_pImpl->nextblock1 = NULL;
-    m_pImpl->nextblock2 = NULL;
-    m_pImpl->nextaddr1 = 0;
-    m_pImpl->nextaddr2 = 0;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC32::CODEFUNC32IMPL
-
-struct CODEFUNC32::CODEFUNC32IMPL
-{
-    ADDR32              addr;
-    string              name;
-    FUNCTYPE            ft;
-    INT                 SizeOfStackArgs;
-    OPERANDSET          args;
-    DWORD               flags;
-    string              returndatatype;
-    ADDR32SET           jumpees;
-    ADDR32SET           jumpers;
-    ADDR32SET           callees;
-    ADDR32SET           callers;
-    VECSET<BLOCK32>     blocks;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC32 accessors
-
-ADDR32& CODEFUNC32::Addr()
-{
-    return m_pImpl->addr;
-}
-
-string& CODEFUNC32::Name()
-{
-    return m_pImpl->name;
-}
-
-FUNCTYPE& CODEFUNC32::FuncType()
-{
-    return m_pImpl->ft;
-}
-
-INT& CODEFUNC32::SizeOfStackArgs()
-{
-    return m_pImpl->SizeOfStackArgs;
-}
-
-OPERANDSET& CODEFUNC32::Args()
-{
-    return m_pImpl->args;
-}
-
-DWORD& CODEFUNC32::Flags()
-{
-    return m_pImpl->flags;
-}
-
-string& CODEFUNC32::ReturnDataType()
-{
-    return m_pImpl->returndatatype;
-}
-
-ADDR32SET& CODEFUNC32::Jumpees()
-{
-    return m_pImpl->jumpees;
-}
-
-ADDR32SET& CODEFUNC32::Jumpers()
-{
-    return m_pImpl->jumpers;
-}
-
-ADDR32SET& CODEFUNC32::Callees()
-{
-    return m_pImpl->callees;
-}
-
-ADDR32SET& CODEFUNC32::Callers()
-{
-    return m_pImpl->callees;
-}
-
-VECSET<BLOCK32>& CODEFUNC32::Blocks()
-{
-    return m_pImpl->blocks;
-}
-
-BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr)
-{
-    size_t i, size = Blocks().size();
-    for (i = 0; i < size; i++)
-    {
-        if (Blocks()[i].Addr() == addr)
-            return &Blocks()[i];
-    }
-    return NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC32 const accessors
-
-const ADDR32& CODEFUNC32::Addr() const
-{
-    return m_pImpl->addr;
-}
-
-const string& CODEFUNC32::Name() const
-{
-    return m_pImpl->name;
-}
-
-const FUNCTYPE& CODEFUNC32::FuncType() const
-{
-    return m_pImpl->ft;
-}
-
-const INT& CODEFUNC32::SizeOfStackArgs() const
-{
-    return m_pImpl->SizeOfStackArgs;
-}
-
-const OPERANDSET& CODEFUNC32::Args() const
-{
-    return m_pImpl->args;
-}
-
-const DWORD& CODEFUNC32::Flags() const
-{
-    return m_pImpl->flags;
-}
-
-const string& CODEFUNC32::ReturnDataType() const
-{
-    return m_pImpl->returndatatype;
-}
-
-const ADDR32SET& CODEFUNC32::Jumpees() const
-{
-    return m_pImpl->jumpees;
-}
-
-const ADDR32SET& CODEFUNC32::Jumpers() const
-{
-    return m_pImpl->jumpers;
-}
-
-const ADDR32SET& CODEFUNC32::Callees() const
-{
-    return m_pImpl->callees;
-}
-
-const ADDR32SET& CODEFUNC32::Callers() const
-{
-    return m_pImpl->callees;
-}
-
-const VECSET<BLOCK32>& CODEFUNC32::Blocks() const
-{
-    return m_pImpl->blocks;
-}
-
-const BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr) const
-{
-    size_t i, size = Blocks().size();
-    for (i = 0; i < size; i++)
-    {
-        if (Blocks()[i].Addr() == addr)
-            return &Blocks()[i];
-    }
-    return NULL;
+    AsmCodes().clear();
+    NextBlock1() = NULL;
+    NextBlock2() = NULL;
+    NextAddr1() = 0;
+    NextAddr2() = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // CODEFUNC32
 
-CODEFUNC32::CODEFUNC32() : m_pImpl(new CODEFUNC32::CODEFUNC32IMPL)
+CODEFUNC32::CODEFUNC32()
 {
     clear();
 }
 
 CODEFUNC32::CODEFUNC32(const CODEFUNC32& cf)
-    : m_pImpl(new CODEFUNC32::CODEFUNC32IMPL)
 {
     Copy(cf);
 }
@@ -1606,7 +952,6 @@ CODEFUNC32& CODEFUNC32::operator=(const CODEFUNC32& cf)
 
 /*virtual*/ CODEFUNC32::~CODEFUNC32()
 {
-    delete m_pImpl;
 }
 
 VOID CODEFUNC32::Copy(const CODEFUNC32& cf)
@@ -1633,89 +978,7 @@ VOID CODEFUNC32::clear()
     Blocks().clear();
 }
 
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC32::CODEFUNC32IMPL
-
-struct CODEFUNC64::CODEFUNC64IMPL
-{
-    ADDR64          addr;
-    string          name;
-    FUNCTYPE        ft;
-    INT             SizeOfStackArgs;
-    OPERANDSET      args;
-    DWORD           flags;
-    string          returndatatype;
-    ADDR64SET       jumpees;
-    ADDR64SET       jumpers;
-    ADDR64SET       callees;
-    ADDR64SET       callers;
-    VECSET<BLOCK64> blocks;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC64 accessors
-
-ADDR64& CODEFUNC64::Addr()
-{
-    return m_pImpl->addr;
-}
-
-string& CODEFUNC64::Name()
-{
-    return m_pImpl->name;
-}
-
-FUNCTYPE& CODEFUNC64::FuncType()
-{
-    return m_pImpl->ft;
-}
-
-INT& CODEFUNC64::SizeOfStackArgs()
-{
-    return m_pImpl->SizeOfStackArgs;
-}
-
-OPERANDSET& CODEFUNC64::Args()
-{
-    return m_pImpl->args;
-}
-
-DWORD& CODEFUNC64::Flags()
-{
-    return m_pImpl->flags;
-}
-
-string& CODEFUNC64::ReturnDataType()
-{
-    return m_pImpl->returndatatype;
-}
-
-ADDR64SET& CODEFUNC64::Jumpees()
-{
-    return m_pImpl->jumpees;
-}
-
-ADDR64SET& CODEFUNC64::Jumpers()
-{
-    return m_pImpl->jumpers;
-}
-
-ADDR64SET& CODEFUNC64::Callees()
-{
-    return m_pImpl->callees;
-}
-
-ADDR64SET& CODEFUNC64::Callers()
-{
-    return m_pImpl->callees;
-}
-
-VECSET<BLOCK64>& CODEFUNC64::Blocks()
-{
-    return m_pImpl->blocks;
-}
-
-BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
+BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr)
 {
     size_t i, size = Blocks().size();
     for (i = 0; i < size; i++)
@@ -1726,70 +989,7 @@ BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
     return NULL;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// CODEFUNC64 const accessors
-
-const ADDR64& CODEFUNC64::Addr() const
-{
-    return m_pImpl->addr;
-}
-
-const string& CODEFUNC64::Name() const
-{
-    return m_pImpl->name;
-}
-
-const FUNCTYPE& CODEFUNC64::FuncType() const
-{
-    return m_pImpl->ft;
-}
-
-const INT& CODEFUNC64::SizeOfStackArgs() const
-{
-    return m_pImpl->SizeOfStackArgs;
-}
-
-const OPERANDSET& CODEFUNC64::Args() const
-{
-    return m_pImpl->args;
-}
-
-const DWORD& CODEFUNC64::Flags() const
-{
-    return m_pImpl->flags;
-}
-
-const string& CODEFUNC64::ReturnDataType() const
-{
-    return m_pImpl->returndatatype;
-}
-
-const ADDR64SET& CODEFUNC64::Jumpees() const
-{
-    return m_pImpl->jumpees;
-}
-
-const ADDR64SET& CODEFUNC64::Jumpers() const
-{
-    return m_pImpl->jumpers;
-}
-
-const ADDR64SET& CODEFUNC64::Callees() const
-{
-    return m_pImpl->callees;
-}
-
-const ADDR64SET& CODEFUNC64::Callers() const
-{
-    return m_pImpl->callees;
-}
-
-const VECSET<BLOCK64>& CODEFUNC64::Blocks() const
-{
-    return m_pImpl->blocks;
-}
-
-const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
+const BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr) const
 {
     size_t i, size = Blocks().size();
     for (i = 0; i < size; i++)
@@ -1803,13 +1003,12 @@ const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
 ////////////////////////////////////////////////////////////////////////////
 // CODEFUNC64
 
-CODEFUNC64::CODEFUNC64() : m_pImpl(new CODEFUNC64::CODEFUNC64IMPL)
+CODEFUNC64::CODEFUNC64()
 {
     clear();
 }
 
 CODEFUNC64::CODEFUNC64(const CODEFUNC64& cf)
-    : m_pImpl(new CODEFUNC64::CODEFUNC64IMPL)
 {
     Copy(cf);
 }
@@ -1822,7 +1021,6 @@ CODEFUNC64& CODEFUNC64::operator=(const CODEFUNC64& cf)
 
 /*virtual*/ CODEFUNC64::~CODEFUNC64()
 {
-    delete m_pImpl;
 }
 
 VOID CODEFUNC64::Copy(const CODEFUNC64& cf)
@@ -1847,6 +1045,28 @@ VOID CODEFUNC64::clear()
     Flags() = 0;
     ReturnDataType().clear();
     Blocks().clear();
+}
+
+BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
+{
+    size_t i, size = Blocks().size();
+    for (i = 0; i < size; i++)
+    {
+        if (Blocks()[i].Addr() == addr)
+            return &Blocks()[i];
+    }
+    return NULL;
+}
+
+const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
+{
+    size_t i, size = Blocks().size();
+    for (i = 0; i < size; i++)
+    {
+        if (Blocks()[i].Addr() == addr)
+            return &Blocks()[i];
+    }
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -2528,110 +1748,13 @@ BOOL cr_get_asmio_64(X86ASMIO *key, set<string>& in, set<string>& out, INT osize
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS32::DECOMPSTATUS32IMPL
-
-struct DECOMPSTATUS32::DECOMPSTATUS32IMPL
-{
-    // map virtual address to asm code
-    map<ADDR32, ASMCODE32>      mAddrToAsmCode;
-
-    // entrances
-    ADDR32SET                   sEntrances;
-
-    // map addr to code function
-    map<ADDR32, CODEFUNC32>     mAddrToCodeFunc;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS32 accessors
-
-map<ADDR32, ASMCODE32>& DECOMPSTATUS32::MapAddrToAsmCode()
-{
-    return m_pImpl->mAddrToAsmCode;
-}
-
-ADDR32SET& DECOMPSTATUS32::Entrances()
-{
-    return m_pImpl->sEntrances;
-}
-
-map<ADDR32, CODEFUNC32>& DECOMPSTATUS32::MapAddrToCodeFunc()
-{
-    return m_pImpl->mAddrToCodeFunc;
-}
-
-ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr)
-{
-    map<ADDR32, ASMCODE32>::iterator it, end;
-    end = m_pImpl->mAddrToAsmCode.end();
-    it = m_pImpl->mAddrToAsmCode.find(addr);
-    if (it != end)
-        return &it->second;
-    else
-        return NULL;
-}
-
-CODEFUNC32 *DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr)
-{
-    map<ADDR32, CODEFUNC32>::iterator it, end;
-    end = m_pImpl->mAddrToCodeFunc.end();
-    it = m_pImpl->mAddrToCodeFunc.find(addr);
-    if (it != end)
-        return &it->second;
-    else
-        return NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS32 const accessors
-
-const map<ADDR32, ASMCODE32>& DECOMPSTATUS32::MapAddrToAsmCode() const
-{
-    return m_pImpl->mAddrToAsmCode;
-}
-
-const ADDR32SET& DECOMPSTATUS32::Entrances() const
-{
-    return m_pImpl->sEntrances;
-}
-
-const map<ADDR32, CODEFUNC32>& DECOMPSTATUS32::MapAddrToCodeFunc() const
-{
-    return m_pImpl->mAddrToCodeFunc;
-}
-
-const ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr) const
-{
-    map<ADDR32, ASMCODE32>::const_iterator it, end;
-    end = m_pImpl->mAddrToAsmCode.end();
-    it = m_pImpl->mAddrToAsmCode.find(addr);
-    if (it != end)
-        return &it->second;
-    else
-        return NULL;
-}
-
-const CODEFUNC32 *DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr) const
-{
-    map<ADDR32, CODEFUNC32>::const_iterator it, end;
-    end = m_pImpl->mAddrToCodeFunc.end();
-    it = m_pImpl->mAddrToCodeFunc.find(addr);
-    if (it != end)
-        return &it->second;
-    else
-        return NULL;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // DECOMPSTATUS32
 
 DECOMPSTATUS32::DECOMPSTATUS32()
-    : m_pImpl(new DECOMPSTATUS32::DECOMPSTATUS32IMPL)
 {
 }
 
 DECOMPSTATUS32::DECOMPSTATUS32(const DECOMPSTATUS32& status)
-    : m_pImpl(new DECOMPSTATUS32::DECOMPSTATUS32IMPL)
 {
     Copy(status);
 }
@@ -2644,31 +1767,52 @@ DECOMPSTATUS32& DECOMPSTATUS32::operator=(const DECOMPSTATUS32& status)
 
 /*virtual*/ DECOMPSTATUS32::~DECOMPSTATUS32()
 {
-    delete m_pImpl;
 }
 
 VOID DECOMPSTATUS32::Copy(const DECOMPSTATUS32& status)
 {
-    m_pImpl->mAddrToAsmCode = status.m_pImpl->mAddrToAsmCode;
+    MapAddrToAsmCode() = status.MapAddrToAsmCode();
     Entrances() = status.Entrances();
-    m_pImpl->mAddrToCodeFunc = status.m_pImpl->mAddrToCodeFunc;
+    MapAddrToCodeFunc() = status.MapAddrToCodeFunc();
 }
 
 VOID DECOMPSTATUS32::clear()
 {
-    m_pImpl->mAddrToAsmCode.clear();
+    MapAddrToAsmCode().clear();
     Entrances().clear();
-    m_pImpl->mAddrToCodeFunc.clear();
+    MapAddrToCodeFunc().clear();
+}
+
+CODEFUNC32 *DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr)
+{
+    map<ADDR32, CODEFUNC32>::iterator it, end;
+    end = MapAddrToCodeFunc().end();
+    it = MapAddrToCodeFunc().find(addr);
+    if (it != end)
+        return &it->second;
+    else
+        return NULL;
+}
+
+const CODEFUNC32 *DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr) const
+{
+    map<ADDR32, CODEFUNC32>::const_iterator it, end;
+    end = MapAddrToCodeFunc().end();
+    it = MapAddrToCodeFunc().find(addr);
+    if (it != end)
+        return &it->second;
+    else
+        return NULL;
 }
 
 VOID DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr, const ASMCODE32& ac)
 {
-    m_pImpl->mAddrToAsmCode[addr] = ac;
+    MapAddrToAsmCode()[addr] = ac;
 }
 
 VOID DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr, const CODEFUNC32& cf)
 {
-    m_pImpl->mAddrToCodeFunc[addr] = cf;
+    MapAddrToCodeFunc()[addr] = cf;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -2779,42 +1923,11 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage2(ADDR32 func)
     return TRUE;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS64::DECOMPSTATUS64IMPL
-
-struct DECOMPSTATUS64::DECOMPSTATUS64IMPL
-{
-    // map virtual address to asm code
-    map<ADDR64, ASMCODE64>      mAddrToAsmCode;
-    // entrances
-    ADDR64SET                   sEntrances;
-    // map addr to code function
-    map<ADDR64, CODEFUNC64>     mAddrToCodeFunc;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS64 accessors
-
-map<ADDR64, ASMCODE64>& DECOMPSTATUS64::MapAddrToAsmCode()
-{
-    return m_pImpl->mAddrToAsmCode;
-}
-
-ADDR64SET& DECOMPSTATUS64::Entrances()
-{
-    return m_pImpl->sEntrances;
-}
-
-map<ADDR64, CODEFUNC64>& DECOMPSTATUS64::MapAddrToCodeFunc()
-{
-    return m_pImpl->mAddrToCodeFunc;
-}
-
 ASMCODE64 *DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr)
 {
     map<ADDR64, ASMCODE64>::iterator it, end;
-    end = m_pImpl->mAddrToAsmCode.end();
-    it = m_pImpl->mAddrToAsmCode.find(addr);
+    end = MapAddrToAsmCode().end();
+    it = MapAddrToAsmCode().find(addr);
     if (it != end)
         return &it->second;
     else
@@ -2824,37 +1937,19 @@ ASMCODE64 *DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr)
 CODEFUNC64 *DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr)
 {
     map<ADDR64, CODEFUNC64>::iterator it, end;
-    end = m_pImpl->mAddrToCodeFunc.end();
-    it = m_pImpl->mAddrToCodeFunc.find(addr);
+    end = MapAddrToCodeFunc().end();
+    it = MapAddrToCodeFunc().find(addr);
     if (it != end)
         return &it->second;
     else
         return NULL;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS64 const accessors
-
-const map<ADDR64, ASMCODE64>& DECOMPSTATUS64::MapAddrToAsmCode() const
-{
-    return m_pImpl->mAddrToAsmCode;
-}
-
-const ADDR64SET& DECOMPSTATUS64::Entrances() const
-{
-    return m_pImpl->sEntrances;
-}
-
-const map<ADDR64, CODEFUNC64>& DECOMPSTATUS64::MapAddrToCodeFunc() const
-{
-    return m_pImpl->mAddrToCodeFunc;
-}
-
 const ASMCODE64 *DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr) const
 {
     map<ADDR64, ASMCODE64>::const_iterator it, end;
-    end = m_pImpl->mAddrToAsmCode.end();
-    it = m_pImpl->mAddrToAsmCode.find(addr);
+    end = MapAddrToAsmCode().end();
+    it = MapAddrToAsmCode().find(addr);
     if (it != end)
         return &it->second;
     else
@@ -2864,8 +1959,8 @@ const ASMCODE64 *DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr) const
 const CODEFUNC64 *DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr) const
 {
     map<ADDR64, CODEFUNC64>::const_iterator it, end;
-    end = m_pImpl->mAddrToCodeFunc.end();
-    it = m_pImpl->mAddrToCodeFunc.find(addr);
+    end = MapAddrToCodeFunc().end();
+    it = MapAddrToCodeFunc().find(addr);
     if (it != end)
         return &it->second;
     else
@@ -2876,12 +1971,10 @@ const CODEFUNC64 *DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr) const
 // DECOMPSTATUS64
 
 DECOMPSTATUS64::DECOMPSTATUS64()
-    : m_pImpl(new DECOMPSTATUS64::DECOMPSTATUS64IMPL)
 {
 }
 
 DECOMPSTATUS64::DECOMPSTATUS64(const DECOMPSTATUS64& status)
-    : m_pImpl(new DECOMPSTATUS64::DECOMPSTATUS64IMPL)
 {
     Copy(status);
 }
@@ -2894,31 +1987,30 @@ DECOMPSTATUS64& DECOMPSTATUS64::operator=(const DECOMPSTATUS64& status)
 
 /*virtual*/ DECOMPSTATUS64::~DECOMPSTATUS64()
 {
-    delete m_pImpl;
 }
 
 VOID DECOMPSTATUS64::Copy(const DECOMPSTATUS64& status)
 {
-    m_pImpl->mAddrToAsmCode = status.m_pImpl->mAddrToAsmCode;
+    m_mAddrToAsmCode = status.m_mAddrToAsmCode;
     Entrances() = status.Entrances();
-    m_pImpl->mAddrToCodeFunc = status.m_pImpl->mAddrToCodeFunc;
+    m_mAddrToCodeFunc = status.m_mAddrToCodeFunc;
 }
 
 VOID DECOMPSTATUS64::clear()
 {
-    m_pImpl->mAddrToAsmCode.clear();
+    m_mAddrToAsmCode.clear();
     Entrances().clear();
-    m_pImpl->mAddrToCodeFunc.clear();
+    m_mAddrToCodeFunc.clear();
 }
 
 VOID DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr, const ASMCODE64& ac)
 {
-    m_pImpl->mAddrToAsmCode[addr] = ac;
+    m_mAddrToAsmCode[addr] = ac;
 }
 
 VOID DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr, const CODEFUNC64& cf)
 {
-    m_pImpl->mAddrToCodeFunc[addr] = cf;
+    m_mAddrToCodeFunc[addr] = cf;
 }
 
 ////////////////////////////////////////////////////////////////////////////
