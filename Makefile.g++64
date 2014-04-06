@@ -82,6 +82,6 @@ codereverse64_res.o: codereverse.rc codereverse.ico
 	windres $(RCFLAGS) -i codereverse.rc -o codereverse64_res.o
 
 clean:
-	if exist *.o del *.o
-	if exist h-ndisasm\*.o del h-ndisasm\*.o
-	if exist *.res del *.res
+	rm -f *.o
+	rm -f h-ndisasm\*.o
+	rm -f *.res

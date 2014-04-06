@@ -325,6 +325,16 @@ inline BLOCK32*& BLOCK32::NextBlock2()
     return m_nextblock2;
 }
 
+inline BLOCK32*& BLOCK32::NextBlock1() const
+{
+    return const_cast<BLOCK32*&>(m_nextblock1);
+}
+
+inline BLOCK32*& BLOCK32::NextBlock2() const
+{
+    return const_cast<BLOCK32*&>(m_nextblock2);
+}
+
 inline ADDR32& BLOCK32::NextAddr1()
 {
     return m_nextaddr1;
@@ -376,6 +386,16 @@ inline BLOCK64*& BLOCK64::NextBlock1()
 inline BLOCK64*& BLOCK64::NextBlock2()
 {
     return m_nextblock2;
+}
+
+inline BLOCK64*& BLOCK64::NextBlock1() const
+{
+    return const_cast<BLOCK64*&>(m_nextblock1);
+}
+
+inline BLOCK64*& BLOCK64::NextBlock2() const
+{
+    return const_cast<BLOCK64*&>(m_nextblock2);
 }
 
 inline ADDR64& BLOCK64::NextAddr1()
@@ -627,7 +647,7 @@ inline const string& CODEFUNC64::ReturnDataType() const
 
 inline const ADDR64SET& CODEFUNC64::Jumpees() const
 {
-    retsurn m_jumpees;
+    return m_jumpees;
 }
 
 inline const ADDR64SET& CODEFUNC64::Jumpers() const

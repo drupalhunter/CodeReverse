@@ -1,3 +1,6 @@
+#ifndef CODEREVERSE_H_
+#define CODEREVERSE_H_
+
 ////////////////////////////////////////////////////////////////////////////
 // codereverse.h
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
@@ -589,24 +592,26 @@ public:
     VOID clear();
 
 public: // accessors
-          ADDR32& Addr();
-    const ADDR32& Addr() const;
-          VECSET<ASMCODE32>& AsmCodes();
-    const VECSET<ASMCODE32>& AsmCodes() const;
-    BLOCK32*& NextBlock1();
-    BLOCK32*& NextBlock2();
-          ADDR32& NextAddr1();
-    const ADDR32& NextAddr1() const;
-          ADDR32& NextAddr2();
-    const ADDR32& NextAddr2() const;
+    ADDR32&                     Addr();
+    VECSET<ASMCODE32>&          AsmCodes();
+    BLOCK32*&                   NextBlock1();
+    BLOCK32*&                   NextBlock2();
+    ADDR32&                     NextAddr1();
+    ADDR32&                     NextAddr2();
+    const ADDR32&               Addr() const;
+    const VECSET<ASMCODE32>&    AsmCodes() const;
+    BLOCK32*&                   NextBlock1() const;
+    BLOCK32*&                   NextBlock2() const;
+    const ADDR32&               NextAddr1() const;
+    const ADDR32&               NextAddr2() const;
 
 protected:
-    ADDR32              m_addr;
-    VECSET<ASMCODE32>   m_asmcodes;
-    BLOCK32 *           m_nextblock1;
-    BLOCK32 *           m_nextblock2;
-    ADDR32              m_nextaddr1;
-    ADDR32              m_nextaddr2;
+    ADDR32                      m_addr;
+    VECSET<ASMCODE32>           m_asmcodes;
+    BLOCK32 *                   m_nextblock1;
+    BLOCK32 *                   m_nextblock2;
+    ADDR32                      m_nextaddr1;
+    ADDR32                      m_nextaddr2;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -623,24 +628,26 @@ public:
     VOID clear();
 
 public: // accessors
-          ADDR64& Addr();
-    const ADDR64& Addr() const;
-          VECSET<ASMCODE64>& AsmCodes();
-    const VECSET<ASMCODE64>& AsmCodes() const;
-    BLOCK64*& NextBlock1();
-    BLOCK64*& NextBlock2();
-          ADDR64& NextAddr1();
-    const ADDR64& NextAddr1() const;
-          ADDR64& NextAddr2();
-    const ADDR64& NextAddr2() const;
+    ADDR64&                     Addr();
+    VECSET<ASMCODE64>&          AsmCodes();
+    BLOCK64*&                   NextBlock1();
+    BLOCK64*&                   NextBlock2();
+    ADDR64&                     NextAddr1();
+    ADDR64&                     NextAddr2();
+    const ADDR64&               Addr() const;
+    const VECSET<ASMCODE64>&    AsmCodes() const;
+    BLOCK64*&                   NextBlock1() const;
+    BLOCK64*&                   NextBlock2() const;
+    const ADDR64&               NextAddr1() const;
+    const ADDR64&               NextAddr2() const;
 
 protected:
-    ADDR64              m_addr;
-    VECSET<ASMCODE64>   m_asmcodes;
-    BLOCK64 *           m_nextblock1;
-    BLOCK64 *           m_nextblock2;
-    ADDR64              m_nextaddr1;
-    ADDR64              m_nextaddr2;
+    ADDR64                      m_addr;
+    VECSET<ASMCODE64>           m_asmcodes;
+    BLOCK64 *                   m_nextblock1;
+    BLOCK64 *                   m_nextblock2;
+    ADDR64                      m_nextaddr1;
+    ADDR64                      m_nextaddr2;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -891,3 +898,7 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////////////////
+
+#include "codereverse_inl.h"
+
+#endif  // ndef CODEREVERSE_H_

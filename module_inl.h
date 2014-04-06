@@ -558,7 +558,7 @@ inline const SYMBOLINFO& PEMODULE::SymbolInfo() const
 
 inline HANDLE& PEMODULE::File() const
 {
-    return m_hFile;
+    return const_cast<HANDLE&>(m_hFile);
 }
 
 inline const LPCTSTR& PEMODULE::FileName() const
@@ -573,7 +573,7 @@ inline const DWORD& PEMODULE::FileSize() const
 
 inline HANDLE& PEMODULE::FileMapping() const
 {
-    return m_hFileMapping;
+    return const_cast<HANDLE&>(m_hFileMapping);
 }
 
 inline const BOOL& PEMODULE::ModuleLoaded() const

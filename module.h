@@ -1,3 +1,6 @@
+#ifndef MODULE_H_
+#define MODULE_H_
+
 ////////////////////////////////////////////////////////////////////////////
 // module.h
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
@@ -170,7 +173,7 @@ public:
     PEMODULE(LPCTSTR FileName);
     virtual ~PEMODULE();
 
-    BOOL LoadModule(LPCTSTR FileName);
+    BOOL LoadModule(LPCTSTR pszFileName);
     VOID UnloadModule();
     BOOL IsModuleLoaded() const;
 
@@ -269,7 +272,7 @@ public:
     const VECSET<EXPORT_SYMBOL>&        ExportSymbols() const;
     const SYMBOLINFO&                   SymbolInfo() const;
     HANDLE&                             File() const;
-    LPCTSTR&                            FileName() const;
+    const LPCTSTR&                      FileName() const;
     const DWORD&                        FileSize() const;
     HANDLE&                             FileMapping() const;
     const BOOL&                         ModuleLoaded() const;
@@ -392,3 +395,7 @@ VOID DumpSectionHeader(LPVOID Data);
 VOID DumpCodes(const vector<BYTE>& codes, INT bits);
 
 ////////////////////////////////////////////////////////////////////////////
+
+#include "module_inl.h"
+
+#endif  // ndef MODULE_H_

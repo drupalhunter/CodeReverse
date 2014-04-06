@@ -433,8 +433,8 @@ BOOL PEMODULE::AddressInCode64(ADDR64 va) const
 
 PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
 {
-    if (CodeSectionHeader())
-        return CodeSectionHeader();
+    if (m_pCodeSectionHeader)
+        return m_pCodeSectionHeader;
 
     assert(SectionHeaders());
     const DWORD size = NumberOfSections();
@@ -443,7 +443,7 @@ PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
         PREAL_IMAGE_SECTION_HEADER pHeader = SectionHeader(i);
         if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
         {
-            CodeSectionHeader() = pHeader;
+            m_pCodeSectionHeader = pHeader;
             return pHeader;
         }
     }
@@ -452,8 +452,8 @@ PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
 
 const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
 {
-    if (CodeSectionHeader())
-        return CodeSectionHeader();
+    if (m_pCodeSectionHeader)
+        return m_pCodeSectionHeader;
 
     assert(SectionHeaders());
     const DWORD size = NumberOfSections();
@@ -462,7 +462,7 @@ const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
         PREAL_IMAGE_SECTION_HEADER pHeader = SectionHeader(i);
         if (pHeader->Characteristics & IMAGE_SCN_MEM_EXECUTE)
         {
-            CodeSectionHeader() = pHeader;
+            m_pCodeSectionHeader = pHeader;
             return pHeader;
         }
     }
@@ -571,9 +571,9 @@ BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
     return TRUE;
 }
 
-BOOL PEMODULE::LoadModule(LPCTSTR FileName)
+BOOL PEMODULE::LoadModule(LPCTSTR pszFileName)
 {
-    File() = CreateFile(FileName, GENERIC_READ,
+    File() = CreateFile(pszFileName, GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         NULL, OPEN_EXISTING, 0, NULL);
     if (File() == INVALID_HANDLE_VALUE)
@@ -596,10 +596,7 @@ BOOL PEMODULE::LoadModule(LPCTSTR FileName)
     {
         FileImage() = reinterpret_cast<LPBYTE>(
             MapViewOfFile(
-                FileMapping(),
-                FILE_MAP_READ,
-                0, 0,
-                FileSize());
+                FileMapping(), FILE_MAP_READ, 0, 0, FileSize()));
         if (FileImage() != NULL)
         {
 #ifndef NO_CHECKSUM
@@ -611,7 +608,7 @@ BOOL PEMODULE::LoadModule(LPCTSTR FileName)
                 LoadImportTables();
                 LoadExportTable();
                 ModuleLoaded() = TRUE;
-                FileName() = FileName;
+                FileName() = pszFileName;
                 return TRUE;
             }
             LastError() = ERROR_INVALID_DATA;
