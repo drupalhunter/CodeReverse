@@ -2130,7 +2130,7 @@ int _tmain(int argc, _TCHAR **argv)
 
     if (argc != 2)
     {
-        fprintf(stderr, "Usage: pedumper exefile.exe\n");
+        fprintf(stderr, "Usage: cr exefile.exe\n");
         return 0;
     }
 

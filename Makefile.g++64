@@ -5,7 +5,7 @@
 ## This file is part of CodeReverse.
 ############################################################################
 
-DEFS = -m64 -mthreads -DJAPAN -finput-charset=CP932 -fexec-charset=CP932
+DEFS = -static -m64 -mthreads -DJAPAN -finput-charset=CP932 -fexec-charset=CP932
 
 DEFS2 = -municode -DUNICODE -D_UNICODE
 #DEFS2 = -DMBCS -D_MBCS
@@ -83,5 +83,5 @@ codereverse64_res.o: codereverse.rc codereverse.ico
 
 clean:
 	rm -f *.o
-	rm -f h-ndisasm\*.o
+	rm -f h-ndisasm/*.o
 	rm -f *.res
