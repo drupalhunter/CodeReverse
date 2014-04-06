@@ -50,11 +50,9 @@ public:
     TBOOL& NotEqual(const TBOOL& tb1, const TBOOL& tb2);
 
 public:
-    enum TBVALUE
-    {
+    enum {
         TB_UNKNOWN, TB_FALSE, TB_TRUE
-    };
-    TBVALUE m_value;
+    } m_value;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -70,7 +68,7 @@ public:
     void Copy(const VECSET<ITEM_T>& vs);
     virtual ~VECSET();
 
-    ITEM_T& operator[](SIZE_T index);
+          ITEM_T& operator[](SIZE_T index);
     const ITEM_T& operator[](SIZE_T index) const;
     SIZE_T size() const;
     bool empty() const;
@@ -88,6 +86,7 @@ public:
     VOID resize(SIZE_T size);
 
 public:
+    typedef ITEM_T item_type;
     std::vector<ITEM_T> m_items;
 };
 
