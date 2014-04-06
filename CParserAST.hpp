@@ -1,6 +1,3 @@
-// Written by Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
-// This file is public domain software.
-
 #ifndef CPARSER_AST_HPP_
 #define CPARSER_AST_HPP_
 

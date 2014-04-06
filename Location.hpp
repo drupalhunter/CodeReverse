@@ -1,6 +1,3 @@
-// Written by Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
-// This file is public domain software.
-
 #ifndef LOCATION_HPP_
 #define LOCATION_HPP_
 

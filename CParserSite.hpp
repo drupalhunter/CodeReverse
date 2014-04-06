@@ -1,12 +1,9 @@
-// Written by Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
-// This file is public domain software.
-
 #ifndef PARSERSITE_HPP_
 #define PARSERSITE_HPP_
 
 #include <iostream>     // std::cerr
 #include <string>       // std::string
-#include <map>      // std::map
+#include <map>          // std::map
 
 #include "Location.hpp"     // cparser::Location
 #include "Type.hpp"         // cparser::TypeCell
@@ -71,7 +68,8 @@ namespace cparser
             }
         }
 
-        bool compile(TransUnit& tu);
+        template <class CompilerSite>
+        bool compile(CompilerSite& cs, TransUnit& tu);
 
         void syntax_error()
         {
@@ -2584,9 +2582,10 @@ namespace cparser
     };
 } // namespace cparser
 
-inline bool cparser::ParserSite::compile(TransUnit& tu)
+template <class CompilerSite>
+inline bool cparser::ParserSite::compile(CompilerSite& cs, TransUnit& tu)
 {
-    // do nothing
+    // TODO: compile
     return 0;
 }
 

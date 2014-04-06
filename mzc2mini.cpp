@@ -113,10 +113,10 @@ VOID MzcRemoveBackslashA(LPTSTR pszPath)
 LPTSTR MzcGetFileTitle(LPTSTR pszPath)
 {
     using namespace std;
-    LPTSTR pch = _tcsrchr(pszPath, _T('\\'));
+    LPTSTR pch = strrchr(pszPath, _T('\\'));
     if (pch != NULL)
         return pch + 1;
-    pch = _tcsrchr(pszPath, _T('/'));
+    pch = strrchr(pszPath, _T('/'));
     if (pch != NULL)
         return pch + 1;
     return pszPath;
@@ -126,7 +126,7 @@ LPTSTR MzcGetDotExt(LPTSTR pszPath)
 {
     using namespace std;
     LPTSTR pch = MzcGetFileTitle(pszPath);
-    if (pch != NULL) pch = _tcsrchr(pch, _T('.'));
+    if (pch != NULL) pch = strrchr(pch, _T('.'));
     if (pch == NULL) pch = pszPath + lstrlen(pszPath);
     return pch;
 }
@@ -490,7 +490,7 @@ BOOL __cdecl MFile::WriteFormat(LPCTSTR pszFormat, ...)
     va_list argList;
     TCHAR sz[1024];
     va_start(argList, pszFormat);
-    _vstprintf(sz, 1024, pszFormat, argList);
+    _vstprintf(sz, pszFormat, argList);
     BOOL b = WriteSz(sz);
     va_end(argList);
     return b;
@@ -744,8 +744,8 @@ BOOL MFindFile::FindFirstFile(LPCTSTR pszWildcard/* = NULL*/)
         return FALSE;
     }
 
-    LPTSTR pchBack = _tcsrchr(m_szRoot, _T('\\'));
-    LPTSTR pchFore = _tcsrchr(m_szRoot, _T('/'));
+    LPTSTR pchBack = strrchr(m_szRoot, _T('\\'));
+    LPTSTR pchFore = strrchr(m_szRoot, _T('/'));
     if (pchBack != NULL || pchFore != NULL)
     {
         if (pchBack == NULL) pchBack = m_szRoot;

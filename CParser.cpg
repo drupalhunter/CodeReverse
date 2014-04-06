@@ -1,6 +1,3 @@
-// Written by Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
-// This file is public domain software.
-
 %token_prefix;
 
 %token T_ADD_ASSIGN<shared_ptr<TokenValue> >;

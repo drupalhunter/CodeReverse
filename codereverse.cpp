@@ -10,10 +10,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 const char * const cr_logo =
-    "/////////////////////////////////////\n"
-    "// CodeReverse 0.0.6               //\n"
-    "// katayama.hirofumi.mz@gmail.com  //\n"
-    "/////////////////////////////////////\n";
+    "///////////////////////////////////////////////\n"
+    "// CodeReverse 0.0.7                         //\n"
+    "// https://github.com/katahiromz/CodeReverse //\n"
+    "// katayama.hirofumi.mz@gmail.com            //\n"
+    "///////////////////////////////////////////////\n";
 
 ////////////////////////////////////////////////////////////////////////////
 // TBOOL - tri-state logical value
@@ -2147,7 +2148,7 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage2(ADDR64 func)
 ////////////////////////////////////////////////////////////////////////////
 
 extern "C"
-int _tmain(int argc, _TCHAR **argv)
+int main(int argc, char **argv)
 {
     puts(cr_logo);
 
@@ -2156,11 +2157,11 @@ int _tmain(int argc, _TCHAR **argv)
         lstrcmp(argv[1], TEXT("--help")) == 0)
     {
 #ifdef _WIN64
-        fprintf(stderr, "Usage: coderev64 exefile.exe [input-file.i]\n\n");
+        fprintf(stderr, "    Usage: coderev64 exefile.exe [input-file.i]\n\n");
 #else
-        fprintf(stderr, "Usage: coderev exefile.exe [input-file.i]\n\n");
+        fprintf(stderr, "    Usage: coderev exefile.exe [input-file.i]\n\n");
 #endif
-        fprintf(stderr, "NOTE: input-file.i must be preprocessed C source.\n");
+        fprintf(stderr, "input-file.i must be preprocessed C source.\n");
         return 0;
     }
 
@@ -2169,9 +2170,15 @@ int _tmain(int argc, _TCHAR **argv)
         return 0;
     }
 
+    COMPILERSITE cs;
     if (argc == 3)
     {
-        // TODO: parse argv[2]
+        if (!cparser::parse_file(cs, argv[2]))
+        {
+            fprintf(stderr, "ERROR: Failed to parse file '%s'\n",
+                argv[2]);
+            return 1;
+        }
     }
 
     PEMODULE module;
@@ -2201,13 +2208,8 @@ int _tmain(int argc, _TCHAR **argv)
     }
     else
     {
-#ifdef _UNICODE
-        fprintf(stderr, "ERROR: Cannot load file '%ls', LastError = %lu\n",
-            argv[1], module.LastError());
-#else
         fprintf(stderr, "ERROR: Cannot load file '%s', LastError = %lu\n",
             argv[1], module.LastError());
-#endif
     }
 
     return 0;

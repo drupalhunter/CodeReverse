@@ -5,22 +5,27 @@
 ## This file is part of CodeReverse.
 ############################################################################
 
+CC = gcc
+CXX = g++
+CAPER = ./caper
+
 DEFS = -static -m64 -mthreads -DJAPAN -finput-charset=CP932 -fexec-charset=CP932
 
-DEFS2 = -municode -DUNICODE -D_UNICODE
-#DEFS2 = -DMBCS -D_MBCS
+#DEFS2 = -municode -DUNICODE -D_UNICODE
+DEFS2 = -DMBCS -D_MBCS
 
-OPTIONS = -O9 -Ofast -DNDEBUG $(DEFS) $(DEFS2) -Wall -pedantic
-#OPTIONS = -O0 -D_DEBUG $(DEFS) $(DEFS2) -Wall -pedantic
+OPTIONS = -mconsole -O9 -Ofast -DNDEBUG $(DEFS) $(DEFS2) -Wall -pedantic
+#OPTIONS = -mconsole -O0 -D_DEBUG $(DEFS) $(DEFS2) -Wall -pedantic
 
-CPPFLAGS = -std=c++0x
+CCFLAGS = -std=c99
+CXXFLAGS = -std=c++0x
 
 OBJS = \
 	codereverse64.o \
 	dumpfn64.o \
 	module64.o \
 	mzc2mini64.o \
-	codereverse64_res.o \
+	codereverse_res64.o \
 	h-ndisasm\disasm64.o \
 	h-ndisasm\insnsb64.o \
 	h-ndisasm\insnsd64.o \
@@ -30,11 +35,19 @@ OBJS = \
 	h-ndisasm\regs64.o \
 	h-ndisasm\ver64.o
 
+CPARSER_HEADER = \
+	CScanner.hpp \
+	CParserAST.hpp \
+	CParserSite.hpp \
+	CParser.hpp \
+
 CR_HEADERS = \
 	stdafx.h \
 	codereverse.h \
 	module.h \
-	mzc2mini.h
+	mzc2mini.h \
+	CParser.h \
+	$(CPARSER_HEADER)
 
 H_NDISASM_HEADERS = \
 	h-ndisasm\compiler.h \
@@ -50,38 +63,41 @@ RCFLAGS = -F pe-x86-64
 all: coderev64.exe
 
 coderev64.exe: $(OBJS)
-	g++ -mconsole -o coderev64.exe $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
+	$(CXX) -o coderev64.exe $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
 codereverse64.o: $(CR_HEADERS) codereverse.cpp
-	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o codereverse64.o codereverse.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o codereverse64.o codereverse.cpp
 dumpfn64.o: $(CR_HEADERS) dumpfn.cpp
-	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o dumpfn64.o dumpfn.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o dumpfn64.o dumpfn.cpp
 module64.o: $(CR_HEADERS) module.cpp
-	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o module64.o module.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o module64.o module.cpp
 mzc2mini64.o: $(CR_HEADERS) mzc2mini.cpp
-	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o mzc2mini64.o mzc2mini.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o mzc2mini64.o mzc2mini.cpp
+CParser.hpp: $(CAPER) CParser.cpg
+	$(CAPER) CParser.cpg CParser.hpp
 
 h-ndisasm\disasm64.o: h-ndisasm\disasm.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\disasm64.o h-ndisasm\disasm.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\disasm64.o h-ndisasm\disasm.c
 h-ndisasm\insnsb64.o: h-ndisasm\insnsb.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\insnsb64.o h-ndisasm\insnsb.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsb64.o h-ndisasm\insnsb.c
 h-ndisasm\insnsd64.o: h-ndisasm\insnsd.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\insnsd64.o h-ndisasm\insnsd.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsd64.o h-ndisasm\insnsd.c
 h-ndisasm\insnsn64.o: h-ndisasm\insnsn.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\insnsn64.o h-ndisasm\insnsn.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsn64.o h-ndisasm\insnsn.c
 h-ndisasm\nasmlib64.o: h-ndisasm\nasmlib.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\nasmlib64.o h-ndisasm\nasmlib.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\nasmlib64.o h-ndisasm\nasmlib.c
 h-ndisasm\regdis64.o: h-ndisasm\regdis.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\regdis64.o h-ndisasm\regdis.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\regdis64.o h-ndisasm\regdis.c
 h-ndisasm\regs64.o: h-ndisasm\regs.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\regs64.o h-ndisasm\regs.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\regs64.o h-ndisasm\regs.c
 h-ndisasm\ver64.o: h-ndisasm\ver.c $(H_NDISASM_HEADERS)
-	gcc -c -mconsole -std=c99 $(OPTIONS) -o h-ndisasm\ver64.o h-ndisasm\ver.c
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\ver64.o h-ndisasm\ver.c
 
-codereverse64_res.o: codereverse.rc codereverse.ico
-	windres $(RCFLAGS) -i codereverse.rc -o codereverse64_res.o
+codereverse_res64.o: codereverse.rc codereverse.ico
+	windres $(RCFLAGS) -i codereverse.rc -o codereverse_res64.o
 
 clean:
 	rm -f *.o
 	rm -f h-ndisasm/*.o
 	rm -f *.res
+	rm -f CParser.hpp

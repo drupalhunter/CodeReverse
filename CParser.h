@@ -1,5 +1,5 @@
-// Written by Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
-// This file is public domain software.
+#ifndef CPARSER_H_
+#define CPARSER_H_
 
 #include "CScanner.hpp"      // cparser::Scanner
 #include "CParserSite.hpp"   // cparser::ParserSite
@@ -14,8 +14,8 @@
 
 namespace cparser
 {
-    template <class Iterator>
-    bool parse(Iterator begin, Iterator end)
+    template <class CompilerSite, class Iterator>
+    bool parse(CompilerSite& cs, Iterator begin, Iterator end)
     {
         using namespace cparser;
         ParserSite ps;
@@ -46,32 +46,49 @@ namespace cparser
         shared_ptr<Node> node;
         if (parser.accept(node))
         {
-            std::cerr << "Accepted!" << std::endl;
+            //std::cerr << "Accepted!" << std::endl;
             shared_ptr<TransUnit> trans_unit;
             trans_unit = static_pointer_cast<TransUnit, Node>(node);
-            return ps.compile(*trans_unit.get());
+            return ps.compile(cs, *trans_unit.get());
         }
 
         return false;
     }
 
-    bool parse_string(const char *s)
+    template <class CompilerSite>
+    bool parse_string(CompilerSite& cs, const char *s)
     {
-        return parse(s, s + std::strlen(s));
+        return parse(cs, s, s + std::strlen(s));
     }
 
-    bool parse_string(const std::string& str)
+    template <class CompilerSite>
+    bool parse_string(CompilerSite& cs, const std::string& str)
     {
-        return parse(str.begin(), str.end());
+        return parse(cs, str.begin(), str.end());
     }
 
-    bool parse_file(const char *filename)
+    template <class CompilerSite>
+    bool parse_file(CompilerSite& cs, const char *filename)
     {
         std::ifstream file(filename);
         if (file.is_open())
         {
             std::istreambuf_iterator<char> begin(file), end;
-            bool ok = parse(begin, end);
+            bool ok = parse(cs, begin, end);
+            file.close();
+            return ok;
+        }
+        return false;
+    }
+
+    template <class CompilerSite>
+    bool parse_file(CompilerSite& cs, const wchar_t *filename)
+    {
+        std::ifstream file(filename);
+        if (file.is_open())
+        {
+            std::istreambuf_iterator<char> begin(file), end;
+            bool ok = parse(cs, begin, end);
             file.close();
             return ok;
         }
@@ -79,24 +96,4 @@ namespace cparser
     }
 } // namespace cparser
 
-int main(int argc, char **argv)
-{
-    using namespace std;
-    if (argc <= 1 || strcmp(argv[1], "/?") == 0 || strcmp(argv[1], "--help") == 0)
-    {
-        cout << "cparser parses preprocessed C source." << endl;
-        cout << endl;
-        cout << "    Usage: cparser input-file.i" << endl;
-        return 0;
-    }
-
-    if (strcmp(argv[1], "--version") == 0)
-    {
-        cout << "cparser 0.0 by Katayama Hirofumi MZ" << endl;
-        return 0;
-    }
-
-    cparser::parse_file(argv[1]);
-
-    return 0;
-}
+#endif  // ndef CPARSER_H_

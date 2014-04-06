@@ -1,6 +1,3 @@
-// Written by Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>.
-// This file is public domain software.
-
 #ifndef CSCANNER_HPP_
 #define CSCANNER_HPP_
 
