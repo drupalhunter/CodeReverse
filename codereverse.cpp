@@ -11,7 +11,7 @@
 
 LPCSTR cr_logo =
     "/////////////////////////////////////\n"
-    "// CodeReverse 0.0.6               //\n"
+    "// CodeReverse 0.0.6                  //\n"
     "// katayama.hirofumi.mz@gmail.com  //\n"
     "/////////////////////////////////////\n";
 
@@ -1813,6 +1813,28 @@ VOID DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr, const ASMCODE32& ac)
 VOID DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr, const CODEFUNC32& cf)
 {
     MapAddrToCodeFunc()[addr] = cf;
+}
+
+ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr)
+{
+    map<ADDR32, ASMCODE32>::iterator it, end;
+    end = MapAddrToAsmCode().end();
+    it = MapAddrToAsmCode().find(addr);
+    if (it != end)
+        return &it->second;
+    else
+        return NULL;
+}
+
+const ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr) const
+{
+    map<ADDR32, ASMCODE32>::const_iterator it, end;
+    end = MapAddrToAsmCode().end();
+    it = MapAddrToAsmCode().find(addr);
+    if (it != end)
+        return &it->second;
+    else
+        return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////

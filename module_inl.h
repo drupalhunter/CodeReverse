@@ -393,7 +393,9 @@ inline PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories()
 inline PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index)
 {
     assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
-    return &m_pDataDirectories[index];
+    if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
+        return &m_pDataDirectories[index];
+    return NULL;
 }
 
 inline PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders()
@@ -526,6 +528,7 @@ inline const PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders() const
 inline const PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index) const
 {
     assert(m_pSectionHeaders);
+    assert(index < NumberOfSections());
     if (index < NumberOfSections())
         return &m_pSectionHeaders[index];
     return NULL;

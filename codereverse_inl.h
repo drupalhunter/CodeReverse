@@ -688,17 +688,6 @@ inline map<ADDR32, CODEFUNC32>& DECOMPSTATUS32::MapAddrToCodeFunc()
     return m_mAddrToCodeFunc;
 }
 
-inline ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr)
-{
-    map<ADDR32, ASMCODE32>::iterator it, end;
-    end = m_mAddrToAsmCode.end();
-    it = m_mAddrToAsmCode.find(addr);
-    if (it != end)
-        return &it->second;
-    else
-        return NULL;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // DECOMPSTATUS32 const accessors
 
@@ -715,17 +704,6 @@ inline const ADDR32SET& DECOMPSTATUS32::Entrances() const
 inline const map<ADDR32, CODEFUNC32>& DECOMPSTATUS32::MapAddrToCodeFunc() const
 {
     return m_mAddrToCodeFunc;
-}
-
-inline const ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr) const
-{
-    map<ADDR32, ASMCODE32>::const_iterator it, end;
-    end = m_mAddrToAsmCode.end();
-    it = m_mAddrToAsmCode.find(addr);
-    if (it != end)
-        return &it->second;
-    else
-        return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
