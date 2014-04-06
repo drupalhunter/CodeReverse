@@ -11,7 +11,7 @@
 
 LPCSTR cr_logo =
     "/////////////////////////////////////\n"
-    "// CodeReverse 0.0.5               //\n"
+    "// CodeReverse 0.0.6               //\n"
     "// katayama.hirofumi.mz@gmail.com  //\n"
     "/////////////////////////////////////\n";
 
@@ -2130,7 +2130,11 @@ int _tmain(int argc, _TCHAR **argv)
 
     if (argc != 2)
     {
-        fprintf(stderr, "Usage: cr exefile.exe\n");
+#ifdef _WIN64
+        fprintf(stderr, "Usage: coderev64 exefile.exe\n");
+#else
+        fprintf(stderr, "Usage: coderev exefile.exe\n");
+#endif
         return 0;
     }
 

@@ -47,10 +47,10 @@ H_NDISASM_HEADERS = \
 
 RCFLAGS = -F pe-x86-64
 
-all: cr64.exe
+all: coderev64.exe
 
-cr64.exe: $(OBJS)
-	g++ -mconsole -o cr64.exe $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
+coderev64.exe: $(OBJS)
+	g++ -mconsole -o coderev64.exe $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
 codereverse64.o: $(CR_HEADERS) codereverse.cpp
 	g++ -c -mconsole $(OPTIONS) $(CPPFLAGS) -o codereverse64.o codereverse.cpp
