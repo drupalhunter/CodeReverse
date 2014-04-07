@@ -396,6 +396,7 @@ VOID DumpCodes(const vector<BYTE>& codes, INT bits);
 
 ////////////////////////////////////////////////////////////////////////////
 
+// inline functions
 #include "module_inl.h"
 
 #endif  // ndef MODULE_H_

@@ -801,6 +801,7 @@ class COMPILERSITE
 
 ////////////////////////////////////////////////////////////////////////////
 
+// inline functions
 #include "codereverse_inl.h"
 
 #endif  // ndef CODEREVERSE_H_

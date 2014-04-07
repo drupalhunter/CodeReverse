@@ -44,7 +44,9 @@ CPARSER_HEADER = \
 CR_HEADERS = \
 	stdafx.h \
 	codereverse.h \
+	codereverse_inl.h \
 	module.h \
+	module_inl.h \
 	mzc2mini.h \
 	CParser.h \
 	$(CPARSER_HEADER)
