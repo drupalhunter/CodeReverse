@@ -1,3 +1,10 @@
+////////////////////////////////////////////////////////////////////////////
+// CParserAST.hpp
+// Copyright (C) 2014 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+////////////////////////////////////////////////////////////////////////////
+
 #ifndef CPARSER_AST_HPP_
 #define CPARSER_AST_HPP_
 
@@ -7,7 +14,7 @@
 #include "Type.hpp"     // cparser::TypeCell
 
 // using smart pointers
-#if (__cplusplus >= 201103L)    // C++11
+#if (__cplusplus >= 199711L)
     #include <memory>
     using std::shared_ptr;
     using std::dynamic_pointer_cast;
