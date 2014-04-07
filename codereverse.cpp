@@ -2155,9 +2155,9 @@ int main(int argc, char **argv)
         lstrcmp(argv[1], TEXT("--help")) == 0)
     {
 #ifdef _WIN64
-        fprintf(stderr, "    Usage: coderev64 exefile.exe [input-file.i]\n\n");
+        fprintf(stderr, "  Usage: coderev64 exefile.exe [input-file.i]\n\n");
 #else
-        fprintf(stderr, "    Usage: coderev exefile.exe [input-file.i]\n\n");
+        fprintf(stderr, "  Usage: coderev exefile.exe [input-file.i]\n\n");
 #endif
         fprintf(stderr, "input-file.i must be preprocessed C source.\n");
         return 0;
