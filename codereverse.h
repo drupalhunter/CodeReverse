@@ -87,7 +87,8 @@ public:
 
     bool Find(const ITEM_T& item) const
     {
-        for (std::size_t i : *this)
+		const std::size_t siz = this->size();
+		for (std::size_t i = 0; i < siz; i++)
         {
             if (this->at(i) == item)
                 return true;

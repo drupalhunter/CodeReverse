@@ -2066,6 +2066,131 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage2(ADDR64 func)
 
 ////////////////////////////////////////////////////////////////////////////
 
+int DoParse(COMPILERSITE& cs, int argc, char **argv)
+{
+    LPSTR pchDotExt = MzcFindDotExt(argv[0]);
+    // if file extension is ".i",
+    if (_stricmp(pchDotExt, ".i") == 0)
+    {
+        // directly parse
+        if (!cparser::parse_file(cs, argv[0]))
+        {
+            fprintf(stderr, "ERROR: Failed to parse file '%s'\n",
+                argv[0]);
+            return 1;   // failure
+        }
+    }
+    else if (_stricmp(pchDotExt, ".h") == 0)
+    {
+        // if file extension is ".h",
+        BOOL bOK = FALSE;
+        // create temporary file
+        MFile hTmpFile;
+        char *tmpfile = _tempnam(".", "coderev_temp");
+        if (hTmpFile.OpenFileForOutput(tmpfile))
+        {
+            // setup process maker
+            MProcessMaker pmaker;
+            pmaker.SetShowWindow(SW_HIDE);
+            pmaker.SetCreationFlags(CREATE_NEW_CONSOLE);
+
+            MFile hInputWrite, hOutputRead;
+            if (pmaker.PrepareForRedirect(&hInputWrite, &hOutputRead, &hOutputRead))
+            {
+                // build command line
+                std::string cmdline("gcc -E ");
+                for (int i = 1; i < argc; i++)
+                    cmdline += argv[i];
+                cmdline += argv[0];
+
+                // create process
+                if (pmaker.CreateProcess(NULL, cmdline.c_str()))
+                {
+                    DWORD cbAvail, cbRead;
+                    BYTE szBuf[1024];
+
+                    bOK = TRUE;
+                    for (;;)
+                    {
+                        if (hOutputRead.PeekNamedPipe(NULL, 0, NULL, &cbAvail) &&
+                            cbAvail > 0)
+                        {
+                            // read from child process output
+                            if (hOutputRead.ReadFile(szBuf, 1024, &cbRead))
+                            {
+                                // write to temporary file
+                                if (!hTmpFile.WriteFile(szBuf, cbRead, &cbRead))
+                                {
+                                    fprintf(stderr,
+                                        "ERROR: Cannot write to temporary file '%s'\n",
+                                        tmpfile);
+                                    bOK = FALSE;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                DWORD dwError = ::GetLastError();
+                                if (dwError != ERROR_MORE_DATA)
+                                {
+                                    fprintf(stderr, "ERROR: Cannot read input\n");
+                                    break;
+                                }
+                            }
+                        }
+                        else if (!pmaker.IsRunning())
+                            break;
+                    }
+                    bOK = TRUE;
+                }
+                else
+                {
+                    fprintf(stderr, "ERROR: Cannot create process\n");
+                }
+            }
+            else
+            {
+                fprintf(stderr, "ERROR: Cannot create process\n");
+            }
+        }
+        else
+        {
+            fprintf(stderr, "ERROR: Cannot create temporary file '%s'\n",
+                tmpfile);
+        }
+
+        // close temporary file
+        hTmpFile.CloseHandle();
+
+        if (bOK)
+        {
+            if (!cparser::parse_file(cs, tmpfile))
+            {
+                fprintf(stderr, "ERROR: Failed to parse file '%s'\n",
+                    argv[0]);
+                DeleteFile(tmpfile);    // delete temporary file
+                return 1;   // failure
+            }
+            DeleteFile(tmpfile);    // delete temporary file
+        }
+        else
+        {
+            DeleteFile(tmpfile);    // delete temporary file
+            return 3;   // failure
+        }
+    }
+    else
+    {
+        fprintf(stderr,
+            "ERROR: Unknown input file extension '%s'. Please use .i or .h\n",
+            pchDotExt);
+        return 4;   // failure
+    }
+    return 0;   // success
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 extern "C"
 int main(int argc, char **argv)
 {
@@ -2073,31 +2198,27 @@ int main(int argc, char **argv)
 
     if (argc <= 1 || argc > 3 ||
         strcmp(argv[1], "/?") == 0 ||
-        stricmp(argv[1], "--help") == 0)
+        _stricmp(argv[1], "--help") == 0)
     {
 #ifdef _WIN64
-        fprintf(stderr, "  Usage: coderev64 exefile.exe [input-file.i]\n\n");
+        fprintf(stderr, " Usage: coderev64 exefile.exe [input-file] [compiler_options]\n");
 #else
-        fprintf(stderr, "  Usage: coderev exefile.exe [input-file.i]\n\n");
+        fprintf(stderr, " Usage: coderev exefile.exe [input-file] [compiler_options]\n");
 #endif
-        fprintf(stderr, "input-file.i must be preprocessed C source.\n");
         return 0;
     }
 
-    if (argc >= 2 && stricmp(argv[1], "--version") == 0)
+    if (argc >= 2 && _stricmp(argv[1], "--version") == 0)
     {
         return 0;
     }
 
     COMPILERSITE cs;
-    if (argc == 3)
+    if (argc >= 3)
     {
-        if (!cparser::parse_file(cs, argv[2]))
-        {
-            fprintf(stderr, "ERROR: Failed to parse file '%s'\n",
-                argv[2]);
-            return 1;
-        }
+        int result = DoParse(cs, argc - 2, &argv[2]);
+        if (result)
+            return result;
     }
 
     PEMODULE module;

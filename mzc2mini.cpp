@@ -74,7 +74,7 @@ VOID MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName)
     using namespace std;
     TCHAR szPath[MAX_PATH];
     lstrcpyn(szPath, pszPath, MAX_PATH);
-    LPTSTR pch = MzcGetFileTitle(szPath);
+    LPTSTR pch = MzcFindFileTitle(szPath);
     if (pch != NULL)
     {
         *(pch - 1) = _T('\0');
@@ -110,7 +110,7 @@ VOID MzcRemoveBackslashA(LPTSTR pszPath)
     }
 }
 
-LPTSTR MzcGetFileTitle(LPTSTR pszPath)
+LPTSTR MzcFindFileTitle(LPTSTR pszPath)
 {
     using namespace std;
     LPTSTR pch = strrchr(pszPath, _T('\\'));
@@ -122,10 +122,10 @@ LPTSTR MzcGetFileTitle(LPTSTR pszPath)
     return pszPath;
 }
 
-LPTSTR MzcGetDotExt(LPTSTR pszPath)
+LPTSTR MzcFindDotExt(LPTSTR pszPath)
 {
     using namespace std;
-    LPTSTR pch = MzcGetFileTitle(pszPath);
+    LPTSTR pch = MzcFindFileTitle(pszPath);
     if (pch != NULL) pch = strrchr(pch, _T('.'));
     if (pch == NULL) pch = pszPath + lstrlen(pszPath);
     return pch;
@@ -134,7 +134,7 @@ LPTSTR MzcGetDotExt(LPTSTR pszPath)
 VOID MzcSetDotExt(LPTSTR pszPath, LPCTSTR pszDotExt)
 {
     using namespace std;
-    lstrcpy(MzcGetDotExt(pszPath), pszDotExt);
+    lstrcpy(MzcFindDotExt(pszPath), pszDotExt);
 }
 
 BOOL MzcFileExists(LPCTSTR pszFileName)
@@ -955,7 +955,6 @@ BOOL MProcessMaker::CreateProcess(
 #endif
         free(pszCmdLine);
     }
-    MzcAssert(b);
     return b;
 }
 

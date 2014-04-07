@@ -2593,7 +2593,7 @@ template <class CompilerSite>
 inline bool cparser::ParserSite::compile(CompilerSite& cs, TransUnit& tu)
 {
     // TODO: compile
-    return 0;
+    return true;
 }
 
 #endif  // ndef PARSERSITE_HPP_

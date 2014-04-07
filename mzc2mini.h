@@ -68,8 +68,8 @@ public:
 VOID MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName);
 VOID MzcAddBackslash(LPTSTR pszPath);
 VOID MzcRemoveBackslashA(LPTSTR pszPath);
-LPTSTR MzcGetFileTitle(LPTSTR pszPath);
-LPTSTR MzcGetDotExt(LPTSTR pszPath);
+LPTSTR MzcFindFileTitle(LPTSTR pszPath);
+LPTSTR MzcFindDotExt(LPTSTR pszPath);
 VOID MzcSetDotExt(LPTSTR pszPath, LPCTSTR pszDotExt);
 BOOL MzcFileExists(LPCTSTR pszFileName);
 BOOL MzcFileGetContents(LPCTSTR pszFileName, std::vector<BYTE>& v);

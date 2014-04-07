@@ -269,7 +269,6 @@ namespace cparser
                             if (!isdigit(c))
                                 ungetch();   // closed
 
-                            int lineno = std::atoi(str2.c_str());
                             c = skip_blank();   // open
                             if (c == '"')
                             {
@@ -277,6 +276,7 @@ namespace cparser
                                 std::string str;
                                 c = nonescaped_string_guts(str);   // open
                                 #if 1
+                                    int lineno = std::atoi(str2.c_str());
                                     location().set(str.c_str(), lineno - 1);
                                 #endif
                             }
@@ -284,6 +284,7 @@ namespace cparser
                             {
                                 // #line lineno
                                 #if 1
+                                    int lineno = std::atoi(str2.c_str());
                                     location().m_line = lineno - 1;
                                 #endif
                             }   // open
