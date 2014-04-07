@@ -63,7 +63,7 @@ RCFLAGS = -F pe-i386
 all: coderev.exe
 
 coderev.exe: $(OBJS)
-	$(CXX) $(CCFLAGS) -o coderev.exe $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
+	$(CXX) -o coderev.exe $(CXXFLAGS) $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
 codereverse.o: $(CR_HEADERS) codereverse.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o codereverse.o codereverse.cpp

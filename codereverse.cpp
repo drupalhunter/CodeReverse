@@ -2072,8 +2072,8 @@ int main(int argc, char **argv)
     puts(cr_logo);
 
     if (argc <= 1 || argc > 3 ||
-        lstrcmp(argv[1], TEXT("/?")) == 0 ||
-        lstrcmp(argv[1], TEXT("--help")) == 0)
+        strcmp(argv[1], "/?") == 0 ||
+        stricmp(argv[1], "--help") == 0)
     {
 #ifdef _WIN64
         fprintf(stderr, "  Usage: coderev64 exefile.exe [input-file.i]\n\n");
@@ -2084,7 +2084,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc >= 2 && lstrcmp(argv[1], TEXT("--version")) == 0)
+    if (argc >= 2 && stricmp(argv[1], "--version") == 0)
     {
         return 0;
     }
