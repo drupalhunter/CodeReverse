@@ -12,8 +12,17 @@
 extern const char * const cr_logo;
 
 ////////////////////////////////////////////////////////////////////////////
+// LOLONG, HILONG, MAKELONGLONG
 
-#include "include/cr.h"
+#ifndef LOLONG
+    #define LOLONG(dwl) ((DWORD)(dwl))
+#endif
+#ifndef HILONG
+    #define HILONG(dwl) ((DWORD)(((dwl) >> 32) & 0xFFFFFFFF))
+#endif
+#ifndef MAKELONGLONG
+    #define MAKELONGLONG(lo,hi) (((DWORDLONG)(hi) << 32) | (DWORD)(lo))
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 // ADDR32, ADDR64 (virtual address)

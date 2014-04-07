@@ -1,4 +1,86 @@
 ////////////////////////////////////////////////////////////////////////////
+// TBOOL - tri-state logical value
+
+inline TBOOL::TBOOL()
+{
+    m_value = TB_UNKNOWN;
+}
+
+inline TBOOL::TBOOL(BOOL b)
+{
+    m_value = (b ? TB_TRUE : TB_FALSE);
+}
+
+inline TBOOL::TBOOL(const TBOOL& tb)
+{
+    m_value = tb.m_value;
+}
+
+inline /*virtual*/ TBOOL::~TBOOL()
+{
+}
+
+inline TBOOL& TBOOL::operator=(const TBOOL& tb)
+{
+    m_value = tb.m_value;
+    return *this;
+}
+
+inline TBOOL& TBOOL::operator=(BOOL b)
+{
+    m_value = (b ? TB_TRUE : TB_FALSE);
+    return *this;
+}
+
+inline bool TBOOL::operator==(const TBOOL& tb) const
+{
+    return m_value == tb.m_value;
+}
+
+inline bool TBOOL::operator!=(const TBOOL& tb) const
+{
+    return m_value != tb.m_value;
+}
+
+inline VOID TBOOL::clear()
+{
+    m_value = TB_UNKNOWN;
+}
+
+inline BOOL TBOOL::CanBeTrue() const
+{
+    return m_value != TB_FALSE;
+}
+
+inline BOOL TBOOL::CanBeFalse() const
+{
+    return m_value != TB_TRUE;
+}
+
+inline BOOL TBOOL::IsUnknown() const
+{
+    return m_value == TB_UNKNOWN;
+}
+
+inline TBOOL& TBOOL::IsTrue(const TBOOL& tb)
+{
+    m_value = tb.m_value;
+    return *this;
+}
+
+inline TBOOL& TBOOL::LogicalNot(const TBOOL& tb1)
+{
+    return IsFalse(tb1);
+}
+
+inline TBOOL& TBOOL::NotEqual(const TBOOL& tb1, const TBOOL& tb2)
+{
+    TBOOL tb;
+    tb.Equal(tb1, tb2);
+    return LogicalNot(tb);
+}
+
+////////////////////////////////////////////////////////////////////////////
 // OPERAND accessors
 
 inline string& OPERAND::Text()

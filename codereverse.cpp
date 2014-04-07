@@ -19,67 +19,6 @@ const char * const cr_logo =
 ////////////////////////////////////////////////////////////////////////////
 // TBOOL - tri-state logical value
 
-TBOOL::TBOOL()
-{
-    m_value = TB_UNKNOWN;
-}
-
-TBOOL::TBOOL(BOOL b)
-{
-    m_value = (b ? TB_TRUE : TB_FALSE);
-}
-
-TBOOL::TBOOL(const TBOOL& tb)
-{
-    m_value = tb.m_value;
-}
-
-/*virtual*/ TBOOL::~TBOOL()
-{
-}
-
-TBOOL& TBOOL::operator=(const TBOOL& tb)
-{
-    m_value = tb.m_value;
-    return *this;
-}
-
-TBOOL& TBOOL::operator=(BOOL b)
-{
-    m_value = (b ? TB_TRUE : TB_FALSE);
-    return *this;
-}
-
-bool TBOOL::operator==(const TBOOL& tb) const
-{
-    return m_value == tb.m_value;
-}
-
-bool TBOOL::operator!=(const TBOOL& tb) const
-{
-    return m_value != tb.m_value;
-}
-
-VOID TBOOL::clear()
-{
-    m_value = TB_UNKNOWN;
-}
-
-BOOL TBOOL::CanBeTrue() const
-{
-    return m_value != TB_FALSE;
-}
-
-BOOL TBOOL::CanBeFalse() const
-{
-    return m_value != TB_TRUE;
-}
-
-BOOL TBOOL::IsUnknown() const
-{
-    return m_value == TB_UNKNOWN;
-}
-
 TBOOL& TBOOL::IsFalse(const TBOOL& tb)
 {
     switch (tb.m_value)
@@ -88,12 +27,6 @@ TBOOL& TBOOL::IsFalse(const TBOOL& tb)
     case TB_TRUE:       m_value = TB_FALSE; break;
     case TB_UNKNOWN:    m_value = TB_UNKNOWN; break;
     }
-    return *this;
-}
-
-TBOOL& TBOOL::IsTrue(const TBOOL& tb)
-{
-    m_value = tb.m_value;
     return *this;
 }
 
@@ -123,11 +56,6 @@ TBOOL& TBOOL::LogicalOr(const TBOOL& tb1, const TBOOL& tb2)
     return *this;
 }
 
-TBOOL& TBOOL::LogicalNot(const TBOOL& tb1)
-{
-    return IsFalse(tb1);
-}
-
 TBOOL& TBOOL::Equal(const TBOOL& tb1, const TBOOL& tb2)
 {
     if (tb1.m_value == TB_UNKNOWN || tb2.m_value == TB_UNKNOWN)
@@ -137,13 +65,6 @@ TBOOL& TBOOL::Equal(const TBOOL& tb1, const TBOOL& tb2)
     }
     m_value = (tb1.m_value == tb2.m_value ? TB_TRUE : TB_FALSE);
     return *this;
-}
-
-TBOOL& TBOOL::NotEqual(const TBOOL& tb1, const TBOOL& tb2)
-{
-    TBOOL tb;
-    tb.Equal(tb1, tb2);
-    return LogicalNot(tb);
 }
 
 ////////////////////////////////////////////////////////////////////////////
