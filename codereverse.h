@@ -59,192 +59,75 @@ public:
 // VECSET<ITEM_T>
 
 template <typename ITEM_T>
-class VECSET
+class VECSET : public vector<ITEM_T>
 {
 public:
-    VECSET();
-    VECSET(const VECSET<ITEM_T>& vs);
-    VECSET& operator=(const VECSET<ITEM_T>& vs);
-    void Copy(const VECSET<ITEM_T>& vs);
-    virtual ~VECSET();
-
-          ITEM_T& operator[](std::size_t index);
-    const ITEM_T& operator[](std::size_t index) const;
-    std::size_t size() const;
-    bool empty() const;
-    VOID clear();
-    VOID insert(const ITEM_T& item);
-    VOID insertIfNotFound(const ITEM_T& item);
-    bool operator==(const VECSET<ITEM_T>& vs) const;
-    bool operator!=(const VECSET<ITEM_T>& vs) const;
-    std::size_t count(const ITEM_T& item) const;
-    BOOL Find(const ITEM_T& item) const;
-    VOID sort();
-    VOID uniq();
-    VOID erase(const ITEM_T& item);
-    VOID swap(VECSET<ITEM_T>& vs);
-    VOID resize(std::size_t size);
-
-public:
-    typedef ITEM_T item_type;
-    std::vector<ITEM_T> m_items;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// VECSET<ITEM_T> methods
-
-template <typename ITEM_T>
-VECSET<ITEM_T>::VECSET()
-{
-}
-
-template <typename ITEM_T>
-VECSET<ITEM_T>::VECSET(const VECSET<ITEM_T>& vs) : m_items(vs.m_items)
-{
-}
-
-template <typename ITEM_T>
-VECSET<ITEM_T>& VECSET<ITEM_T>::operator=(const VECSET<ITEM_T>& vs)
-{
-    m_items = vs.m_items;
-    return *this;
-}
-
-template <typename ITEM_T>
-void VECSET<ITEM_T>::Copy(const VECSET<ITEM_T>& vs)
-{
-    m_items = vs.m_items;
-}
-
-template <typename ITEM_T>
-/*virtual*/ VECSET<ITEM_T>::~VECSET()
-{
-}
-
-template <typename ITEM_T>
-ITEM_T& VECSET<ITEM_T>::operator[](std::size_t index)
-{
-    return m_items[index];
-}
-
-template <typename ITEM_T>
-const ITEM_T& VECSET<ITEM_T>::operator[](std::size_t index) const
-{
-    return m_items[index];
-}
-
-template <typename ITEM_T>
-std::size_t VECSET<ITEM_T>::size() const
-{
-    return m_items.size();
-}
-
-template <typename ITEM_T>
-bool VECSET<ITEM_T>::empty() const
-{
-    return m_items.size() == 0;
-}
-
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::clear()
-{
-    m_items.clear();
-}
-
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::insert(const ITEM_T& item)
-{
-    m_items.push_back(item);
-}
-
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::insertIfNotFound(const ITEM_T& item)
-{
-    if (!Find(item))
-        insert(item);
-}
-
-template <typename ITEM_T>
-bool VECSET<ITEM_T>::operator==(const VECSET<ITEM_T>& vs) const
-{
-    if (m_items.size() != vs.m_items.size())
-        return false;
-
-    for (std::size_t i = 0; i < m_items.size(); i++)
+    virtual ~VECSET()
     {
-        if (m_items[i] != vs.m_items[i])
-            return false;
     }
-    return true;
-}
 
-template <typename ITEM_T>
-bool VECSET<ITEM_T>::operator!=(const VECSET<ITEM_T>& vs) const
-{
-    return !(*this == vs);
-}
-
-template <typename ITEM_T>
-std::size_t VECSET<ITEM_T>::count(const ITEM_T& item) const
-{
-    std::size_t count = 0;
-    for (std::size_t i = 0; i < m_items.size(); i++)
+    void Copy(const VECSET<ITEM_T>& vs)
     {
-        if (m_items[i] == item)
-            count++;
+        this->assign(vs.begin(), vs.end());
     }
-    return count;
-}
 
-template <typename ITEM_T>
-BOOL VECSET<ITEM_T>::Find(const ITEM_T& item) const
-{
-    for (std::size_t i = 0; i < m_items.size(); i++)
+    void insert(const ITEM_T& item)
     {
-        if (m_items[i] == item)
-            return TRUE;
+        this->push_back(item);
     }
-    return FALSE;
-}
 
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::sort()
-{
-    std::sort(m_items.begin(), m_items.end());
-}
-
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::uniq()
-{
-    std::unique(m_items.begin(), m_items.end());
-}
-
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::erase(const ITEM_T& item)
-{
-    std::size_t i, j, count = m_items.size();
-    for (i = j = 0; i < count; i++)
+    bool Find(const ITEM_T& item) const
     {
-        if (m_items[i] != item)
+        for (std::size_t i : *this)
         {
-            m_items[j++] = m_items[i];
+            if (this->at(i) == item)
+                return true;
         }
+        return false;
     }
-    if (i != j)
-        m_items.resize(j);
-}
 
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::swap(VECSET<ITEM_T>& vs)
-{
-    m_items.swap(vs.m_items);
-}
+    void insertIfNotFound(const ITEM_T& item)
+    {
+        if (!Find(item))
+            insert(item);
+    }
 
-template <typename ITEM_T>
-VOID VECSET<ITEM_T>::resize(std::size_t size)
-{
-    m_items.resize(size);
-}
+    std::size_t count(const ITEM_T& item) const
+    {
+        std::size_t count = 0;
+        for (std::size_t i : *this)
+        {
+            if (this->at(i) == item)
+                count++;
+        }
+        return count;
+    }
+
+    void sort()
+    {
+        std::sort(this->begin(), this->end());
+    }
+
+    void unique()
+    {
+        std::unique(this->begin(), this->end());
+    }
+
+    void erase(const ITEM_T& item)
+    {
+        std::size_t i, j;
+        const std::size_t count = this->size();
+        for (i = j = 0; i < count; i++)
+        {
+            if (this->at(i) != item)
+            {
+                this->at(j++) = this->at(i);
+            }
+        }
+        if (i != j)
+            this->resize(j);
+    }
+};
 
 namespace std
 {
@@ -467,15 +350,15 @@ public:
 
     DWORD GetSP();
     VOID SetSP(DWORD sp);
-    VOID AddSP(std::size_t size);
-    VOID SubSP(std::size_t size);
+    VOID AddSP(std::size_t siz);
+    VOID SubSP(std::size_t siz);
     VOID GetFromSP(std::size_t index, OPERAND& opr);
     VOID SetFromSP(std::size_t index, const OPERAND& opr);
 
     DWORD GetBP();
     VOID SetBP(DWORD bp);
-    VOID AddBP(std::size_t size);
-    VOID SubBP(std::size_t size);
+    VOID AddBP(std::size_t siz);
+    VOID SubBP(std::size_t siz);
     VOID GetFromBP(std::size_t index, OPERAND& opr);
     VOID SetFromBP(std::size_t index, const OPERAND& opr);
 

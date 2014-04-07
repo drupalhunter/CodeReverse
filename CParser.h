@@ -87,20 +87,6 @@ namespace cparser
         }
         return false;
     }
-
-    template <class CompilerSite>
-    bool parse_file(CompilerSite& cs, const wchar_t *filename)
-    {
-        std::ifstream file(filename);
-        if (file.is_open())
-        {
-            std::istreambuf_iterator<char> begin(file), end;
-            bool ok = parse(cs, begin, end);
-            file.close();
-            return ok;
-        }
-        return false;
-    }
 } // namespace cparser
 
 #endif  // ndef CPARSER_H_

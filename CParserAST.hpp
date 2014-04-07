@@ -14,20 +14,15 @@
 #include "Type.hpp"     // cparser::TypeCell
 
 // using smart pointers
-#if (__cplusplus >= 199711L)
-    #include <memory>
-    using std::shared_ptr;
-    using std::dynamic_pointer_cast;
-    using std::static_pointer_cast;
-    using std::make_shared;
-#else   // Boost
-    #include <boost/shared_ptr.hpp>
-    #include <boost/make_shared.hpp>
-    using boost::shared_ptr;
-    using boost::dynamic_pointer_cast;
-    using boost::static_pointer_cast;
-    using boost::make_shared;
+#if (__cplusplus < 199711L)
+    #error Modern C++ compiler required! You lose.
 #endif
+
+#include <memory>
+using std::shared_ptr;
+using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
+using std::make_shared;
 
 namespace cparser
 {

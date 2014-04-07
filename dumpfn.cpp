@@ -966,7 +966,7 @@ BOOL PEMODULE::DumpDisAsm32(DECOMPSTATUS32& status)
     printf("### DISASSEMBLY ###\n\n");
 
     status.Entrances().sort();
-    status.Entrances().uniq();
+    status.Entrances().unique();
     const std::size_t size = status.Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
@@ -1066,7 +1066,7 @@ BOOL PEMODULE::DumpDisAsm64(DECOMPSTATUS64& status)
     printf("### DISASSEMBLY ###\n\n");
 
     status.Entrances().sort();
-    status.Entrances().uniq();
+    status.Entrances().unique();
     const std::size_t size = status.Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {

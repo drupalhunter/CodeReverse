@@ -648,14 +648,14 @@ STACK& STACK::operator=(const STACK& s)
 
 VOID STACK::Copy(const STACK& s)
 {
-    m_items = s.m_items;
+	VECSET<OPERAND>::Copy(s);
     m_minussp = s.m_minussp;
     m_minusbp = s.m_minusbp;
 }
 
 VOID STACK::clear()
 {
-    m_items.clear();
+	VECSET<OPERAND>::clear();
     m_minussp = m_minusbp = 0;
 }
 
@@ -667,7 +667,7 @@ bool STACK::operator==(const STACK& s) const
     const std::size_t size = s.size();
     for (std::size_t i = 0; i < size; i++)
     {
-        if (m_items[i] != s.m_items[i])
+        if (at(i) != s[i])
             return false;
     }
 
@@ -679,60 +679,60 @@ bool STACK::operator!=(const STACK& s) const
     return !(*this == s);
 }
 
-VOID STACK::AddSP(std::size_t size)
+VOID STACK::AddSP(std::size_t siz)
 {
-    assert(m_items.size() >= size);
-    resize(m_items.size() - size);
-    m_minussp -= size;
+    assert(size() >= siz);
+    resize(size() - siz);
+    m_minussp -= siz;
 }
 
-VOID STACK::SubSP(std::size_t size)
+VOID STACK::SubSP(std::size_t siz)
 {
-    resize(m_items.size() + size);
-    m_minussp += size;
+    resize(size() + siz);
+    m_minussp += siz;
 }
 
-VOID STACK::AddBP(std::size_t size)
+VOID STACK::AddBP(std::size_t siz)
 {
-    assert(m_items.size() >= size);
-    m_minusbp -= size;
+    assert(size() >= siz);
+    m_minusbp -= siz;
 }
 
-VOID STACK::SubBP(std::size_t size)
+VOID STACK::SubBP(std::size_t siz)
 {
-    m_minusbp += size;
+    m_minusbp += siz;
 }
 
 VOID STACK::Push(const OPERAND& opr)
 {
     SubSP(opr.Size());
-    m_items[m_minussp + opr.Size() - 1] = opr;
+    at(m_minussp + opr.Size() - 1) = opr;
 }
 
 VOID STACK::Pop(OPERAND& opr)
 {
-    opr = m_items[m_minussp + opr.Size() - 1];
+    opr = at(m_minussp + opr.Size() - 1);
     AddSP(opr.Size());
 }
 
 VOID STACK::GetFromSP(std::size_t index, OPERAND& opr)
 {
-    opr = m_items[m_minussp - index];
+    opr = at(m_minussp - index);
 }
 
 VOID STACK::SetFromSP(std::size_t index, const OPERAND& opr)
 {
-    m_items[m_minussp - index] = opr;
+    at(m_minussp - index) = opr;
 }
 
 VOID STACK::GetFromBP(std::size_t index, OPERAND& opr)
 {
-    opr = m_items[m_minusbp - index];
+    opr = at(m_minusbp - index);
 }
 
 VOID STACK::SetFromBP(std::size_t index, const OPERAND& opr)
 {
-    m_items[m_minusbp - index] = opr;
+    at(m_minusbp - index) = opr;
 }
 
 DWORD STACK::GetBP()
@@ -1051,22 +1051,20 @@ VOID CODEFUNC64::clear()
 
 BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
 {
-    const std::size_t size = Blocks().size();
-    for (std::size_t i = 0; i < size; i++)
+    for (auto& block : Blocks())
     {
-        if (Blocks()[i].Addr() == addr)
-            return &Blocks()[i];
+        if (block.Addr() == addr)
+            return &block;
     }
     return NULL;
 }
 
 const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
 {
-    const std::size_t size = Blocks().size();
-    for (std::size_t i = 0; i < size; i++)
+    for (auto& block : Blocks())
     {
-        if (Blocks()[i].Addr() == addr)
-            return &Blocks()[i];
+        if (block.Addr() == addr)
+            return &block;
     }
     return NULL;
 }

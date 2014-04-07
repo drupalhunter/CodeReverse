@@ -43,144 +43,121 @@ VOID SYMBOL::clear()
 
 IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA)
 {
-    map<DWORD, IMPORT_SYMBOL>::iterator it, end;
-    end = MapRVAToImportSymbol().end();
-    for (it = MapRVAToImportSymbol().begin(); it != end; it++)
+    for (auto& p : MapRVAToImportSymbol())
     {
-        if (it->first == RVA)
-            return &it->second;
+        if (p.first == RVA)
+            return &p.second;
     }
     return NULL;
 }
 
 IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name)
 {
-    map<string, IMPORT_SYMBOL>::iterator it, end;
-    end = MapNameToImportSymbol().end();
-    for (it = MapNameToImportSymbol().begin(); it != end; it++)
+    for (auto& p : MapNameToImportSymbol())
     {
-        if (it->first == name)
-            return &it->second;
+        if (p.first == name)
+            return &p.second;
     }
     return NULL;
 }
 
 EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA)
 {
-    map<DWORD, EXPORT_SYMBOL>::iterator it, end;
-    end = MapRVAToExportSymbol().end();
-    for (it = MapRVAToExportSymbol().begin(); it != end; it++)
+    for (auto& p : MapRVAToExportSymbol())
     {
-        if (it->first == RVA)
-            return &it->second;
+        if (p.first == RVA)
+            return &p.second;
     }
     return NULL;
 }
 
 EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name)
 {
-    map<string, EXPORT_SYMBOL>::iterator it, end;
-    end = MapNameToExportSymbol().end();
-    for (it = MapNameToExportSymbol().begin(); it != end; it++)
+    for (auto& p : MapNameToExportSymbol())
     {
-        if (it->first == name)
-            return &it->second;
+        if (p.first == name)
+            return &p.second;
     }
     return NULL;
 }
 
 SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA)
 {
-    map<DWORD, SYMBOL>::iterator it, end;
-    end = MapRVAToSymbol().end();
-    for (it = MapRVAToSymbol().begin(); it != end; it++)
+    for (auto& p : MapRVAToSymbol())
     {
-        if (it->first == RVA)
-            return &it->second;
+        if (p.first == RVA)
+            return &p.second;
     }
     return NULL;
 }
 
 SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name)
 {
-    map<string, SYMBOL>::iterator it, end;
-    end = MapNameToSymbol().end();
-    for (it = MapNameToSymbol().begin(); it != end; it++)
+    for (auto& p : MapNameToSymbol())
     {
-        if (it->first == name)
-            return &it->second;
+        if (p.first == name)
+            return &p.second;
+
     }
     return NULL;
 }
 
 const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA) const
 {
-    map<DWORD, IMPORT_SYMBOL>::const_iterator it, end;
-    end = MapRVAToImportSymbol().end();
-    for (it = MapRVAToImportSymbol().begin(); it != end; it++)
+    for (auto& p : MapRVAToImportSymbol())
     {
-        if (it->first == RVA)
-            return &it->second;
+        if (p.first == RVA)
+            return &p.second;
     }
     return NULL;
 }
 
 const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name) const
 {
-    map<string, IMPORT_SYMBOL>::const_iterator it, end;
-    end = MapNameToImportSymbol().end();
-    for (it = MapNameToImportSymbol().begin(); it != end; it++)
+    for (auto& p : MapNameToImportSymbol())
     {
-        if (it->first == name)
-            return &it->second;
+        if (p.first == name)
+            return &p.second;
     }
     return NULL;
 }
 
 const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA) const
 {
-    map<DWORD, EXPORT_SYMBOL>::const_iterator it, end;
-    end = MapRVAToExportSymbol().end();
-    for (it = MapRVAToExportSymbol().begin(); it != end; it++)
+    for (auto& p : MapRVAToExportSymbol())
     {
-        if (it->first == RVA)
-            return &it->second;
+        if (p.first == RVA)
+            return &p.second;
     }
     return NULL;
 }
 
 const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name) const
 {
-    map<string, EXPORT_SYMBOL>::const_iterator it, end;
-    end = MapNameToExportSymbol().end();
-    for (it = MapNameToExportSymbol().begin(); it != end; it++)
+    for (auto& p : MapNameToExportSymbol())
     {
-        if (it->first == name)
-            return &it->second;
+        if (p.first == name)
+            return &p.second;
     }
     return NULL;
 }
 
 const SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA) const
 {
-    map<DWORD, SYMBOL>::const_iterator it, end;
-    end = MapRVAToSymbol().end();
-    for (it = MapRVAToSymbol().begin(); it != end; it++)
+    for (auto& p : MapRVAToSymbol())
     {
-        if (it->first == RVA)
-            return &it->second;
+        if (p.first == RVA)
+            return &p.second;
     }
     return NULL;
 }
 
 const SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name) const
 {
-    map<string, SYMBOL>::const_iterator it, end;
-    end = MapNameToSymbol().end();
-    for (it = MapNameToSymbol().begin(); it != end; it++)
+    for (auto& p : MapNameToSymbol())
     {
-        if (it->first == name)
-            return &it->second;
+        if (p.first == name)
+            return &p.second;
     }
     return NULL;
 }
