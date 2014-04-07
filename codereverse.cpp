@@ -2098,7 +2098,11 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
             if (pmaker.PrepareForRedirect(&hInputWrite, &hOutputRead, &hOutputRead))
             {
                 // build command line
+#ifdef __GNUC__
                 std::string cmdline("gcc -E ");
+#elif defined(_MSC_VER)
+                std::string cmdline("cl /E ");
+#endif
                 for (int i = 1; i < argc; i++)
                     cmdline += argv[i];
                 cmdline += argv[0];
