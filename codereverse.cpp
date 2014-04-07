@@ -2107,17 +2107,21 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
             pmaker.SetShowWindow(SW_HIDE);
             pmaker.SetCreationFlags(CREATE_NEW_CONSOLE);
 
-            MFile hInputWrite, hOutputRead;
-            if (pmaker.PrepareForRedirect(&hInputWrite, &hOutputRead, &hOutputRead))
+            MFile hInputWrite, hOutputRead, hErrorRead;
+            if (pmaker.PrepareForRedirect(&hInputWrite, &hOutputRead, &hErrorRead))
             {
                 // build command line
 #ifdef __GNUC__
-                std::string cmdline("gcc -E ");
+                std::string cmdline("gcc -E");
 #elif defined(_MSC_VER)
-                std::string cmdline("cl /E ");
+                std::string cmdline("cl /E");
 #endif
                 for (int i = 1; i < argc; i++)
+                {
+                    cmdline += " ";
                     cmdline += argv[i];
+                }
+                cmdline += " ";
                 cmdline += argv[0];
 
                 // create process
@@ -2158,7 +2162,22 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
                         else if (!pmaker.IsRunning())
                             break;
                     }
-                    bOK = TRUE;
+                    // check error output
+                    if (hErrorRead.PeekNamedPipe(NULL, 0, NULL, &cbAvail) &&
+                        cbAvail > 0)
+                    {
+                        fprintf(stderr, "ERROR: preprocessor error:\n");
+                        while (hErrorRead.PeekNamedPipe(NULL, 0, NULL, &cbAvail) &&
+                               cbAvail > 0)
+                        {
+                            hErrorRead.ReadFile(szBuf, 1024, &cbRead);
+                            fwrite(szBuf, cbRead, 1, stderr);
+                            if (cbRead == 0)
+                                break;
+                        }
+                    }
+                    else
+                        bOK = TRUE;
                 }
                 else
                 {
@@ -2234,6 +2253,14 @@ int main(int argc, char **argv)
     if (argc >= 3)
     {
         int result = DoParse(cs, argc - 2, &argv[2]);
+        if (result)
+            return result;
+    }
+    else
+    {
+        const char *arg = "coderev-default.h";
+        char **args = const_cast<char **>(&arg);
+        int result = DoParse(cs, 1, args);
         if (result)
             return result;
     }
