@@ -1,126 +1,126 @@
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOL accessors
+// CR_Symbol accessors
 
-inline DWORD& SYMBOL::RVA()
+inline DWORD& CR_Symbol::RVA()
 {
     return m_rva;
 }
 
-inline string& SYMBOL::Name()
+inline string& CR_Symbol::Name()
 {
     return m_name;
 }
 
-inline const DWORD& SYMBOL::RVA() const
+inline const DWORD& CR_Symbol::RVA() const
 {
     return m_rva;
 }
 
-inline const string& SYMBOL::Name() const
+inline const string& CR_Symbol::Name() const
 {
     return m_name;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO accessors
+// CR_SymbolInfo accessors
 
-inline VECSET<string>& SYMBOLINFO::GetImportDllNames()
+inline CR_VecSet<string>& CR_SymbolInfo::GetImportDllNames()
 {
     return m_vImportDllNames;
 }
 
-inline VECSET<IMPORT_SYMBOL>& SYMBOLINFO::GetImportSymbols()
+inline CR_VecSet<CR_ImportSymbol>& CR_SymbolInfo::GetImportSymbols()
 {
     return m_vImportSymbols;
 }
 
-inline VECSET<EXPORT_SYMBOL>& SYMBOLINFO::GetExportSymbols()
+inline CR_VecSet<CR_ExportSymbol>& CR_SymbolInfo::GetExportSymbols()
 {
     return m_vExportSymbols;
 }
 
-inline map<DWORD, IMPORT_SYMBOL>& SYMBOLINFO::MapRVAToImportSymbol()
+inline map<DWORD, CR_ImportSymbol>& CR_SymbolInfo::MapRVAToImportSymbol()
 {
     return m_mRVAToImportSymbol;
 }
 
-inline map<string, IMPORT_SYMBOL>& SYMBOLINFO::MapNameToImportSymbol()
+inline map<string, CR_ImportSymbol>& CR_SymbolInfo::MapNameToImportSymbol()
 {
     return m_mNameToImportSymbol;
 }
 
-inline map<DWORD, EXPORT_SYMBOL>& SYMBOLINFO::MapRVAToExportSymbol()
+inline map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol()
 {
     return m_mRVAToExportSymbol;
 }
 
-inline map<string, EXPORT_SYMBOL>& SYMBOLINFO::MapNameToExportSymbol()
+inline map<string, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol()
 {
     return m_mNameToExportSymbol;
 }
 
-inline map<DWORD, SYMBOL>& SYMBOLINFO::MapRVAToSymbol()
+inline map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol()
 {
     return m_mRVAToSymbol;
 }
 
-inline map<string, SYMBOL>& SYMBOLINFO::MapNameToSymbol()
+inline map<string, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol()
 {
     return m_mNameToSymbol;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO const accessors
+// CR_SymbolInfo const accessors
 
-inline const VECSET<string>& SYMBOLINFO::GetImportDllNames() const
+inline const CR_VecSet<string>& CR_SymbolInfo::GetImportDllNames() const
 {
     return m_vImportDllNames;
 }
 
-inline const VECSET<IMPORT_SYMBOL>& SYMBOLINFO::GetImportSymbols() const
+inline const CR_VecSet<CR_ImportSymbol>& CR_SymbolInfo::GetImportSymbols() const
 {
     return m_vImportSymbols;
 }
 
-inline const VECSET<EXPORT_SYMBOL>& SYMBOLINFO::GetExportSymbols() const
+inline const CR_VecSet<CR_ExportSymbol>& CR_SymbolInfo::GetExportSymbols() const
 {
     return m_vExportSymbols;
 }
 
-inline const map<DWORD, IMPORT_SYMBOL>& SYMBOLINFO::MapRVAToImportSymbol() const
+inline const map<DWORD, CR_ImportSymbol>& CR_SymbolInfo::MapRVAToImportSymbol() const
 {
     return m_mRVAToImportSymbol;
 }
 
-inline const map<string, IMPORT_SYMBOL>& SYMBOLINFO::MapNameToImportSymbol() const
+inline const map<string, CR_ImportSymbol>& CR_SymbolInfo::MapNameToImportSymbol() const
 {
     return m_mNameToImportSymbol;
 }
 
-inline const map<DWORD, EXPORT_SYMBOL>& SYMBOLINFO::MapRVAToExportSymbol() const
+inline const map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol() const
 {
     return m_mRVAToExportSymbol;
 }
 
-inline const map<string, EXPORT_SYMBOL>& SYMBOLINFO::MapNameToExportSymbol() const
+inline const map<string, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol() const
 {
     return m_mNameToExportSymbol;
 }
 
-inline const map<DWORD, SYMBOL>& SYMBOLINFO::MapRVAToSymbol() const
+inline const map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol() const
 {
     return m_mRVAToSymbol;
 }
 
-inline const map<string, SYMBOL>& SYMBOLINFO::MapNameToSymbol() const
+inline const map<string, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol() const
 {
     return m_mNameToSymbol;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE attributes
+// CR_Module attributes
 
-inline BOOL PEMODULE::IsDLL() const
+inline BOOL CR_Module::IsDLL() const
 {
     if (!IsModuleLoaded())
         return FALSE;
@@ -128,7 +128,7 @@ inline BOOL PEMODULE::IsDLL() const
     return (FileHeader()->Characteristics & IMAGE_FILE_DLL) != 0;
 }
 
-inline BOOL PEMODULE::IsCUIExe() const
+inline BOOL CR_Module::IsCUIExe() const
 {
     if (!IsModuleLoaded() || IsDLL())
         return FALSE;
@@ -141,7 +141,7 @@ inline BOOL PEMODULE::IsCUIExe() const
         return FALSE;
 }
 
-inline BOOL PEMODULE::IsGUIExe() const
+inline BOOL CR_Module::IsGUIExe() const
 {
     if (!IsModuleLoaded() || IsDLL())
         return FALSE;
@@ -154,32 +154,32 @@ inline BOOL PEMODULE::IsGUIExe() const
         return FALSE;
 }
 
-inline DWORD PEMODULE::GetFileSize() const
+inline DWORD CR_Module::GetFileSize() const
 {
     return m_dwFileSize;
 }
 
-inline LPCTSTR PEMODULE::GetFileName() const
+inline LPCTSTR CR_Module::GetFileName() const
 {
     return m_pszFileName;
 }
 
-inline BOOL PEMODULE::Is32Bit() const
+inline BOOL CR_Module::Is32Bit() const
 {
     return OptionalHeader32() != NULL;
 }
 
-inline BOOL PEMODULE::Is64Bit() const
+inline BOOL CR_Module::Is64Bit() const
 {
     return OptionalHeader64() != NULL;
 }
 
-inline BOOL PEMODULE::IsModuleLoaded() const
+inline BOOL CR_Module::IsModuleLoaded() const
 {
     return m_bModuleLoaded;
 }
 
-inline BOOL PEMODULE::RVAInDirEntry(DWORD rva, DWORD index) const
+inline BOOL CR_Module::RVAInDirEntry(DWORD rva, DWORD index) const
 {
     if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES &&
         DataDirectories()[index].RVA <= rva &&
@@ -190,27 +190,27 @@ inline BOOL PEMODULE::RVAInDirEntry(DWORD rva, DWORD index) const
     return FALSE;
 }
 
-inline BOOL PEMODULE::IsValidAddr32(ADDR32 addr) const
+inline BOOL CR_Module::IsValidAddr32(CR_Addr32 addr) const
 {
     if (!Is32Bit())
         return FALSE;
 
-    const ADDR32 begin = OptionalHeader32()->ImageBase;
-    const ADDR32 end = begin + OptionalHeader32()->SizeOfImage;
+    const CR_Addr32 begin = OptionalHeader32()->ImageBase;
+    const CR_Addr32 end = begin + OptionalHeader32()->SizeOfImage;
     return begin <= addr && addr < end;
 }
 
-inline BOOL PEMODULE::IsValidAddr64(ADDR64 addr) const
+inline BOOL CR_Module::IsValidAddr64(CR_Addr64 addr) const
 {
     if (!Is64Bit())
         return FALSE;
 
-    const ADDR64 begin = OptionalHeader64()->ImageBase;
-    const ADDR64 end = begin + OptionalHeader64()->SizeOfImage;
+    const CR_Addr64 begin = OptionalHeader64()->ImageBase;
+    const CR_Addr64 end = begin + OptionalHeader64()->SizeOfImage;
     return begin <= addr && addr < end;
 }
 
-inline DWORD PEMODULE::GetBaseOfCode() const
+inline DWORD CR_Module::GetBaseOfCode() const
 {
     if (Is64Bit())
         return OptionalHeader64()->BaseOfCode;
@@ -220,7 +220,7 @@ inline DWORD PEMODULE::GetBaseOfCode() const
         return 0;
 }
 
-inline DWORD PEMODULE::GetSizeOfHeaders() const
+inline DWORD CR_Module::GetSizeOfHeaders() const
 {
     if (Is64Bit())
         return OptionalHeader64()->SizeOfHeaders;
@@ -230,7 +230,7 @@ inline DWORD PEMODULE::GetSizeOfHeaders() const
         return 0;
 }
 
-inline DWORD PEMODULE::GetSizeOfImage() const
+inline DWORD CR_Module::GetSizeOfImage() const
 {
     if (Is64Bit())
         return OptionalHeader64()->SizeOfImage;
@@ -240,40 +240,40 @@ inline DWORD PEMODULE::GetSizeOfImage() const
         return 0;
 }
 
-inline PIMAGE_IMPORT_DESCRIPTOR PEMODULE::ImportDescriptors()
+inline PIMAGE_IMPORT_DESCRIPTOR CR_Module::ImportDescriptors()
 {
     return reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(
         DirEntryData(IMAGE_DIRECTORY_ENTRY_IMPORT));
 }
 
-inline PIMAGE_EXPORT_DIRECTORY PEMODULE::ExportDirectory()
+inline PIMAGE_EXPORT_DIRECTORY CR_Module::ExportDirectory()
 {
     return reinterpret_cast<PIMAGE_EXPORT_DIRECTORY>(
         DirEntryData(IMAGE_DIRECTORY_ENTRY_EXPORT));
 }
 
-inline PIMAGE_RESOURCE_DIRECTORY PEMODULE::ResourceDirectory()
+inline PIMAGE_RESOURCE_DIRECTORY CR_Module::ResourceDirectory()
 {
     return reinterpret_cast<PIMAGE_RESOURCE_DIRECTORY>(
         DirEntryData(IMAGE_DIRECTORY_ENTRY_RESOURCE));
 }
 
-inline LPBYTE PEMODULE::GetData(DWORD rva)
+inline LPBYTE CR_Module::GetData(DWORD rva)
 {
     return (LoadedImage() ? LoadedImage() + rva : NULL);
 }
 
-inline LPBYTE& PEMODULE::LoadedImage()
+inline LPBYTE& CR_Module::LoadedImage()
 {
     return m_pLoadedImage;
 }
 
-inline LPBYTE& PEMODULE::FileImage()
+inline LPBYTE& CR_Module::FileImage()
 {
     return m_pFileImage;
 }
 
-inline DWORD PEMODULE::GetSizeOfOptionalHeader() const
+inline DWORD CR_Module::GetSizeOfOptionalHeader() const
 {
     if (FileHeader())
         return FileHeader()->SizeOfOptionalHeader;
@@ -281,23 +281,23 @@ inline DWORD PEMODULE::GetSizeOfOptionalHeader() const
         return 0;
 }
 
-inline DWORD PEMODULE::DirEntryDataSize(DWORD index) const
+inline DWORD CR_Module::DirEntryDataSize(DWORD index) const
 {
     return (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES ?
         DataDirectories()[index].Size : 0);
 }
 
-inline BOOL PEMODULE::AddressInData32(ADDR32 va) const
+inline BOOL CR_Module::AddressInData32(CR_Addr32 va) const
 {
     return (Is32Bit() && IsValidAddr32(va) && !AddressInCode32(va));
 }
 
-inline BOOL PEMODULE::AddressInData64(ADDR64 va) const
+inline BOOL CR_Module::AddressInData64(CR_Addr64 va) const
 {
     return (Is64Bit() && IsValidAddr64(va) && !AddressInCode64(va));
 }
 
-inline DWORD PEMODULE::RVAOfEntryPoint() const
+inline DWORD CR_Module::RVAOfEntryPoint() const
 {
     if (Is64Bit())
         return OptionalHeader64()->AddressOfEntryPoint;
@@ -307,90 +307,90 @@ inline DWORD PEMODULE::RVAOfEntryPoint() const
         return 0;
 }
 
-inline DWORD PEMODULE::RVAFromVA32(ADDR32 va) const
+inline DWORD CR_Module::RVAFromVA32(CR_Addr32 va) const
 {
     assert(OptionalHeader32());
     return va - OptionalHeader32()->ImageBase;
 }
 
-inline DWORD PEMODULE::RVAFromVA64(ADDR64 va) const
+inline DWORD CR_Module::RVAFromVA64(CR_Addr64 va) const
 {
     assert(OptionalHeader64());
     return (DWORD)(va - OptionalHeader64()->ImageBase);
 }
 
-inline ADDR32 PEMODULE::VA32FromRVA(DWORD rva) const
+inline CR_Addr32 CR_Module::VA32FromRVA(DWORD rva) const
 {
     assert(OptionalHeader32());
     return OptionalHeader32()->ImageBase + rva;
 }
 
-inline ADDR64 PEMODULE::VA64FromRVA(DWORD rva) const
+inline CR_Addr64 CR_Module::VA64FromRVA(DWORD rva) const
 {
     assert(OptionalHeader64());
     return OptionalHeader64()->ImageBase + rva;
 }
 
-inline DWORD PEMODULE::CheckSum() const
+inline DWORD CR_Module::CheckSum() const
 {
     return m_dwCheckSum;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE accessors
+// CR_Module accessors
 
-inline WORD& PEMODULE::NumberOfSections()
+inline WORD& CR_Module::NumberOfSections()
 {
     assert(FileHeader());
     return FileHeader()->NumberOfSections;
 }
 
-inline DWORD& PEMODULE::LastError()
+inline DWORD& CR_Module::LastError()
 {
     return m_dwLastError;
 }
 
-inline PIMAGE_DOS_HEADER& PEMODULE::DOSHeader()
+inline PIMAGE_DOS_HEADER& CR_Module::DOSHeader()
 {
     return m_pDOSHeader;
 }
 
-inline PIMAGE_NT_HEADERS& PEMODULE::NTHeaders()
+inline PIMAGE_NT_HEADERS& CR_Module::NTHeaders()
 {
     return m_pNTHeaders;
 }
 
-inline PIMAGE_NT_HEADERS32& PEMODULE::NTHeaders32()
+inline PIMAGE_NT_HEADERS32& CR_Module::NTHeaders32()
 {
     return m_pNTHeaders32;
 }
 
-inline PIMAGE_NT_HEADERS64& PEMODULE::NTHeaders64()
+inline PIMAGE_NT_HEADERS64& CR_Module::NTHeaders64()
 {
     return m_pNTHeaders64;
 }
 
-inline PIMAGE_FILE_HEADER& PEMODULE::FileHeader()
+inline PIMAGE_FILE_HEADER& CR_Module::FileHeader()
 {
     return m_pFileHeader;
 }
 
-inline PIMAGE_OPTIONAL_HEADER32& PEMODULE::OptionalHeader32()
+inline PIMAGE_OPTIONAL_HEADER32& CR_Module::OptionalHeader32()
 {
     return m_pOptional32;
 }
 
-inline PIMAGE_OPTIONAL_HEADER64& PEMODULE::OptionalHeader64()
+inline PIMAGE_OPTIONAL_HEADER64& CR_Module::OptionalHeader64()
 {
     return m_pOptional64;
 }
 
-inline PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories()
+inline PREAL_IMAGE_DATA_DIRECTORY& CR_Module::DataDirectories()
 {
     return m_pDataDirectories;
 }
 
-inline PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index)
+inline PREAL_IMAGE_DATA_DIRECTORY CR_Module::DataDirectory(DWORD index)
 {
     assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
     if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
@@ -398,12 +398,12 @@ inline PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index)
     return NULL;
 }
 
-inline PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders()
+inline PREAL_IMAGE_SECTION_HEADER& CR_Module::SectionHeaders()
 {
     return m_pSectionHeaders;
 }
 
-inline PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index)
+inline PREAL_IMAGE_SECTION_HEADER CR_Module::SectionHeader(DWORD index)
 {
     assert(m_pSectionHeaders);
     if (index < NumberOfSections())
@@ -411,121 +411,121 @@ inline PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index)
     return NULL;
 }
 
-inline vector<ImgDelayDescr>& PEMODULE::DelayLoadDescriptors()
+inline vector<ImgDelayDescr>& CR_Module::DelayLoadDescriptors()
 {
     return m_vImgDelayDescrs;
 }
 
-inline VECSET<string>& PEMODULE::ImportDllNames()
+inline CR_VecSet<string>& CR_Module::ImportDllNames()
 {
     return SymbolInfo().GetImportDllNames();
 }
 
-inline VECSET<IMPORT_SYMBOL>& PEMODULE::ImportSymbols()
+inline CR_VecSet<CR_ImportSymbol>& CR_Module::ImportSymbols()
 {
     return SymbolInfo().GetImportSymbols();
 }
 
-inline VECSET<EXPORT_SYMBOL>& PEMODULE::ExportSymbols()
+inline CR_VecSet<CR_ExportSymbol>& CR_Module::ExportSymbols()
 {
     return SymbolInfo().GetExportSymbols();
 }
 
-inline SYMBOLINFO& PEMODULE::SymbolInfo()
+inline CR_SymbolInfo& CR_Module::SymbolInfo()
 {
     return m_SymbolInfo;
 }
 
-inline HANDLE& PEMODULE::File()
+inline HANDLE& CR_Module::File()
 {
     return m_hFile;
 }
 
-inline LPCTSTR& PEMODULE::FileName()
+inline LPCTSTR& CR_Module::FileName()
 {
     return m_pszFileName;
 }
 
-inline DWORD& PEMODULE::FileSize()
+inline DWORD& CR_Module::FileSize()
 {
     return m_dwFileSize;
 }
 
-inline HANDLE& PEMODULE::FileMapping()
+inline HANDLE& CR_Module::FileMapping()
 {
     return m_hFileMapping;
 }
 
-inline BOOL& PEMODULE::ModuleLoaded()
+inline BOOL& CR_Module::ModuleLoaded()
 {
     return m_bModuleLoaded;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE const accessors
+// CR_Module const accessors
 
-inline const WORD& PEMODULE::NumberOfSections() const
+inline const WORD& CR_Module::NumberOfSections() const
 {
     return FileHeader()->NumberOfSections;
 }
 
-inline const DWORD& PEMODULE::LastError() const
+inline const DWORD& CR_Module::LastError() const
 {
     return m_dwLastError;
 }
 
-inline const PIMAGE_DOS_HEADER& PEMODULE::DOSHeader() const
+inline const PIMAGE_DOS_HEADER& CR_Module::DOSHeader() const
 {
     return m_pDOSHeader;
 }
 
-inline const PIMAGE_NT_HEADERS& PEMODULE::NTHeaders() const
+inline const PIMAGE_NT_HEADERS& CR_Module::NTHeaders() const
 {
     return m_pNTHeaders;
 }
 
-inline const PIMAGE_NT_HEADERS32& PEMODULE::NTHeaders32() const
+inline const PIMAGE_NT_HEADERS32& CR_Module::NTHeaders32() const
 {
     return m_pNTHeaders32;
 }
 
-inline const PIMAGE_NT_HEADERS64& PEMODULE::NTHeaders64() const
+inline const PIMAGE_NT_HEADERS64& CR_Module::NTHeaders64() const
 {
     return m_pNTHeaders64;
 }
 
-inline const PIMAGE_FILE_HEADER& PEMODULE::FileHeader() const
+inline const PIMAGE_FILE_HEADER& CR_Module::FileHeader() const
 {
     return m_pFileHeader;
 }
 
-inline const PIMAGE_OPTIONAL_HEADER32& PEMODULE::OptionalHeader32() const
+inline const PIMAGE_OPTIONAL_HEADER32& CR_Module::OptionalHeader32() const
 {
     return m_pOptional32;
 }
 
-inline const PIMAGE_OPTIONAL_HEADER64& PEMODULE::OptionalHeader64() const
+inline const PIMAGE_OPTIONAL_HEADER64& CR_Module::OptionalHeader64() const
 {
     return m_pOptional64;
 }
 
-inline const PREAL_IMAGE_DATA_DIRECTORY& PEMODULE::DataDirectories() const
+inline const PREAL_IMAGE_DATA_DIRECTORY& CR_Module::DataDirectories() const
 {
     return m_pDataDirectories;
 }
 
-inline const PREAL_IMAGE_DATA_DIRECTORY PEMODULE::DataDirectory(DWORD index) const
+inline const PREAL_IMAGE_DATA_DIRECTORY CR_Module::DataDirectory(DWORD index) const
 {
     assert(index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES);
     return &m_pDataDirectories[index];
 }
 
-inline const PREAL_IMAGE_SECTION_HEADER& PEMODULE::SectionHeaders() const
+inline const PREAL_IMAGE_SECTION_HEADER& CR_Module::SectionHeaders() const
 {
     return m_pSectionHeaders;
 }
 
-inline const PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index) const
+inline const PREAL_IMAGE_SECTION_HEADER CR_Module::SectionHeader(DWORD index) const
 {
     assert(m_pSectionHeaders);
     assert(index < NumberOfSections());
@@ -534,52 +534,52 @@ inline const PREAL_IMAGE_SECTION_HEADER PEMODULE::SectionHeader(DWORD index) con
     return NULL;
 }
 
-inline const vector<ImgDelayDescr>& PEMODULE::DelayLoadDescriptors() const
+inline const vector<ImgDelayDescr>& CR_Module::DelayLoadDescriptors() const
 {
     return m_vImgDelayDescrs;
 }
 
-inline const VECSET<string>& PEMODULE::ImportDllNames() const
+inline const CR_VecSet<string>& CR_Module::ImportDllNames() const
 {
     return SymbolInfo().GetImportDllNames();
 }
 
-inline const VECSET<IMPORT_SYMBOL>& PEMODULE::ImportSymbols() const
+inline const CR_VecSet<CR_ImportSymbol>& CR_Module::ImportSymbols() const
 {
     return SymbolInfo().GetImportSymbols();
 }
 
-inline const VECSET<EXPORT_SYMBOL>& PEMODULE::ExportSymbols() const
+inline const CR_VecSet<CR_ExportSymbol>& CR_Module::ExportSymbols() const
 {
     return SymbolInfo().GetExportSymbols();
 }
 
-inline const SYMBOLINFO& PEMODULE::SymbolInfo() const
+inline const CR_SymbolInfo& CR_Module::SymbolInfo() const
 {
     return m_SymbolInfo;
 }
 
-inline HANDLE& PEMODULE::File() const
+inline HANDLE& CR_Module::File() const
 {
     return const_cast<HANDLE&>(m_hFile);
 }
 
-inline const LPCTSTR& PEMODULE::FileName() const
+inline const LPCTSTR& CR_Module::FileName() const
 {
     return m_pszFileName;
 }
 
-inline const DWORD& PEMODULE::FileSize() const
+inline const DWORD& CR_Module::FileSize() const
 {
     return m_dwFileSize;
 }
 
-inline HANDLE& PEMODULE::FileMapping() const
+inline HANDLE& CR_Module::FileMapping() const
 {
     return const_cast<HANDLE&>(m_hFileMapping);
 }
 
-inline const BOOL& PEMODULE::ModuleLoaded() const
+inline const BOOL& CR_Module::ModuleLoaded() const
 {
     return m_bModuleLoaded;
 }

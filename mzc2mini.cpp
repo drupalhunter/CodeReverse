@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-
-VOID MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator)
+void MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator)
 {
     std::size_t i = 0, j = s.find_first_of(separator);
 
@@ -24,7 +23,7 @@ VOID MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator)
     v.push_back(s.substr(i, -1));
 }
 
-VOID MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators)
+void MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators)
 {
     std::size_t i = s.find_first_not_of(separators), n = s.size();
 
@@ -38,7 +37,7 @@ VOID MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators)
     }
 }
 
-VOID Join(tstring& s, const std::vector<tstring>& v, LPCTSTR separator)
+void Join(tstring& s, const std::vector<tstring>& v, LPCTSTR separator)
 {
     std::size_t i, c;
 
@@ -69,7 +68,7 @@ MSecurityAttributes::MSecurityAttributes(
 ////////////////////////////////////////////////////////////////////////////
 // MZC2 file functions
 
-VOID MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName)
+void MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName)
 {
     using namespace std;
     TCHAR szPath[MAX_PATH];
@@ -87,7 +86,7 @@ VOID MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName)
     }
 }
 
-VOID MzcAddBackslash(LPTSTR pszPath)
+void MzcAddBackslash(LPTSTR pszPath)
 {
     using namespace std;
     std::size_t cchPath = lstrlen(pszPath);
@@ -99,7 +98,7 @@ VOID MzcAddBackslash(LPTSTR pszPath)
     }
 }
 
-VOID MzcRemoveBackslashA(LPTSTR pszPath)
+void MzcRemoveBackslashA(LPTSTR pszPath)
 {
     using namespace std;
     std::size_t cchPath = lstrlen(pszPath);
@@ -131,7 +130,7 @@ LPTSTR MzcFindDotExt(LPTSTR pszPath)
     return pch;
 }
 
-VOID MzcSetDotExt(LPTSTR pszPath, LPCTSTR pszDotExt)
+void MzcSetDotExt(LPTSTR pszPath, LPCTSTR pszDotExt)
 {
     using namespace std;
     lstrcpy(MzcFindDotExt(pszPath), pszDotExt);
@@ -323,7 +322,7 @@ DWORD MFile::WaitForSingleObject(
     return ::WaitForSingleObject(m_hHandle, dwTimeout);
 }
 
-VOID MFile::Attach(HANDLE hHandle)
+void MFile::Attach(HANDLE hHandle)
 {
     MzcAssert(m_hHandle == NULL || m_hHandle == INVALID_HANDLE_VALUE);
     m_hHandle = hHandle;
@@ -418,7 +417,7 @@ DWORD MFile::SeekToEnd()
     return SetFilePointer(0, NULL, FILE_END);
 }
 
-VOID MFile::SeekToBegin()
+void MFile::SeekToBegin()
 {
     MzcAssert(m_hHandle != NULL && m_hHandle != INVALID_HANDLE_VALUE);
     SetFilePointer(0, NULL, FILE_BEGIN);
@@ -583,7 +582,7 @@ BOOL MFindFile::FindNextFile()
     return b;
 }
 
-VOID MFindFile::Close()
+void MFindFile::Close()
 {
     MzcVerify(::FindClose(m_hFind));
     m_hFind = INVALID_HANDLE_VALUE;
@@ -794,7 +793,7 @@ BOOL MProcessMaker::TerminateProcess(UINT uExitCode)
     return ::TerminateProcess(m_pi.hProcess, uExitCode);
 }
 
-VOID MProcessMaker::SetStdInput(HANDLE hStdIn)
+void MProcessMaker::SetStdInput(HANDLE hStdIn)
 {
     if (hStdIn != NULL)
     {
@@ -803,7 +802,7 @@ VOID MProcessMaker::SetStdInput(HANDLE hStdIn)
     }
 }
 
-VOID MProcessMaker::SetStdOutput(HANDLE hStdOut)
+void MProcessMaker::SetStdOutput(HANDLE hStdOut)
 {
     if (hStdOut != NULL)
     {
@@ -812,7 +811,7 @@ VOID MProcessMaker::SetStdOutput(HANDLE hStdOut)
     }
 }
 
-VOID MProcessMaker::SetStdError(HANDLE hStdErr)
+void MProcessMaker::SetStdError(HANDLE hStdErr)
 {
     if (hStdErr != NULL)
     {
@@ -821,48 +820,48 @@ VOID MProcessMaker::SetStdError(HANDLE hStdErr)
     }
 }
 
-VOID MProcessMaker::SetShowWindow(INT nCmdShow/* = SW_HIDE*/)
+void MProcessMaker::SetShowWindow(INT nCmdShow/* = SW_HIDE*/)
 {
     m_si.wShowWindow = (WORD) nCmdShow;
     m_si.dwFlags |= STARTF_USESHOWWINDOW;
 }
 
-VOID MProcessMaker::SetCreationFlags(
+void MProcessMaker::SetCreationFlags(
     DWORD dwFlags/* = CREATE_NEW_CONSOLE*/)
 {
     m_dwCreationFlags = dwFlags;
 }
 
-VOID MProcessMaker::SetCurrentDirectory(LPCTSTR pszCurDir)
+void MProcessMaker::SetCurrentDirectory(LPCTSTR pszCurDir)
 {
     m_pszCurDir = pszCurDir;
 }
 
-VOID MProcessMaker::SetDesktop(LPTSTR lpDesktop)
+void MProcessMaker::SetDesktop(LPTSTR lpDesktop)
 {
     m_si.lpDesktop = lpDesktop;
 }
 
-VOID MProcessMaker::SetTitle(LPTSTR lpTitle)
+void MProcessMaker::SetTitle(LPTSTR lpTitle)
 {
     m_si.lpTitle = lpTitle;
 }
 
-VOID MProcessMaker::SetPosition(DWORD dwX, DWORD dwY)
+void MProcessMaker::SetPosition(DWORD dwX, DWORD dwY)
 {
     m_si.dwX = dwX;
     m_si.dwY = dwY;
     m_si.dwFlags |= STARTF_USEPOSITION;
 }
 
-VOID MProcessMaker::SetSize(DWORD dwXSize, DWORD dwYSize)
+void MProcessMaker::SetSize(DWORD dwXSize, DWORD dwYSize)
 {
     m_si.dwXSize = dwXSize;
     m_si.dwYSize = dwYSize;
     m_si.dwFlags |= STARTF_USESIZE;
 }
 
-VOID MProcessMaker::SetCountChars(
+void MProcessMaker::SetCountChars(
     DWORD dwXCountChars, DWORD dwYCountChars)
 {
     m_si.dwXCountChars = dwXCountChars;
@@ -870,7 +869,7 @@ VOID MProcessMaker::SetCountChars(
     m_si.dwFlags |= STARTF_USECOUNTCHARS;
 }
 
-VOID MProcessMaker::SetFillAttirbutes(DWORD dwFillAttribute)
+void MProcessMaker::SetFillAttirbutes(DWORD dwFillAttribute)
 {
     m_si.dwFillAttribute = dwFillAttribute;
     m_si.dwFlags |= STARTF_USEFILLATTRIBUTE;
@@ -999,7 +998,7 @@ BOOL MProcessMaker::CreateProcessAsUser(
     return b;
 }
 
-VOID MProcessMaker::Close()
+void MProcessMaker::Close()
 {
     if (m_pi.hProcess != NULL)
     {

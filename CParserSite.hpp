@@ -12,71 +12,21 @@
 #include <string>       // std::string
 #include <map>          // std::map
 
-#include "Location.hpp"     // cparser::Location
-#include "Type.hpp"         // cparser::TypeCell
+#include "Location.h"       // CR_Location
+#include "Type.h"           // CR_TypeCell
 #include "CParserAST.hpp"   // cparser::Node
 
 namespace cparser
 {
     //
-    // NameScope
-    //
-    struct NameScope
-    {
-        typedef std::map<std::string, TypeCell> map_type;
-
-    public:
-        NameScope() : m_next(NULL)
-        {
-        }
-
-        NameScope(const NameScope& namescope) : m_next(NULL)
-        {
-            m_map1 = namescope.m_map1;
-            m_map2 = namescope.m_map2;
-        }
-
-        void operator=(const NameScope& namescope)
-        {
-            m_map1 = namescope.m_map1;
-            m_map2 = namescope.m_map2;
-        }
-
-    public:
-        NameScope *m_next;
-        map_type   m_map1;  // standard name mapping
-        map_type   m_map2;  // tag name mapping
-    };
-
-    //
     // ParserSite
     //
     struct ParserSite
     {
-        typedef NameScope                            name_scope_type;
-        typedef NameScope::map_type                  map_type;
-        typedef NameScope::map_type::iterator        map_iterator_type;
-        typedef NameScope::map_type::const_iterator  map_const_iterator_type;
-
     public:
-        ParserSite() : m_num_errors(0), m_num_warnings(0),
-                       m_name_scope_stack(NULL)
+        ParserSite() : m_num_errors(0), m_num_warnings(0)
         {
         }
-
-        ~ParserSite()
-        {
-            name_scope_type *next, *scope = m_name_scope_stack;
-            while (scope)
-            {
-                next = scope->m_next;
-                delete scope;
-                scope = next;
-            }
-        }
-
-        template <class CompilerSite>
-        bool compile(CompilerSite& cs, TransUnit& tu);
 
         void syntax_error()
         {
@@ -2325,14 +2275,14 @@ namespace cparser
         shared_ptr<FuncSpec> DoFuncSpec2()
         {
             FuncSpec *fs = new FuncSpec;
-            fs->m_flag = TF_FORCEINLINE;
+            fs->m_flag = TF_INLINE;
             return shared_ptr<FuncSpec>(fs);
         }
 
         shared_ptr<FuncSpec> DoFuncSpec3()
         {
             FuncSpec *fs = new FuncSpec;
-            fs->m_flag = TF_NORETURN;
+            fs->m_flag = 0;
             return shared_ptr<FuncSpec>(fs);
         }
 
@@ -2458,83 +2408,8 @@ namespace cparser
         }
 
     public:
-              Location& location()       { return m_loc; }
-        const Location& location() const { return m_loc; }
-
-        void namescope_push(NameScope *scope)
-        {
-            assert(scope);
-            scope->m_next = m_name_scope_stack;
-            m_name_scope_stack = scope;
-        }
-
-        NameScope *namescope_pop()
-        {
-            NameScope *scope = m_name_scope_stack;
-            if (scope)
-                m_name_scope_stack = scope->m_next;
-            return scope;
-        }
-
-        TypeCell *find_name(const char *name)
-        {
-            NameScope *scope = m_name_scope_stack;
-            while (scope)
-            {
-                map_iterator_type it = scope->m_map1.find(name);
-                if (it != scope->m_map1.end())
-                {
-                    return &(it->second);
-                }
-                scope = scope->m_next;
-            }
-            return NULL;
-        }
-
-        const TypeCell *find_name(const char *name) const
-        {
-            const NameScope *scope = m_name_scope_stack;
-            while (scope)
-            {
-                map_const_iterator_type it = scope->m_map1.find(name);
-                if (it != scope->m_map1.end())
-                {
-                    return &(it->second);
-                }
-                scope = scope->m_next;
-            }
-            return NULL;
-        }
-
-        TypeCell *find_tag_name(const char *name)
-        {
-            NameScope *scope = m_name_scope_stack;
-            while (scope)
-            {
-                map_iterator_type it = scope->m_map2.find(name);
-                if (it != scope->m_map2.end())
-                {
-                    return &(it->second);
-                }
-                scope = scope->m_next;
-            }
-            return NULL;
-        }
-
-        const TypeCell *find_tag_name(const char *name) const
-        {
-            const NameScope *scope = m_name_scope_stack;
-            while (scope)
-            {
-                map_const_iterator_type it = scope->m_map2.find(name);
-                if (it != scope->m_map2.end())
-                {
-                    return &(it->second);
-                }
-                scope = scope->m_next;
-            }
-            return NULL;
-        }
+              CR_Location& location()       { return m_loc; }
+        const CR_Location& location() const { return m_loc; }
 
         //
         // errors and warnings
@@ -2582,18 +2457,10 @@ namespace cparser
         }
 
     protected:
-        Location                        m_loc;
+        CR_Location                     m_loc;
         int                             m_num_errors;
         int                             m_num_warnings;
-        name_scope_type *               m_name_scope_stack;
     };
 } // namespace cparser
-
-template <class CompilerSite>
-inline bool cparser::ParserSite::compile(CompilerSite& cs, TransUnit& tu)
-{
-    // TODO: compile
-    return true;
-}
 
 #endif  // ndef PARSERSITE_HPP_

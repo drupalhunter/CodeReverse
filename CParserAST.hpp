@@ -10,8 +10,8 @@
 
 #include <vector>       // std::vector
 
-#include "Location.hpp" // cparser::Location
-#include "Type.hpp"     // cparser::TypeCell
+#include "Location.h"   // CR_Location
+#include "Type.h"       // CR_TypeCell
 
 // using smart pointers
 #if (__cplusplus < 199711L)
@@ -99,18 +99,18 @@ namespace cparser
             m_loc = n.m_loc;
         }
 
-        Location& location()
+        CR_Location& location()
         {
             return m_loc;
         }
 
-        const Location& location() const
+        const CR_Location& location() const
         {
             return m_loc;
         }
 
     protected:
-        Location    m_loc;
+        CR_Location  m_loc;
     };
 
     struct Declor : Node
@@ -190,7 +190,7 @@ namespace cparser
 
     struct TypeSpec : Node
     {
-        TYPEFLAGS                   m_flag;
+        CR_TypeFlags                   m_flag;
         // struct/union/enum tag name or typedef name
         std::string                 m_name;
         shared_ptr<DeclList>        m_decl_list;    // for struct, union or enum
@@ -201,7 +201,7 @@ namespace cparser
 
     struct TypeQual : Node
     {
-        TYPEFLAGS                   m_flag;
+        CR_TypeFlags                   m_flag;
         TypeQual() : m_flag(0) { }
     };
 
@@ -211,13 +211,13 @@ namespace cparser
 
     struct StorClsSpec : Node
     {
-        TYPEFLAGS               m_flag;
+        CR_TypeFlags               m_flag;
         StorClsSpec() : m_flag(0) { }
     };
 
     struct FuncSpec : Node
     {
-        TYPEFLAGS               m_flag;
+        CR_TypeFlags               m_flag;
         FuncSpec() : m_flag(0) { }
     };
 
@@ -250,7 +250,7 @@ namespace cparser
 
     struct AstCom : Node
     {
-        TYPEFLAGS m_flags;
+        CR_TypeFlags m_flags;
     };
 
     struct ParamList : Node, std::vector<shared_ptr<Decl> >
@@ -414,7 +414,7 @@ namespace cparser
         std::string         m_text;
         shared_ptr<Expr>    m_expr;
         shared_ptr<GeneSel> m_gen_sel;
-        TYPEFLAGS           m_flags;
+        CR_TypeFlags           m_flags;
     };
 
     struct GeneSel : Node
@@ -534,7 +534,7 @@ namespace cparser
         token_type  m_token;
         std::string m_text;
         int         m_pack;
-        TYPEFLAGS   m_flags;
+        CR_TypeFlags   m_flags;
         union
         {
             long long   m_long_long_value;

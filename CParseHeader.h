@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////
-// CParser.h
+// CParseHeader.h
 // Copyright (C) 2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef CPARSER_H_
-#define CPARSER_H_
+#ifndef CPARSEHEADER_H_
+#define CPARSEHEADER_H_
 
 #include "CScanner.hpp"      // cparser::Scanner
 #include "CParserSite.hpp"   // cparser::ParserSite
@@ -21,8 +21,8 @@
 
 namespace cparser
 {
-    template <class CompilerSite, class Iterator>
-    bool parse(CompilerSite& cs, Iterator begin, Iterator end)
+    template <class Iterator>
+    bool parse(shared_ptr<TransUnit>& ts, Iterator begin, Iterator end)
     {
         using namespace cparser;
         ParserSite ps;
@@ -32,12 +32,12 @@ namespace cparser
         scanner.scan(infos, begin, end);
         //scanner.show_tokens(infos.begin(), infos.end());
 
-        //std::cout << std::endl << "--------------" << std::endl;
+        //printf("\n--------------\n");
         Parser<shared_ptr<Node>, ParserSite> parser(ps);
         std::vector<TokenValue >::iterator it, end2 = infos.end();
         for (it = infos.begin(); it != end2; ++it)
         {
-            //std::cout << scanner.token_to_string(*it) << std::endl;
+            //printf("%s\n", scanner.token_to_string(*it));
             if (parser.post(it->m_token, make_shared<TokenValue >(*it)))
             {
                 if (parser.error())
@@ -53,35 +53,31 @@ namespace cparser
         shared_ptr<Node> node;
         if (parser.accept(node))
         {
-            //std::cerr << "Accepted!" << std::endl;
-            shared_ptr<TransUnit> trans_unit;
+            printf("parser accepted!\n");
             trans_unit = static_pointer_cast<TransUnit, Node>(node);
-            return ps.compile(cs, *trans_unit.get());
+            return true;
         }
 
         return false;
     }
 
-    template <class CompilerSite>
-    bool parse_string(CompilerSite& cs, const char *s)
+    inline bool parse_string(shared_ptr<TransUnit>& ts, const char *s)
     {
-        return parse(cs, s, s + std::strlen(s));
+        return parse(ts, s, s + std::strlen(s));
     }
 
-    template <class CompilerSite>
-    bool parse_string(CompilerSite& cs, const std::string& str)
+    inline bool parse_string(shared_ptr<TransUnit>& ts, const std::string& str)
     {
-        return parse(cs, str.begin(), str.end());
+        return parse(ts, str.begin(), str.end());
     }
 
-    template <class CompilerSite>
-    bool parse_file(CompilerSite& cs, const char *filename)
+    inline bool parse_file(shared_ptr<TransUnit>& ts, const char *filename)
     {
         std::ifstream file(filename);
         if (file.is_open())
         {
             std::istreambuf_iterator<char> begin(file), end;
-            bool ok = parse(cs, begin, end);
+            bool ok = parse(ts, begin, end);
             file.close();
             return ok;
         }
@@ -89,4 +85,4 @@ namespace cparser
     }
 } // namespace cparser
 
-#endif  // ndef CPARSER_H_
+#endif  // ndef CPARSEHEADER_H_

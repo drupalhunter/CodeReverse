@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{98E172BE-7514-48BA-AD69-AD64B4C9E998}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>codereverse</RootNamespace>
+    <RootNamespace>CodeReverse</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -159,8 +159,8 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="codereverse.cpp" />
-    <ClCompile Include="dumpfn.cpp" />
+    <ClCompile Include="CodeReverse.cpp" />
+    <ClCompile Include="Dumping.cpp" />
     <ClCompile Include="h-ndisasm\disasm.c" />
     <ClCompile Include="h-ndisasm\insnsb.c" />
     <ClCompile Include="h-ndisasm\insnsd.c" />
@@ -171,13 +171,13 @@
     <ClCompile Include="h-ndisasm\regdis.c" />
     <ClCompile Include="h-ndisasm\regs.c" />
     <ClCompile Include="h-ndisasm\ver.c" />
-    <ClCompile Include="module.cpp" />
+    <ClCompile Include="Module.cpp" />
     <ClCompile Include="mzc2mini.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="codereverse.h" />
-    <ClInclude Include="CParser.h" />
+    <ClInclude Include="CodeReverse.h" />
+    <ClInclude Include="CParseHeader.h" />
     <ClInclude Include="CParser.hpp" />
     <ClInclude Include="CParserAST.hpp" />
     <ClInclude Include="CParserSite.hpp" />
@@ -194,14 +194,14 @@
     <ClInclude Include="h-ndisasm\regs.h" />
     <ClInclude Include="h-ndisasm\tables.h" />
     <ClInclude Include="h-ndisasm\version.h" />
-    <ClInclude Include="Location.hpp" />
-    <ClInclude Include="module.h" />
+    <ClInclude Include="Location.h" />
+    <ClInclude Include="Module.h" />
     <ClInclude Include="mzc2mini.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Type.hpp" />
+    <ClInclude Include="Type.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="codereverse.rc" />
+    <ResourceCompile Include="CodeReverse.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

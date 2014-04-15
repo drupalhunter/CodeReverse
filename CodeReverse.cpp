@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// codereverse.cpp
+// CodeReverse.cpp
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
@@ -13,15 +13,15 @@ const char * const cr_logo =
     "///////////////////////////////////////////////\n"
 #ifdef _WIN64
 # ifdef __GNUC__
-    "// CodeReverse 0.0.8 (64-bit) for gcc        //\n"
+    "// CodeReverse 0.0.9 (64-bit) for gcc        //\n"
 # elif defined(_MSC_VER)
-    "// CodeReverse 0.0.8 (64-bit) for cl         //\n"
+    "// CodeReverse 0.0.9 (64-bit) for cl         //\n"
 # endif
 #else   // ndef _WIN64
 # ifdef __GNUC__
-    "// CodeReverse 0.0.8 (32-bit) for gcc        //\n"
+    "// CodeReverse 0.0.9 (32-bit) for gcc        //\n"
 # elif defined(_MSC_VER)
-    "// CodeReverse 0.0.8 (32-bit) for cl         //\n"
+    "// CodeReverse 0.0.9 (32-bit) for cl         //\n"
 # endif
 #endif  // ndef _WIN64
     "// https://github.com/katahiromz/CodeReverse //\n"
@@ -30,9 +30,9 @@ const char * const cr_logo =
 
 
 ////////////////////////////////////////////////////////////////////////////
-// TBOOL - tri-state logical value
+// CR_TBool - tri-state logical value
 
-TBOOL& TBOOL::IsFalse(const TBOOL& tb)
+CR_TBool& CR_TBool::IsFalse(const CR_TBool& tb)
 {
     switch (tb.m_value)
     {
@@ -43,7 +43,7 @@ TBOOL& TBOOL::IsFalse(const TBOOL& tb)
     return *this;
 }
 
-TBOOL& TBOOL::LogicalAnd(const TBOOL& tb1, const TBOOL& tb2)
+CR_TBool& CR_TBool::LogicalAnd(const CR_TBool& tb1, const CR_TBool& tb2)
 {
     if (tb1.m_value == TB_FALSE || tb2.m_value == TB_FALSE)
         m_value = TB_FALSE;
@@ -56,7 +56,7 @@ TBOOL& TBOOL::LogicalAnd(const TBOOL& tb1, const TBOOL& tb2)
     return *this;
 }
 
-TBOOL& TBOOL::LogicalOr(const TBOOL& tb1, const TBOOL& tb2)
+CR_TBool& CR_TBool::LogicalOr(const CR_TBool& tb1, const CR_TBool& tb2)
 {
     if (tb1.m_value == TB_TRUE || tb2.m_value == TB_TRUE)
         m_value = TB_TRUE;
@@ -69,7 +69,7 @@ TBOOL& TBOOL::LogicalOr(const TBOOL& tb1, const TBOOL& tb2)
     return *this;
 }
 
-TBOOL& TBOOL::Equal(const TBOOL& tb1, const TBOOL& tb2)
+CR_TBool& CR_TBool::Equal(const CR_TBool& tb1, const CR_TBool& tb2)
 {
     if (tb1.m_value == TB_UNKNOWN || tb2.m_value == TB_UNKNOWN)
     {
@@ -86,7 +86,7 @@ TBOOL& TBOOL::Equal(const TBOOL& tb1, const TBOOL& tb2)
 struct X86_REGINFO
 {
     const char *name;
-    X86_REGTYPE type;
+    CR_RegType type;
     int         bits;
 };
 
@@ -246,7 +246,7 @@ const X86_REGINFO cr_reg_entries[] =
     {"SFeqOF", X86_FLAG, 0}  // extension (means SF == OF)
 };
 
-X86_REGTYPE cr_reg_get_type(const char *name, INT bits)
+CR_RegType cr_reg_get_type(const char *name, INT bits)
 {
     const std::size_t size =
         sizeof(cr_reg_entries) / sizeof(cr_reg_entries[0]);
@@ -365,7 +365,7 @@ BOOL cr_reg_overlaps_reg(const char *reg1, const char *reg2)
 ////////////////////////////////////////////////////////////////////////////
 // x86 flags
 
-X86_FLAGTYPE cr_flag_get_type(const char *name, INT bits)
+CR_FlagType cr_flag_get_type(const char *name, INT bits)
 {
     if (name[0] != '\0' && name[1] == 'F' && name[2] == '\0')
     {
@@ -385,7 +385,7 @@ X86_FLAGTYPE cr_flag_get_type(const char *name, INT bits)
     return X86_FLAG_NONE;
 }
 
-const char *cr_flag_get_name(X86_FLAGTYPE type, INT bits)
+const char *cr_flag_get_name(CR_FlagType type, INT bits)
 {
     switch (type)
     {
@@ -426,7 +426,7 @@ OPERAND& OPERAND::operator=(const OPERAND& opr)
     return *this;
 }
 
-VOID OPERAND::Copy(const OPERAND& opr)
+void OPERAND::Copy(const OPERAND& opr)
 {
     Text() = opr.Text();
     OperandType() = opr.OperandType();
@@ -439,7 +439,7 @@ VOID OPERAND::Copy(const OPERAND& opr)
     IsFunction() = opr.IsFunction();
 }
 
-VOID OPERAND::clear()
+void OPERAND::clear()
 {
     Text().clear();
     OperandType() = OT_NONE;
@@ -452,38 +452,38 @@ VOID OPERAND::clear()
     IsFunction().clear();
 }
 
-VOID OPERAND::SetReg(const char *name)
+void OPERAND::SetReg(const char *name)
 {
     Text() = name;
     OperandType() = OT_REG;
     Size() = cr_reg_get_size(name, 64);
 }
 
-VOID OPERAND::SetAPI(const char *api)
+void OPERAND::SetAPI(const char *api)
 {
     Text() = api;
     OperandType() = OT_API;
 }
 
-VOID OPERAND::SetLabel(const char *label)
+void OPERAND::SetLabel(const char *label)
 {
     Text() = label;
     OperandType() = OT_IMM;
 }
 
-VOID OPERAND::SetMemImm(ADDR64 addr)
+void OPERAND::SetMemImm(CR_Addr64 addr)
 {
     OperandType() = OT_MEMIMM;
     Value64() = addr;
 }
 
-VOID OPERAND::SetMemExp(const char *exp_)
+void OPERAND::SetMemExp(const char *exp_)
 {
     OperandType() = OT_MEMEXP;
     Exp() = exp_;
 }
 
-VOID OPERAND::SetImm32(ADDR32 val, BOOL is_signed)
+void OPERAND::SetImm32(CR_Addr32 val, BOOL is_signed)
 {
     CHAR buf[64];
 
@@ -507,7 +507,7 @@ VOID OPERAND::SetImm32(ADDR32 val, BOOL is_signed)
     Value64() = val;
 }
 
-VOID OPERAND::SetImm64(ADDR64 val, BOOL is_signed)
+void OPERAND::SetImm64(CR_Addr64 val, BOOL is_signed)
 {
     CHAR buf[64];
 
@@ -556,233 +556,99 @@ bool OPERAND::operator!=(const OPERAND& opr) const
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// STACK
+// CR_CodeInsn32
 
-STACK::STACK()
-{
-    resize(64);
-    m_minussp = m_minusbp = 64;
-}
-
-STACK::STACK(const STACK& s) : OPERANDSET(s)
-{
-    resize(64);
-    m_minussp = m_minusbp = 64;
-}
-
-STACK& STACK::operator=(const STACK& s)
-{
-    Copy(s);
-    return *this;
-}
-
-/*virtual*/ STACK::~STACK()
-{
-}
-
-VOID STACK::Copy(const STACK& s)
-{
-	VECSET<OPERAND>::Copy(s);
-    m_minussp = s.m_minussp;
-    m_minusbp = s.m_minusbp;
-}
-
-VOID STACK::clear()
-{
-	VECSET<OPERAND>::clear();
-    m_minussp = m_minusbp = 0;
-}
-
-bool STACK::operator==(const STACK& s) const
-{
-    if (size() != s.size())
-        return false;
-
-    const std::size_t size = s.size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        if (at(i) != s[i])
-            return false;
-    }
-
-    return true;
-}
-
-bool STACK::operator!=(const STACK& s) const
-{
-    return !(*this == s);
-}
-
-VOID STACK::AddSP(std::size_t siz)
-{
-    assert(size() >= siz);
-    resize(size() - siz);
-    m_minussp -= siz;
-}
-
-VOID STACK::SubSP(std::size_t siz)
-{
-    resize(size() + siz);
-    m_minussp += siz;
-}
-
-VOID STACK::AddBP(std::size_t siz)
-{
-    assert(size() >= siz);
-    m_minusbp -= siz;
-}
-
-VOID STACK::SubBP(std::size_t siz)
-{
-    m_minusbp += siz;
-}
-
-VOID STACK::Push(const OPERAND& opr)
-{
-    SubSP(opr.Size());
-    at(m_minussp + opr.Size() - 1) = opr;
-}
-
-VOID STACK::Pop(OPERAND& opr)
-{
-    opr = at(m_minussp + opr.Size() - 1);
-    AddSP(opr.Size());
-}
-
-VOID STACK::GetFromSP(std::size_t index, OPERAND& opr)
-{
-    opr = at(m_minussp - index);
-}
-
-VOID STACK::SetFromSP(std::size_t index, const OPERAND& opr)
-{
-    at(m_minussp - index) = opr;
-}
-
-VOID STACK::GetFromBP(std::size_t index, OPERAND& opr)
-{
-    opr = at(m_minusbp - index);
-}
-
-VOID STACK::SetFromBP(std::size_t index, const OPERAND& opr)
-{
-    at(m_minusbp - index) = opr;
-}
-
-DWORD STACK::GetBP()
-{
-    return m_minusbp;
-}
-
-VOID STACK::SetBP(DWORD bp)
-{
-    m_minusbp = bp;
-}
-
-DWORD STACK::GetSP()
-{
-    return m_minussp;
-}
-
-VOID STACK::SetSP(DWORD sp)
-{
-    m_minussp = sp;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// ASMCODE32
-
-ASMCODE32::ASMCODE32()
+CR_CodeInsn32::CR_CodeInsn32()
 {
     clear();
 }
 
-ASMCODE32::ASMCODE32(const ASMCODE32& ac)
+CR_CodeInsn32::CR_CodeInsn32(const CR_CodeInsn32& ac)
 {
     Copy(ac);
 }
 
-/*virtual*/ ASMCODE32::~ASMCODE32()
+/*virtual*/ CR_CodeInsn32::~CR_CodeInsn32()
 {
 }
 
-ASMCODE32& ASMCODE32::operator=(const ASMCODE32& ac)
+CR_CodeInsn32& CR_CodeInsn32::operator=(const CR_CodeInsn32& ac)
 {
     Copy(ac);
     return *this;
 }
 
-VOID ASMCODE32::Copy(const ASMCODE32& ac)
+void CR_CodeInsn32::Copy(const CR_CodeInsn32& ac)
 {
-    Funcs() = ac.Funcs();
+    FuncAddrs() = ac.FuncAddrs();
     Addr() = ac.Addr();
     Name() = ac.Name();
     Operands() = ac.Operands();
     Codes() = ac.Codes();
-    AsmCodeType() = ac.AsmCodeType();
+    CodeInsnType() = ac.CodeInsnType();
     CondCode() = ac.CondCode();
 }
 
-VOID ASMCODE32::clear()
+void CR_CodeInsn32::clear()
 {
-    Funcs().clear();
+    FuncAddrs().clear();
     Addr() = 0;
     Name().clear();
     Operands().clear();
     Codes().clear();
-    AsmCodeType() = ACT_MISC;
+    CodeInsnType() = CIT_MISC;
     CondCode() = C_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// ASMCODE64
+// CR_CodeInsn64
 
-ASMCODE64::ASMCODE64()
+CR_CodeInsn64::CR_CodeInsn64()
 {
     clear();
 }
 
-ASMCODE64::ASMCODE64(const ASMCODE64& ac)
+CR_CodeInsn64::CR_CodeInsn64(const CR_CodeInsn64& ac)
 {
     Copy(ac);
 }
 
-/*virtual*/ ASMCODE64::~ASMCODE64()
+/*virtual*/ CR_CodeInsn64::~CR_CodeInsn64()
 {
 }
 
-ASMCODE64& ASMCODE64::operator=(const ASMCODE64& ac)
+CR_CodeInsn64& CR_CodeInsn64::operator=(const CR_CodeInsn64& ac)
 {
     Copy(ac);
     return *this;
 }
 
-VOID ASMCODE64::Copy(const ASMCODE64& ac)
+void CR_CodeInsn64::Copy(const CR_CodeInsn64& ac)
 {
-    Funcs() = ac.Funcs();
+    FuncAddrs() = ac.FuncAddrs();
     Addr() = ac.Addr();
     Name() = ac.Name();
     Operands() = ac.Operands();
     Codes() = ac.Codes();
-    AsmCodeType() = ac.AsmCodeType();
+    CodeInsnType() = ac.CodeInsnType();
     CondCode() = ac.CondCode();
 }
 
-VOID ASMCODE64::clear()
+void CR_CodeInsn64::clear()
 {
-    Funcs().clear();
+    FuncAddrs().clear();
     Addr() = 0;
     Name().clear();
     Operands().clear();
     Codes().clear();
-    AsmCodeType() = ACT_MISC;
+    CodeInsnType() = CIT_MISC;
     CondCode() = C_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// BLOCK32
+// CR_Block32
 
-BLOCK32::BLOCK32() :
+CR_Block32::CR_Block32() :
     m_addr(0),
     m_nextblock1(NULL),
     m_nextblock2(NULL),
@@ -791,18 +657,17 @@ BLOCK32::BLOCK32() :
 {
 }
 
-BLOCK32::BLOCK32(const BLOCK32& b)
+CR_Block32::CR_Block32(const CR_Block32& b)
 {
     Copy(b);
 }
 
-BLOCK32& BLOCK32::operator=(const BLOCK32& b)
+void CR_Block32::operator=(const CR_Block32& b)
 {
     Copy(b);
-    return *this;
 }
 
-VOID BLOCK32::Copy(const BLOCK32& b)
+void CR_Block32::Copy(const CR_Block32& b)
 {
     Addr() = b.Addr();
     AsmCodes() = b.AsmCodes();
@@ -810,11 +675,11 @@ VOID BLOCK32::Copy(const BLOCK32& b)
     NextBlock2() = b.NextBlock2();
 }
 
-/*virtual*/ BLOCK32::~BLOCK32()
+/*virtual*/ CR_Block32::~CR_Block32()
 {
 }
 
-VOID BLOCK32::clear()
+void CR_Block32::clear()
 {
     AsmCodes().clear();
     NextBlock1() = NULL;
@@ -824,9 +689,9 @@ VOID BLOCK32::clear()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// BLOCK64
+// CR_Block64
 
-BLOCK64::BLOCK64() :
+CR_Block64::CR_Block64() :
     m_addr(0),
     m_nextblock1(NULL),
     m_nextblock2(NULL),
@@ -835,18 +700,17 @@ BLOCK64::BLOCK64() :
 {
 }
 
-BLOCK64::BLOCK64(const BLOCK64& b)
+CR_Block64::CR_Block64(const CR_Block64& b)
 {
     Copy(b);
 }
 
-BLOCK64& BLOCK64::operator=(const BLOCK64& b)
+void CR_Block64::operator=(const CR_Block64& b)
 {
     Copy(b);
-    return *this;
 }
 
-VOID BLOCK64::Copy(const BLOCK64& b)
+void CR_Block64::Copy(const CR_Block64& b)
 {
     Addr() = b.Addr();
     AsmCodes() = b.AsmCodes();
@@ -854,11 +718,11 @@ VOID BLOCK64::Copy(const BLOCK64& b)
     NextBlock2() = b.NextBlock2();
 }
 
-/*virtual*/ BLOCK64::~BLOCK64()
+/*virtual*/ CR_Block64::~CR_Block64()
 {
 }
 
-VOID BLOCK64::clear()
+void CR_Block64::clear()
 {
     AsmCodes().clear();
     NextBlock1() = NULL;
@@ -868,29 +732,29 @@ VOID BLOCK64::clear()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CODEFUNC32
+// CR_CodeFunc32
 
-CODEFUNC32::CODEFUNC32()
+CR_CodeFunc32::CR_CodeFunc32()
 {
     clear();
 }
 
-CODEFUNC32::CODEFUNC32(const CODEFUNC32& cf)
+CR_CodeFunc32::CR_CodeFunc32(const CR_CodeFunc32& cf)
 {
     Copy(cf);
 }
 
-CODEFUNC32& CODEFUNC32::operator=(const CODEFUNC32& cf)
+CR_CodeFunc32& CR_CodeFunc32::operator=(const CR_CodeFunc32& cf)
 {
     Copy(cf);
     return *this;
 }
 
-/*virtual*/ CODEFUNC32::~CODEFUNC32()
+/*virtual*/ CR_CodeFunc32::~CR_CodeFunc32()
 {
 }
 
-VOID CODEFUNC32::Copy(const CODEFUNC32& cf)
+void CR_CodeFunc32::Copy(const CR_CodeFunc32& cf)
 {
     Addr() = cf.Addr();
     Name() = cf.Name();
@@ -902,7 +766,7 @@ VOID CODEFUNC32::Copy(const CODEFUNC32& cf)
     Blocks() = cf.Blocks();
 }
 
-VOID CODEFUNC32::clear()
+void CR_CodeFunc32::clear()
 {
     Addr() = 0;
     Name().clear();
@@ -914,7 +778,7 @@ VOID CODEFUNC32::clear()
     Blocks().clear();
 }
 
-BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr)
+CR_Block32* CR_CodeFunc32::FindBlockOfAddr(CR_Addr32 addr)
 {
     const std::size_t size = Blocks().size();
     for (std::size_t i = 0; i < size; i++)
@@ -925,7 +789,7 @@ BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr)
     return NULL;
 }
 
-const BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr) const
+const CR_Block32* CR_CodeFunc32::FindBlockOfAddr(CR_Addr32 addr) const
 {
     const std::size_t size = Blocks().size();
     for (std::size_t i = 0; i < size; i++)
@@ -937,29 +801,29 @@ const BLOCK32* CODEFUNC32::FindBlockOfAddr(ADDR32 addr) const
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CODEFUNC64
+// CR_CodeFunc64
 
-CODEFUNC64::CODEFUNC64()
+CR_CodeFunc64::CR_CodeFunc64()
 {
     clear();
 }
 
-CODEFUNC64::CODEFUNC64(const CODEFUNC64& cf)
+CR_CodeFunc64::CR_CodeFunc64(const CR_CodeFunc64& cf)
 {
     Copy(cf);
 }
 
-CODEFUNC64& CODEFUNC64::operator=(const CODEFUNC64& cf)
+CR_CodeFunc64& CR_CodeFunc64::operator=(const CR_CodeFunc64& cf)
 {
     Copy(cf);
     return *this;
 }
 
-/*virtual*/ CODEFUNC64::~CODEFUNC64()
+/*virtual*/ CR_CodeFunc64::~CR_CodeFunc64()
 {
 }
 
-VOID CODEFUNC64::Copy(const CODEFUNC64& cf)
+void CR_CodeFunc64::Copy(const CR_CodeFunc64& cf)
 {
     Addr() = cf.Addr();
     Name() = cf.Name();
@@ -971,7 +835,7 @@ VOID CODEFUNC64::Copy(const CODEFUNC64& cf)
     Blocks() = cf.Blocks();
 }
 
-VOID CODEFUNC64::clear()
+void CR_CodeFunc64::clear()
 {
     Addr() = 0;
     Name().clear();
@@ -983,7 +847,7 @@ VOID CODEFUNC64::clear()
     Blocks().clear();
 }
 
-BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
+CR_Block64* CR_CodeFunc64::FindBlockOfAddr(CR_Addr64 addr)
 {
     for (auto& block : Blocks())
     {
@@ -993,7 +857,7 @@ BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr)
     return NULL;
 }
 
-const BLOCK64* CODEFUNC64::FindBlockOfAddr(ADDR64 addr) const
+const CR_Block64* CR_CodeFunc64::FindBlockOfAddr(CR_Addr64 addr) const
 {
     for (auto& block : Blocks())
     {
@@ -1682,121 +1546,116 @@ BOOL cr_get_asmio_64(X86ASMIO *key, set<string>& in, set<string>& out, INT osize
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS32
+// CR_DecompStatus32
 
-DECOMPSTATUS32::DECOMPSTATUS32()
+CR_DecompStatus32::CR_DecompStatus32()
 {
 }
 
-DECOMPSTATUS32::DECOMPSTATUS32(const DECOMPSTATUS32& status)
+CR_DecompStatus32::CR_DecompStatus32(const CR_DecompStatus32& status)
 {
     Copy(status);
 }
 
-DECOMPSTATUS32& DECOMPSTATUS32::operator=(const DECOMPSTATUS32& status)
+CR_DecompStatus32& CR_DecompStatus32::operator=(const CR_DecompStatus32& status)
 {
     Copy(status);
     return *this;
 }
 
-/*virtual*/ DECOMPSTATUS32::~DECOMPSTATUS32()
+/*virtual*/ CR_DecompStatus32::~CR_DecompStatus32()
 {
 }
 
-VOID DECOMPSTATUS32::Copy(const DECOMPSTATUS32& status)
+void CR_DecompStatus32::Copy(const CR_DecompStatus32& status)
 {
     MapAddrToAsmCode() = status.MapAddrToAsmCode();
     Entrances() = status.Entrances();
     MapAddrToCodeFunc() = status.MapAddrToCodeFunc();
 }
 
-VOID DECOMPSTATUS32::clear()
+void CR_DecompStatus32::clear()
 {
     MapAddrToAsmCode().clear();
     Entrances().clear();
     MapAddrToCodeFunc().clear();
 }
 
-CODEFUNC32 *DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr)
+CR_CodeFunc32 *CR_DecompStatus32::MapAddrToCodeFunc(CR_Addr32 addr)
 {
-    map<ADDR32, CODEFUNC32>::iterator it, end;
-    end = MapAddrToCodeFunc().end();
-    it = MapAddrToCodeFunc().find(addr);
-    if (it != end)
+    auto it = MapAddrToCodeFunc().find(addr);
+    if (it != MapAddrToCodeFunc().end())
         return &it->second;
     else
         return NULL;
 }
 
-const CODEFUNC32 *DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr) const
+const CR_CodeFunc32 *CR_DecompStatus32::MapAddrToCodeFunc(CR_Addr32 addr) const
 {
-    map<ADDR32, CODEFUNC32>::const_iterator it, end;
-    end = MapAddrToCodeFunc().end();
-    it = MapAddrToCodeFunc().find(addr);
-    if (it != end)
+    auto it = MapAddrToCodeFunc().find(addr);
+    if (it != MapAddrToCodeFunc().end())
         return &it->second;
     else
         return NULL;
 }
 
-VOID DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr, const ASMCODE32& ac)
+void CR_DecompStatus32::MapAddrToAsmCode(CR_Addr32 addr, const CR_CodeInsn32& ac)
 {
     MapAddrToAsmCode()[addr] = ac;
 }
 
-VOID DECOMPSTATUS32::MapAddrToCodeFunc(ADDR32 addr, const CODEFUNC32& cf)
+void CR_DecompStatus32::MapAddrToCodeFunc(CR_Addr32 addr, const CR_CodeFunc32& cf)
 {
     MapAddrToCodeFunc()[addr] = cf;
 }
 
-ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr)
+CR_CodeInsn32 *CR_DecompStatus32::MapAddrToAsmCode(CR_Addr32 addr)
 {
-    map<ADDR32, ASMCODE32>::iterator it, end;
-    end = MapAddrToAsmCode().end();
-    it = MapAddrToAsmCode().find(addr);
-    if (it != end)
+    auto it = MapAddrToAsmCode().find(addr);
+    if (it != MapAddrToAsmCode().end())
         return &it->second;
     else
         return NULL;
 }
 
-const ASMCODE32 *DECOMPSTATUS32::MapAddrToAsmCode(ADDR32 addr) const
+const CR_CodeInsn32 *CR_DecompStatus32::MapAddrToAsmCode(CR_Addr32 addr) const
 {
-    map<ADDR32, ASMCODE32>::const_iterator it, end;
-    end = MapAddrToAsmCode().end();
-    it = MapAddrToAsmCode().find(addr);
-    if (it != end)
+    auto it = MapAddrToAsmCode().find(addr);
+    if (it != MapAddrToAsmCode().end())
         return &it->second;
     else
         return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// analyzing control flow graph
+// analyzing control flow graph (CFG)
 
-BOOL DECOMPSTATUS32::AnalyzeCFG()
+BOOL CR_DecompStatus32::AnalyzeCFG()
 {
     const std::size_t size = Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
         AnalyzeFuncCFGStage1(Entrances()[i], Entrances()[i]);
+    }
+    for (std::size_t i = 0; i < size; i++)
+    {
         AnalyzeFuncCFGStage2(Entrances()[i]);
     }
     return TRUE;
 }
 
-BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage1(ADDR32 func, ADDR32 addr)
+BOOL CR_DecompStatus32::AnalyzeFuncCFGStage1(CR_Addr32 func, CR_Addr32 addr)
 {
-    CODEFUNC32 *cf = MapAddrToCodeFunc(func);
+    CR_CodeFunc32 *cf = MapAddrToCodeFunc(func);
     if (cf == NULL)
         return FALSE;
 
-    ADDR32 va;
-    ADDR32SET vJumpees;
+    CR_Addr32 va;
+    CR_Addr32Set vJumpees;
     BOOL bEnd = FALSE;
     do
     {
-        BLOCK32 block;
+        CR_Block32 block;
 
         if (cf->FindBlockOfAddr(addr))
             break;
@@ -1804,7 +1663,7 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage1(ADDR32 func, ADDR32 addr)
         block.Addr() = addr;
         for (;;)
         {
-            ASMCODE32 *ac = MapAddrToAsmCode(addr);
+            CR_CodeInsn32 *ac = MapAddrToAsmCode(addr);
             if (ac == NULL)
             {
                 bEnd = TRUE;
@@ -1814,15 +1673,15 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage1(ADDR32 func, ADDR32 addr)
             block.AsmCodes().insert(*ac);
             addr += ac->Codes().size();
 
-            switch (ac->AsmCodeType())
+            switch (ac->CodeInsnType())
             {
-            case ACT_JMP:
-            case ACT_RETURN:
+            case CIT_JMP:
+            case CIT_RETURN:
                 bEnd = TRUE;
                 break;
 
-            case ACT_JCC:
-            case ACT_LOOP:
+            case CIT_JCC:
+            case CIT_LOOP:
                 va = ac->Operand(0)->Value32();
                 block.NextAddr2() = va;
                 vJumpees.insert(va);
@@ -1855,19 +1714,19 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage1(ADDR32 func, ADDR32 addr)
     return TRUE;
 }
 
-BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage2(ADDR32 func)
+BOOL CR_DecompStatus32::AnalyzeFuncCFGStage2(CR_Addr32 func)
 {
-    CODEFUNC32 *cf = MapAddrToCodeFunc(func);
+    CR_CodeFunc32 *cf = MapAddrToCodeFunc(func);
     if (cf == NULL)
         return FALSE;
 
     const std::size_t size = cf->Blocks().size();
     for (std::size_t i = 0; i < size; i++)
     {
-        BLOCK32 *b1 = &cf->Blocks()[i];
+        CR_Block32 *b1 = &cf->Blocks()[i];
         for (std::size_t j = 0; j < size; j++)
         {
-            BLOCK32 *b2 = &cf->Blocks()[j];
+            CR_Block32 *b2 = &cf->Blocks()[j];
             if (b2->Addr() == 0)
                 continue;
             if (b1->NextAddr1() && b1->NextAddr1() == b2->Addr())
@@ -1879,92 +1738,84 @@ BOOL DECOMPSTATUS32::AnalyzeFuncCFGStage2(ADDR32 func)
     return TRUE;
 }
 
-ASMCODE64 *DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr)
+CR_CodeInsn64 *CR_DecompStatus64::MapAddrToAsmCode(CR_Addr64 addr)
 {
-    map<ADDR64, ASMCODE64>::iterator it, end;
-    end = MapAddrToAsmCode().end();
-    it = MapAddrToAsmCode().find(addr);
-    if (it != end)
+    auto it = MapAddrToAsmCode().find(addr);
+    if (it != MapAddrToAsmCode().end())
         return &it->second;
     else
         return NULL;
 }
 
-CODEFUNC64 *DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr)
+CR_CodeFunc64 *CR_DecompStatus64::MapAddrToCodeFunc(CR_Addr64 addr)
 {
-    map<ADDR64, CODEFUNC64>::iterator it, end;
-    end = MapAddrToCodeFunc().end();
-    it = MapAddrToCodeFunc().find(addr);
-    if (it != end)
+    auto it = MapAddrToCodeFunc().find(addr);
+    if (it != MapAddrToCodeFunc().end())
         return &it->second;
     else
         return NULL;
 }
 
-const ASMCODE64 *DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr) const
+const CR_CodeInsn64 *CR_DecompStatus64::MapAddrToAsmCode(CR_Addr64 addr) const
 {
-    map<ADDR64, ASMCODE64>::const_iterator it, end;
-    end = MapAddrToAsmCode().end();
-    it = MapAddrToAsmCode().find(addr);
-    if (it != end)
+    auto it = MapAddrToAsmCode().find(addr);
+    if (it != MapAddrToAsmCode().end())
         return &it->second;
     else
         return NULL;
 }
 
-const CODEFUNC64 *DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr) const
+const CR_CodeFunc64 *CR_DecompStatus64::MapAddrToCodeFunc(CR_Addr64 addr) const
 {
-    map<ADDR64, CODEFUNC64>::const_iterator it, end;
-    end = MapAddrToCodeFunc().end();
-    it = MapAddrToCodeFunc().find(addr);
-    if (it != end)
+    auto it = MapAddrToCodeFunc().find(addr);
+    if (it != MapAddrToCodeFunc().end())
         return &it->second;
     else
         return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// DECOMPSTATUS64
+// CR_DecompStatus64
 
-DECOMPSTATUS64::DECOMPSTATUS64()
+CR_DecompStatus64::CR_DecompStatus64()
 {
 }
 
-DECOMPSTATUS64::DECOMPSTATUS64(const DECOMPSTATUS64& status)
+CR_DecompStatus64::CR_DecompStatus64(const CR_DecompStatus64& status)
 {
     Copy(status);
 }
 
-DECOMPSTATUS64& DECOMPSTATUS64::operator=(const DECOMPSTATUS64& status)
+CR_DecompStatus64& CR_DecompStatus64::operator=(const CR_DecompStatus64& status)
 {
     Copy(status);
     return *this;
 }
 
-/*virtual*/ DECOMPSTATUS64::~DECOMPSTATUS64()
+/*virtual*/ CR_DecompStatus64::~CR_DecompStatus64()
 {
 }
 
-VOID DECOMPSTATUS64::Copy(const DECOMPSTATUS64& status)
+void CR_DecompStatus64::Copy(const CR_DecompStatus64& status)
 {
     m_mAddrToAsmCode = status.m_mAddrToAsmCode;
     Entrances() = status.Entrances();
     m_mAddrToCodeFunc = status.m_mAddrToCodeFunc;
 }
 
-VOID DECOMPSTATUS64::clear()
+void CR_DecompStatus64::clear()
 {
     m_mAddrToAsmCode.clear();
     Entrances().clear();
     m_mAddrToCodeFunc.clear();
 }
 
-VOID DECOMPSTATUS64::MapAddrToAsmCode(ADDR64 addr, const ASMCODE64& ac)
+void CR_DecompStatus64::MapAddrToAsmCode(CR_Addr64 addr, const CR_CodeInsn64& ac)
 {
     m_mAddrToAsmCode[addr] = ac;
 }
 
-VOID DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr, const CODEFUNC64& cf)
+void CR_DecompStatus64::MapAddrToCodeFunc(CR_Addr64 addr, const CR_CodeFunc64& cf)
 {
     m_mAddrToCodeFunc[addr] = cf;
 }
@@ -1972,29 +1823,32 @@ VOID DECOMPSTATUS64::MapAddrToCodeFunc(ADDR64 addr, const CODEFUNC64& cf)
 ////////////////////////////////////////////////////////////////////////////
 // analyzing control flow graph
 
-BOOL DECOMPSTATUS64::AnalyzeCFG()
+BOOL CR_DecompStatus64::AnalyzeCFG()
 {
     const std::size_t size = Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
         AnalyzeFuncCFGStage1(Entrances()[i], Entrances()[i]);
+    }
+    for (std::size_t i = 0; i < size; i++)
+    {
         AnalyzeFuncCFGStage2(Entrances()[i]);
     }
     return TRUE;
 }
 
-BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage1(ADDR64 func, ADDR64 addr)
+BOOL CR_DecompStatus64::AnalyzeFuncCFGStage1(CR_Addr64 func, CR_Addr64 addr)
 {
-    CODEFUNC64 *cf = MapAddrToCodeFunc(func);
+    CR_CodeFunc64 *cf = MapAddrToCodeFunc(func);
     if (cf == NULL)
         return FALSE;
 
-    ADDR64 va;
-    ADDR64SET vJumpees;
+    CR_Addr64 va;
+    CR_Addr64Set vJumpees;
     BOOL bEnd = FALSE;
     do
     {
-        BLOCK64 block;
+        CR_Block64 block;
 
         if (cf->FindBlockOfAddr(addr))
             break;
@@ -2002,7 +1856,7 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage1(ADDR64 func, ADDR64 addr)
         block.Addr() = addr;
         for (;;)
         {
-            ASMCODE64 *ac = MapAddrToAsmCode(addr);
+            CR_CodeInsn64 *ac = MapAddrToAsmCode(addr);
             if (ac == NULL)
             {
                 bEnd = TRUE;
@@ -2012,15 +1866,15 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage1(ADDR64 func, ADDR64 addr)
             block.AsmCodes().insert(*ac);
             addr += ac->Codes().size();
 
-            switch (ac->AsmCodeType())
+            switch (ac->CodeInsnType())
             {
-            case ACT_JMP:
-            case ACT_RETURN:
+            case CIT_JMP:
+            case CIT_RETURN:
                 bEnd = TRUE;
                 break;
 
-            case ACT_JCC:
-            case ACT_LOOP:
+            case CIT_JCC:
+            case CIT_LOOP:
                 va = ac->Operand(0)->Value64();
                 block.NextAddr2() = va;
                 vJumpees.insert(va);
@@ -2053,19 +1907,19 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage1(ADDR64 func, ADDR64 addr)
     return TRUE;
 }
 
-BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage2(ADDR64 func)
+BOOL CR_DecompStatus64::AnalyzeFuncCFGStage2(CR_Addr64 func)
 {
-    CODEFUNC64 *cf = MapAddrToCodeFunc(func);
+    CR_CodeFunc64 *cf = MapAddrToCodeFunc(func);
     if (cf == NULL)
         return FALSE;
 
     const std::size_t size = cf->Blocks().size();
     for (std::size_t i = 0; i < size; i++)
     {
-        BLOCK64 *b1 = &cf->Blocks()[i];
+        CR_Block64 *b1 = &cf->Blocks()[i];
         for (std::size_t j = 0; j < size; j++)
         {
-            BLOCK64 *b2 = &cf->Blocks()[j];
+            CR_Block64 *b2 = &cf->Blocks()[j];
             if (b2->Addr() == 0)
                 continue;
             if (b1->NextAddr1() && b1->NextAddr1() == b2->Addr())
@@ -2079,14 +1933,25 @@ BOOL DECOMPSTATUS64::AnalyzeFuncCFGStage2(ADDR64 func)
 
 ////////////////////////////////////////////////////////////////////////////
 
-int DoParse(COMPILERSITE& cs, int argc, char **argv)
+// temporary file
+static char *cr_tmpfile = NULL;
+
+void CrDeleteTempFileAtExit(void)
+{
+    DeleteFile(cr_tmpfile);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+// do parse
+int CrDoParse(shared_ptr<TransUnit>& tu, int argc, char **argv)
 {
     LPSTR pchDotExt = MzcFindDotExt(argv[0]);
     // if file extension is ".i",
     if (_stricmp(pchDotExt, ".i") == 0)
     {
         // directly parse
-        if (!cparser::parse_file(cs, argv[0]))
+        if (!cparser::parse_file(tu, argv[0]))
         {
             fprintf(stderr, "ERROR: Failed to parse file '%s'\n",
                 argv[0]);
@@ -2099,9 +1964,11 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
         BOOL bOK = FALSE;
         // create temporary file
         MFile hTmpFile;
-        char *tmpfile = _tempnam(".", "coderev_temp");
-        if (hTmpFile.OpenFileForOutput(tmpfile))
+        char *cr_tmpfile = _tempnam(".", "coderev_temp");
+        if (hTmpFile.OpenFileForOutput(cr_tmpfile))
         {
+            atexit(CrDeleteTempFileAtExit);
+
             // setup process maker
             MProcessMaker pmaker;
             pmaker.SetShowWindow(SW_HIDE);
@@ -2144,7 +2011,7 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
                                 {
                                     fprintf(stderr,
                                         "ERROR: Cannot write to temporary file '%s'\n",
-                                        tmpfile);
+                                        cr_tmpfile);
                                     bOK = FALSE;
                                     break;
                                 }
@@ -2192,7 +2059,7 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
         else
         {
             fprintf(stderr, "ERROR: Cannot create temporary file '%s'\n",
-                tmpfile);
+                cr_tmpfile);
         }
 
         // close temporary file
@@ -2200,18 +2067,15 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
 
         if (bOK)
         {
-            if (!cparser::parse_file(cs, tmpfile))
+            if (!cparser::parse_file(tu, cr_tmpfile))
             {
                 fprintf(stderr, "ERROR: Failed to parse file '%s'\n",
                     argv[0]);
-                DeleteFile(tmpfile);    // delete temporary file
-                return 1;   // failure
+                return 2;   // failure
             }
-            DeleteFile(tmpfile);    // delete temporary file
         }
         else
         {
-            DeleteFile(tmpfile);    // delete temporary file
             return 3;   // failure
         }
     }
@@ -2227,6 +2091,100 @@ int DoParse(COMPILERSITE& cs, int argc, char **argv)
 
 ////////////////////////////////////////////////////////////////////////////
 
+void CrShowHelp(void)
+{
+#ifdef _WIN64
+    fprintf(stderr, " Usage: coderev64 exefile.exe [input-file] [compiler_options]\n");
+#else
+    fprintf(stderr, " Usage: coderev exefile.exe [input-file] [compiler_options]\n");
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void cr_parse_decl_specs(CR_TypeExpr& te, DeclSpecs* ds)
+{
+    CR_TypeFlags flag, flags = 0;
+    for (;;)
+    {
+        CR_TypeCell tc;
+        switch (ds->m_spec_type)
+        {
+        case DeclSpecs::STORCLSSPEC:
+        case DeclSpecs::FUNCSPEC:
+            ds = ds->m_decl_specs.get();
+            continue;
+
+        case DeclSpecs::TYPESPEC:
+            flag = ds->m_type_spec->m_flag;
+            if ((flag & TF_ALIAS) || (flag & TF_STRUCT) ||
+                (flag & TF_UNION) || (flag & TF_ENUM))
+            {
+                tc.m_name = ds->m_type_spec->m_name;
+            }
+            if ((flag & TF_STRUCT) || (flag & TF_UNION))
+            {
+                ds->m_type_spec->m_decl_list
+            }
+            if ((flag & TF_ENUM))
+            {
+                ds->m_type_spec->m_enumor_list
+            }
+            if ((flags & TF_LONG) && (flag & TF_LONG))
+            {
+                flags &= ~TF_LONG;
+                flags |= TF_LONGLONG;
+            }
+            else
+                flags |= flag;
+            ds = ds->m_decl_specs.get();
+            break;
+
+        case DeclSpecs::TYPEQUAL:
+            flags |= ds->m_type_qual->m_flag;
+            break;
+
+        case DeclSpecs::ALIGNSPEC:
+            break;
+        }
+        break;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////
+// semantic analysis
+
+int CrSemanticAnalysis(SemanticContents& sc, shared_ptr<TransUnit>& tu)
+{
+    for (shared_ptr<Decl>& decl : tu)
+    {
+
+        switch (decl.m_decl_type)
+        {
+        case Decl::FUNCTION:
+        case Decl::TYPEDEF:
+        case Decl::DECLORLIST:
+            {
+                shared_ptr<DeclSpecs>& ds = decl->m_decl_specs;
+                shared_ptr<DeclorList>& dl = decl->m_declor_list;
+                CR_TypeExpr te;
+                cr_parse_decl_specs(te, ds.get());
+            }
+            break;
+
+        case Decl::SINGLE:
+        case Decl::STATIC_ASSERT:
+        case Decl::ASMSPEC:
+        case Decl::ASMBLOCK:
+        case Decl::PARAM:
+            break;
+        }
+    }
+    return 0;   // success
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 extern "C"
 int main(int argc, char **argv)
 {
@@ -2236,11 +2194,7 @@ int main(int argc, char **argv)
         strcmp(argv[1], "/?") == 0 ||
         _stricmp(argv[1], "--help") == 0)
     {
-#ifdef _WIN64
-        fprintf(stderr, " Usage: coderev64 exefile.exe [input-file] [compiler_options]\n");
-#else
-        fprintf(stderr, " Usage: coderev exefile.exe [input-file] [compiler_options]\n");
-#endif
+        CrShowHelp();
         return 0;
     }
 
@@ -2249,23 +2203,37 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    COMPILERSITE cs;
+    shared_ptr<TransUnit> tu;
     if (argc >= 3)
     {
-        int result = DoParse(cs, argc - 2, &argv[2]);
+        int result = CrDoParse(tu, argc - 2, &argv[2]);
         if (result)
             return result;
     }
     else
     {
-        const char *arg = "coderev-default.h";
-        char **args = const_cast<char **>(&arg);
-        int result = DoParse(cs, 1, args);
+        char path[MAX_PATH];
+        GetModuleFileNameA(NULL, path, MAX_PATH);
+
+        char *title = MzcFindFileTitle(path);
+        strcpy(title, "coderev-default.h");
+        if (GetFileAttributesA(path) == 0xFFFFFFFF)
+            strcpy(title, "..\\coderev-default.h");
+
+        char **args = const_cast<char **>(&path);
+        int result = CrDoParse(tu, 1, args);
         if (result)
             return result;
     }
 
-    PEMODULE module;
+    SemanticContents sc;
+    {
+        int result = CrSemanticAnalysis(sc, tu);
+        if (result)
+            return result;
+    }
+
+    CR_Module module;
     if (module.LoadModule(argv[1]))
     {
         module.DumpHeaders();
@@ -2273,20 +2241,21 @@ int main(int argc, char **argv)
         module.DumpExportSymbols();
         module.DumpResource();
         module.DumpDelayLoad();
+
         if (module.Is64Bit())
         {
-            DECOMPSTATUS64 status;
+            CR_DecompStatus64 status;
             module.DisAsm64(status);
             module.FixUpAsm64(status);
-            //status.AnalyzeCFG();
+            status.AnalyzeCFG();
             module.DumpDisAsm64(status);
         }
         else if (module.Is32Bit())
         {
-            DECOMPSTATUS32 status;
+            CR_DecompStatus32 status;
             module.DisAsm32(status);
             module.FixUpAsm32(status);
-            //status.AnalyzeCFG();
+            status.AnalyzeCFG();
             module.DumpDisAsm32(status);
         }
     }
@@ -2294,6 +2263,7 @@ int main(int argc, char **argv)
     {
         fprintf(stderr, "ERROR: Cannot load file '%s', LastError = %lu\n",
             argv[1], module.LastError());
+        return 6;
     }
 
     return 0;

@@ -27,9 +27,10 @@
 #include <cstdint>
 using namespace std;
 
-#include "codereverse.h"
-#include "module.h"
+#include "CodeReverse.h"
+#include "Module.h"
 #include "mzc2mini.h"
+#include "Contents.h"
 
 #if !defined(NO_CHECKSUM) && defined(_MSC_VER)
     #pragma comment(lib, "imagehlp.lib")

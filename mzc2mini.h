@@ -48,9 +48,9 @@
 ////////////////////////////////////////////////////////////////////////////
 // Split and Join
 
-VOID MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator);
-VOID MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators);
-VOID Join(tstring& s, const std::vector<tstring>& v, LPCTSTR separator);
+void MzcSplit(std::vector<tstring>& v, const tstring& s, TCHAR separator);
+void MzcSplit(std::vector<tstring>& v, const tstring& s, LPCTSTR separators);
+void Join(tstring& s, const std::vector<tstring>& v, LPCTSTR separator);
 
 ////////////////////////////////////////////////////////////////////////////
 // MZC2 MSecurityAttributes
@@ -65,12 +65,12 @@ public:
 // MZC2 file functions
 
 #define MzcBaseName GetFileTitle
-VOID MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName);
-VOID MzcAddBackslash(LPTSTR pszPath);
-VOID MzcRemoveBackslashA(LPTSTR pszPath);
+void MzcDirName(LPCTSTR pszPath, LPTSTR pszDirName);
+void MzcAddBackslash(LPTSTR pszPath);
+void MzcRemoveBackslashA(LPTSTR pszPath);
 LPTSTR MzcFindFileTitle(LPTSTR pszPath);
 LPTSTR MzcFindDotExt(LPTSTR pszPath);
-VOID MzcSetDotExt(LPTSTR pszPath, LPCTSTR pszDotExt);
+void MzcSetDotExt(LPTSTR pszPath, LPCTSTR pszDotExt);
 BOOL MzcFileExists(LPCTSTR pszFileName);
 BOOL MzcFileGetContents(LPCTSTR pszFileName, std::vector<BYTE>& v);
 BOOL MzcFilePutContents(LPCTSTR pszFileName, LPCVOID pv, DWORD cb);
@@ -97,7 +97,7 @@ public:
     bool operator!=(HANDLE hHandle) const;
 
     MFile& operator=(HANDLE hHandle);
-    VOID Attach(HANDLE hHandle);
+    void Attach(HANDLE hHandle);
     HANDLE Detach();
     BOOL CloseHandle();
 
@@ -149,7 +149,7 @@ public:
     BOOL SetEndOfFile();
     DWORD SetFilePointer(
         LONG nDeltaLow, PLONG pnDeltaHigh = NULL, DWORD dwOrigin = FILE_BEGIN);
-    VOID SeekToBegin();
+    void SeekToBegin();
     DWORD SeekToEnd();
     BOOL FlushFileBuffers();
     BOOL GetFileTime(
@@ -194,7 +194,7 @@ public:
     BOOL IsTemporary() const;
     BOOL IsNormal() const;
     BOOL IsArchived() const;
-    VOID Close();
+    void Close();
 
 protected:
     HANDLE m_hFind;
@@ -218,20 +218,20 @@ public:
     HANDLE GetHandle() const;
     DWORD GetExitCode() const;
 
-    VOID SetShowWindow(INT nCmdShow = SW_HIDE);
-    VOID SetCreationFlags(DWORD dwFlags = CREATE_NEW_CONSOLE);
-    VOID SetCurrentDirectory(LPCTSTR pszCurDir);
+    void SetShowWindow(INT nCmdShow = SW_HIDE);
+    void SetCreationFlags(DWORD dwFlags = CREATE_NEW_CONSOLE);
+    void SetCurrentDirectory(LPCTSTR pszCurDir);
 
-    VOID SetDesktop(LPTSTR lpDesktop);
-    VOID SetTitle(LPTSTR lpTitle);
-    VOID SetPosition(DWORD dwX, DWORD dwY);
-    VOID SetSize(DWORD dwXSize, DWORD dwYSize);
-    VOID SetCountChars(DWORD dwXCountChars, DWORD dwYCountChars);
-    VOID SetFillAttirbutes(DWORD dwFillAttribute);
+    void SetDesktop(LPTSTR lpDesktop);
+    void SetTitle(LPTSTR lpTitle);
+    void SetPosition(DWORD dwX, DWORD dwY);
+    void SetSize(DWORD dwXSize, DWORD dwYSize);
+    void SetCountChars(DWORD dwXCountChars, DWORD dwYCountChars);
+    void SetFillAttirbutes(DWORD dwFillAttribute);
 
-    VOID SetStdInput(HANDLE hStdIn);
-    VOID SetStdOutput(HANDLE hStdOut);
-    VOID SetStdError(HANDLE hStdErr);
+    void SetStdInput(HANDLE hStdIn);
+    void SetStdOutput(HANDLE hStdOut);
+    void SetStdError(HANDLE hStdErr);
     BOOL PrepareForRedirect(
         PHANDLE phInputWrite, PHANDLE phOutputRead,
         PHANDLE phErrorRead);
@@ -249,7 +249,7 @@ public:
     DWORD WaitForExit(DWORD dwTimeout = INFINITE);
     BOOL TerminateProcess(UINT uExitCode);
     BOOL IsRunning() const;
-    VOID Close();
+    void Close();
 
 public:
     PROCESS_INFORMATION m_pi;

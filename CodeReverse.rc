@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// codereverse.rc
+// CodeReverse.rc
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
@@ -7,4 +7,4 @@
 
 #include <windows.h>
 
-1 ICON "codereverse.ico"
+1 ICON "CodeReverse.ico"

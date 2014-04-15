@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-const char *GetTimeStampString(DWORD TimeStamp)
+const char *CrGetTimeStampString(DWORD TimeStamp)
 {
     std::time_t t;
     char *p;
@@ -25,7 +25,7 @@ const char *GetTimeStampString(DWORD TimeStamp)
     return p;
 }
 
-const char *GetMachineString(WORD Machine)
+const char *CrGetMachineString(WORD Machine)
 {
 #ifndef IMAGE_FILE_MACHINE_SH3DSP
     #define IMAGE_FILE_MACHINE_SH3DSP 0x01A3
@@ -95,7 +95,7 @@ const char *GetMachineString(WORD Machine)
     }
 }
 
-const char *GetFileCharacteristicsString(WORD w)
+const char *CrGetFileCharacteristicsString(WORD w)
 {
     static char buf[512];
     buf[0] = 0;
@@ -119,7 +119,7 @@ const char *GetFileCharacteristicsString(WORD w)
     return buf;
 }
 
-const char *GetSectionFlagsString(DWORD dw)
+const char *CrGetSectionFlagsString(DWORD dw)
 {
 #ifndef IMAGE_SCN_TYPE_DSECT
     #define IMAGE_SCN_TYPE_DSECT 0x00000001
@@ -306,7 +306,7 @@ const char *GetSectionFlagsString(DWORD dw)
     return buf;
 }
 
-const char *GetDllCharacteristicsString(WORD w)
+const char *CrGetDllCharacteristicsString(WORD w)
 {
 #ifndef IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
     #define IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE 0x0040
@@ -348,7 +348,7 @@ const char *GetDllCharacteristicsString(WORD w)
     return buf;
 }
 
-const char *GetSubsystemString(WORD w)
+const char *CrGetSubsystemString(WORD w)
 {
 #ifndef IMAGE_SUBSYSTEM_UNKNOWN
     #define IMAGE_SUBSYSTEM_UNKNOWN 0
@@ -413,7 +413,7 @@ const char *GetSubsystemString(WORD w)
     }
 }
 
-VOID DumpDataDirectory(LPVOID Data, DWORD index)
+void CrDumpDataDirectory(LPVOID Data, DWORD index)
 {
 #ifndef IMAGE_DIRECTORY_ENTRY_EXPORT
     #define IMAGE_DIRECTORY_ENTRY_EXPORT 0
@@ -484,7 +484,7 @@ VOID DumpDataDirectory(LPVOID Data, DWORD index)
     printf(" (%lu): V.A.: 0x%08lX, Size: 0x%08lX (%lu)\n", index, Directory->VirtualAddress, Directory->Size, Directory->Size);
 }
 
-VOID DumpDOSHeader(LPVOID Data)
+void CrDumpDOSHeader(LPVOID Data)
 {
     PIMAGE_DOS_HEADER DOSHeader = (PIMAGE_DOS_HEADER)Data;
     printf("\n### DOS Header ###\n");
@@ -521,20 +521,20 @@ VOID DumpDOSHeader(LPVOID Data)
     printf("  e_lfanew: 0x%08lX\n", DOSHeader->e_lfanew);
 }
 
-VOID DumpFileHeader(LPVOID Data)
+void CrDumpFileHeader(LPVOID Data)
 {
     PIMAGE_FILE_HEADER FileHeader = (PIMAGE_FILE_HEADER)Data;
     printf("\n### IMAGE_FILE_HEADER ###\n");
-    printf("  Machine: 0x%04X (%s)\n", FileHeader->Machine, GetMachineString(FileHeader->Machine));
+    printf("  Machine: 0x%04X (%s)\n", FileHeader->Machine, CrGetMachineString(FileHeader->Machine));
     printf("  NumberOfSections: 0x%04X (%u)\n", FileHeader->NumberOfSections, FileHeader->NumberOfSections);
-    printf("  TimeDateStamp: 0x%08lX (%s)\n", FileHeader->TimeDateStamp, GetTimeStampString(FileHeader->TimeDateStamp));
+    printf("  TimeDateStamp: 0x%08lX (%s)\n", FileHeader->TimeDateStamp, CrGetTimeStampString(FileHeader->TimeDateStamp));
     printf("  PointerToSymbolTable: 0x%08lX\n", FileHeader->PointerToSymbolTable);
     printf("  NumberOfSymbols: 0x%08lX (%lu)\n", FileHeader->NumberOfSymbols, FileHeader->NumberOfSymbols);
     printf("  SizeOfOptionalHeader: 0x%04X (%u)\n", FileHeader->SizeOfOptionalHeader, FileHeader->SizeOfOptionalHeader);
-    printf("  Characteristics: 0x%04X (%s)\n", FileHeader->Characteristics, GetFileCharacteristicsString(FileHeader->Characteristics));
+    printf("  Characteristics: 0x%04X (%s)\n", FileHeader->Characteristics, CrGetFileCharacteristicsString(FileHeader->Characteristics));
 }
 
-VOID DumpOptionalHeader32(LPVOID Data, DWORD CheckSum)
+void CrDumpOptionalHeader32(LPVOID Data, DWORD CheckSum)
 {
     DWORD i;
     PIMAGE_OPTIONAL_HEADER32 Optional32 = (PIMAGE_OPTIONAL_HEADER32)Data;
@@ -563,8 +563,8 @@ VOID DumpOptionalHeader32(LPVOID Data, DWORD CheckSum)
 #else
     printf("  CheckSum: 0x%08lX\n", Optional32->CheckSum);
 #endif
-    printf("  Subsystem: 0x%04X (%s)\n", Optional32->Subsystem, GetSubsystemString(Optional32->Subsystem));
-    printf("  DllCharacteristics: 0x%04X (%s)\n", Optional32->DllCharacteristics, GetDllCharacteristicsString(Optional32->DllCharacteristics));
+    printf("  Subsystem: 0x%04X (%s)\n", Optional32->Subsystem, CrGetSubsystemString(Optional32->Subsystem));
+    printf("  DllCharacteristics: 0x%04X (%s)\n", Optional32->DllCharacteristics, CrGetDllCharacteristicsString(Optional32->DllCharacteristics));
     printf("  SizeOfStackReserve: 0x%08lX (%lu)\n", Optional32->SizeOfStackReserve, Optional32->SizeOfStackReserve);
     printf("  SizeOfStackCommit: 0x%08lX (%lu)\n", Optional32->SizeOfStackCommit, Optional32->SizeOfStackCommit);
     printf("  SizeOfHeapReserve: 0x%08lX (%lu)\n", Optional32->SizeOfHeapReserve, Optional32->SizeOfHeapReserve);
@@ -579,12 +579,12 @@ VOID DumpOptionalHeader32(LPVOID Data, DWORD CheckSum)
         DataDirectory = &DataDirectories[i];
         if (DataDirectory->VirtualAddress != 0 || DataDirectory->Size != 0)
         {
-            DumpDataDirectory(DataDirectory, i);
+            CrDumpDataDirectory(DataDirectory, i);
         }
     }
 }
 
-VOID DumpOptionalHeader64(LPVOID Data, DWORD CheckSum)
+void CrDumpOptionalHeader64(LPVOID Data, DWORD CheckSum)
 {
     DWORD i;
     PIMAGE_OPTIONAL_HEADER64 Optional64 = (PIMAGE_OPTIONAL_HEADER64)Data;
@@ -612,8 +612,8 @@ VOID DumpOptionalHeader64(LPVOID Data, DWORD CheckSum)
 #else
     printf("  CheckSum: 0x%08lX\n", Optional64->CheckSum);
 #endif
-    printf("  Subsystem: 0x%04X (%s)\n", Optional64->Subsystem, GetSubsystemString(Optional64->Subsystem));
-    printf("  DllCharacteristics: 0x%04X (%s)\n", Optional64->DllCharacteristics, GetDllCharacteristicsString(Optional64->DllCharacteristics));
+    printf("  Subsystem: 0x%04X (%s)\n", Optional64->Subsystem, CrGetSubsystemString(Optional64->Subsystem));
+    printf("  DllCharacteristics: 0x%04X (%s)\n", Optional64->DllCharacteristics, CrGetDllCharacteristicsString(Optional64->DllCharacteristics));
 
     char a[64];
     _i64toa(Optional64->SizeOfStackReserve, a, 10);
@@ -635,12 +635,12 @@ VOID DumpOptionalHeader64(LPVOID Data, DWORD CheckSum)
         DataDirectory = &DataDirectories[i];
         if (DataDirectory->VirtualAddress != 0 || DataDirectory->Size != 0)
         {
-            DumpDataDirectory(DataDirectory, i);
+            CrDumpDataDirectory(DataDirectory, i);
         }
     }
 }
 
-VOID DumpSectionHeader(LPVOID Data)
+void CrDumpSectionHeader(LPVOID Data)
 {
     PREAL_IMAGE_SECTION_HEADER SectionHeader;
     DWORD i;
@@ -659,10 +659,10 @@ VOID DumpSectionHeader(LPVOID Data)
     printf("  PointerToLinenumbers: 0x%08lX\n", SectionHeader->PointerToLinenumbers);
     printf("  NumberOfRelocations: 0x%08X (%u)\n", SectionHeader->NumberOfRelocations, SectionHeader->NumberOfRelocations);
     printf("  NumberOfLinenumbers: 0x%08X (%u)\n", SectionHeader->NumberOfLinenumbers, SectionHeader->NumberOfLinenumbers);
-    printf("  Characteristics: 0x%08lX (%s)\n", SectionHeader->Characteristics, GetSectionFlagsString(SectionHeader->Characteristics));
+    printf("  Characteristics: 0x%08lX (%s)\n", SectionHeader->Characteristics, CrGetSectionFlagsString(SectionHeader->Characteristics));
 }
 
-VOID DumpCodes(const vector<BYTE>& codes, INT bits)
+void CrDumpCodes(const vector<BYTE>& codes, INT bits)
 {
     std::size_t codesperline;
 
@@ -690,9 +690,9 @@ VOID DumpCodes(const vector<BYTE>& codes, INT bits)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE dumping
+// CR_Module dumping
 
-VOID PEMODULE::DumpHeaders()
+void CR_Module::DumpHeaders()
 {
     if (!IsModuleLoaded())
         return;
@@ -707,19 +707,19 @@ VOID PEMODULE::DumpHeaders()
 
     if (DOSHeader())
     {
-        DumpDOSHeader(DOSHeader());
+        CrDumpDOSHeader(DOSHeader());
     }
     if (FileHeader())
     {
-        DumpFileHeader(FileHeader());
+        CrDumpFileHeader(FileHeader());
     }
     if (OptionalHeader32())
     {
-        DumpOptionalHeader32(OptionalHeader32(), CheckSum());
+        CrDumpOptionalHeader32(OptionalHeader32(), CheckSum());
     }
     else if (OptionalHeader64())
     {
-        DumpOptionalHeader64(OptionalHeader64(), CheckSum());
+        CrDumpOptionalHeader64(OptionalHeader64(), CheckSum());
     }
     if (SectionHeaders())
     {
@@ -727,16 +727,16 @@ VOID PEMODULE::DumpHeaders()
         for (DWORD i = 0; i < size; i++)
         {
             printf("\n### Section #%lu ###\n", i);
-            DumpSectionHeader(SectionHeader(i));
+            CrDumpSectionHeader(SectionHeader(i));
         }
     }
 }
 
-VOID PEMODULE::DumpImportSymbols()
+void CR_Module::DumpImportSymbols()
 {
     PIMAGE_IMPORT_DESCRIPTOR descs;
-    VECSET<string> dll_names;
-    VECSET<IMPORT_SYMBOL> symbols;
+    CR_VecSet<string> dll_names;
+    CR_VecSet<CR_ImportSymbol> symbols;
 
     descs = ImportDescriptors();
     if (descs == NULL)
@@ -745,7 +745,7 @@ VOID PEMODULE::DumpImportSymbols()
     printf("\n### IMPORTS ###\n");
     printf("  Characteristics: 0x%08lX\n", descs->Characteristics);
     printf("  TimeDateStamp: 0x%08lX (%s)\n", descs->TimeDateStamp,
-        GetTimeStampString(descs->TimeDateStamp));
+        CrGetTimeStampString(descs->TimeDateStamp));
     printf("  ForwarderChain: 0x%08lX\n", descs->ForwarderChain);
     printf("  Name: 0x%08lX (%s)\n", descs->Name, reinterpret_cast<char *>(GetData(descs->Name)));
     printf("  \n");
@@ -767,13 +767,13 @@ VOID PEMODULE::DumpImportSymbols()
             {
                 if (Is64Bit())
                 {
-                    ADDR64 addr = VA64FromRVA(symbols[j].dwRVA);
+                    CR_Addr64 addr = VA64FromRVA(symbols[j].dwRVA);
                     printf("    %08lX %08lX%08lX ", symbols[j].dwRVA,
                         HILONG(addr), LOLONG(addr));
                 }
                 else if (Is32Bit())
                 {
-                    ADDR32 addr = VA32FromRVA(symbols[j].dwRVA);
+                    CR_Addr32 addr = VA32FromRVA(symbols[j].dwRVA);
                     printf("    %08lX %08lX ", symbols[j].dwRVA, addr);
                 }
                 if (symbols[j].Name.wImportByName)
@@ -786,7 +786,7 @@ VOID PEMODULE::DumpImportSymbols()
     }
 }
 
-VOID PEMODULE::DumpExportSymbols()
+void CR_Module::DumpExportSymbols()
 {
     PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
 
@@ -803,7 +803,7 @@ VOID PEMODULE::DumpExportSymbols()
 
     printf("\n### EXPORTS ###\n");
     printf("  Characteristics: 0x%08lX\n", pDir->Characteristics);
-    printf("  TimeDateStamp: 0x%08lX (%s)\n", pDir->TimeDateStamp, GetTimeStampString(pDir->TimeDateStamp));
+    printf("  TimeDateStamp: 0x%08lX (%s)\n", pDir->TimeDateStamp, CrGetTimeStampString(pDir->TimeDateStamp));
     printf("  Version: %u.%u\n", pDir->MajorVersion, pDir->MinorVersion);
     printf("  Name: 0x%08lX (%s)\n", pDir->Name, reinterpret_cast<char *>(GetData(pDir->Name)));
     printf("  Base: 0x%08lX (%lu)\n", pDir->Base, pDir->Base);
@@ -818,12 +818,12 @@ VOID PEMODULE::DumpExportSymbols()
 
     for (DWORD i = 0; i < ExportSymbols().size(); i++)
     {
-        EXPORT_SYMBOL& symbol = ExportSymbols()[i];
+        CR_ExportSymbol& symbol = ExportSymbols()[i];
         if (symbol.dwRVA)
         {
             if (Is64Bit())
             {
-                ADDR64 va = VA64FromRVA(symbol.dwRVA);
+                CR_Addr64 va = VA64FromRVA(symbol.dwRVA);
                 if (symbol.pszName)
                     printf("  %-50s @%-4lu ; %08lX %08lX%08lX\n", 
                         symbol.pszName, symbol.dwOrdinal, symbol.dwRVA,
@@ -835,7 +835,7 @@ VOID PEMODULE::DumpExportSymbols()
             }
             else if (Is32Bit())
             {
-                ADDR32 va = VA32FromRVA(symbol.dwRVA);
+                CR_Addr32 va = VA32FromRVA(symbol.dwRVA);
                 if (symbol.pszName)
                     printf("  %-50s @%-4lu ; %08lX %08lX\n", 
                         symbol.pszName, symbol.dwOrdinal, symbol.dwRVA, va);
@@ -858,7 +858,7 @@ VOID PEMODULE::DumpExportSymbols()
     printf("\n\n");
 }
 
-VOID PEMODULE::DumpDelayLoad()
+void CR_Module::DumpDelayLoad()
 {
     if (DelayLoadDescriptors().empty())
     {
@@ -872,7 +872,7 @@ VOID PEMODULE::DumpDelayLoad()
     DWORD rva;
     if (Is64Bit())
     {
-        ADDR64 addr;
+        CR_Addr64 addr;
         for (std::size_t i = 0; i < size; i++)
         {
             printf("  ### Descr #%u ###\n", static_cast<int>(i));
@@ -907,14 +907,14 @@ VOID PEMODULE::DumpDelayLoad()
             addr = VA64FromRVA(rva);
             printf("    UnloadIAT: %08lX %08lX%08lX\n", rva, HILONG(addr), LOLONG(addr));
 
-            const char *pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
+            const char *pszTime = CrGetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
             printf("    dwTimeStamp:  0x%08lX (%s)",
                 DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
         }
     }
     else if (Is32Bit())
     {
-        ADDR32 addr;
+        CR_Addr32 addr;
         for (std::size_t i = 0; i < size; i++)
         {
             printf("  ### Descr #%u ###\n", static_cast<INT>(i));
@@ -949,7 +949,7 @@ VOID PEMODULE::DumpDelayLoad()
             addr = VA32FromRVA(rva);
             printf("    UnloadIAT: %08lX %08lX\n", rva, addr);
 
-            const char *pszTime = GetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
+            const char *pszTime = CrGetTimeStampString(DelayLoadDescriptors()[i].dwTimeStamp);
             printf("    dwTimeStamp:  0x%08lX (%s)",
                 DelayLoadDescriptors()[i].dwTimeStamp, pszTime);
         }
@@ -959,9 +959,9 @@ VOID PEMODULE::DumpDelayLoad()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE::DumpDisAsm32
+// CR_Module::DumpDisAsm32
 
-BOOL PEMODULE::DumpDisAsm32(DECOMPSTATUS32& status)
+BOOL CR_Module::DumpDisAsm32(CR_DecompStatus32& status)
 {
     printf("### DISASSEMBLY ###\n\n");
 
@@ -970,7 +970,7 @@ BOOL PEMODULE::DumpDisAsm32(DECOMPSTATUS32& status)
     const std::size_t size = status.Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
-        const CODEFUNC32& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
+        const CR_CodeFunc32& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
         if (cf.Flags() & FF_IGNORE)
             continue;
 
@@ -1016,20 +1016,19 @@ BOOL PEMODULE::DumpDisAsm32(DECOMPSTATUS32& status)
     return TRUE;
 }
 
-BOOL PEMODULE::DumpDisAsmFunc32(DECOMPSTATUS32& status, ADDR32 func)
+BOOL CR_Module::DumpDisAsmFunc32(CR_DecompStatus32& status, CR_Addr32 func)
 {
-    map<ADDR32, ASMCODE32>::const_iterator it, end;
-    end = status.MapAddrToAsmCode().end();
-    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = status.MapAddrToAsmCode().end();
+    for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
-        const ASMCODE32& ac = it->second;
+        const CR_CodeInsn32& ac = it->second;
 
-        if (func != 0 && !ac.Funcs().Find(func))
+        if (func != 0 && !ac.FuncAddrs().Find(func))
             continue;
 
         printf("L%08lX: ", ac.Addr());
 
-        DumpCodes(ac.Codes(), 32);
+        CrDumpCodes(ac.Codes(), 32);
 
         switch (ac.Operands().size())
         {
@@ -1059,9 +1058,9 @@ BOOL PEMODULE::DumpDisAsmFunc32(DECOMPSTATUS32& status, ADDR32 func)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE::DumpDisAsm64
+// CR_Module::DumpDisAsm64
 
-BOOL PEMODULE::DumpDisAsm64(DECOMPSTATUS64& status)
+BOOL CR_Module::DumpDisAsm64(CR_DecompStatus64& status)
 {
     printf("### DISASSEMBLY ###\n\n");
 
@@ -1070,7 +1069,7 @@ BOOL PEMODULE::DumpDisAsm64(DECOMPSTATUS64& status)
     const std::size_t size = status.Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
-        const CODEFUNC64& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
+        const CR_CodeFunc64& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
         if (cf.Flags() & FF_IGNORE)
             continue;
 
@@ -1101,20 +1100,19 @@ BOOL PEMODULE::DumpDisAsm64(DECOMPSTATUS64& status)
     return TRUE;
 }
 
-BOOL PEMODULE::DumpDisAsmFunc64(DECOMPSTATUS64& status, ADDR64 func)
+BOOL CR_Module::DumpDisAsmFunc64(CR_DecompStatus64& status, CR_Addr64 func)
 {
-    map<ADDR64, ASMCODE64>::const_iterator it, end;
-    end = status.MapAddrToAsmCode().end();
-    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = status.MapAddrToAsmCode().end();
+    for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
-        const ASMCODE64& ac = it->second;
+        const CR_CodeInsn64& ac = it->second;
 
-        if (func != 0 && !ac.Funcs().Find(func))
+        if (func != 0 && !ac.FuncAddrs().Find(func))
             continue;
 
         printf("L%08lX%08lX: ", HILONG(ac.Addr()), LOLONG(ac.Addr()));
 
-        DumpCodes(ac.Codes(), 64);
+        CrDumpCodes(ac.Codes(), 64);
 
         switch (ac.Operands().size())
         {

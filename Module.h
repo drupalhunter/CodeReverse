@@ -2,7 +2,7 @@
 #define MODULE_H_
 
 ////////////////////////////////////////////////////////////////////////////
-// module.h
+// Module.h
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
@@ -14,7 +14,8 @@
 #include <pshpack1.h>
 typedef struct _REAL_IMAGE_SECTION_HEADER {
     BYTE        Name[IMAGE_SIZEOF_SHORT_NAME];
-    union {
+    union
+    {
         DWORD   PhysicalAddress;
         DWORD   VirtualSize;
     } Misc;
@@ -37,9 +38,9 @@ typedef struct _REAL_IMAGE_DATA_DIRECTORY {
 #include <poppack.h>
 
 ////////////////////////////////////////////////////////////////////////////
-// IMPORT_SYMBOL
+// CR_ImportSymbol
 
-struct IMPORT_SYMBOL
+struct CR_ImportSymbol
 {
     DWORD   dwRVA;
     WORD    wHint;
@@ -53,32 +54,31 @@ struct IMPORT_SYMBOL
         const char *pszName;
     };
 };
-typedef IMPORT_SYMBOL *LPIMPORT_SYMBOL;
 
 ////////////////////////////////////////////////////////////////////////////
-// EXPORT_SYMBOL
+// CR_ExportSymbol
 
-struct EXPORT_SYMBOL
+struct CR_ExportSymbol
 {
     DWORD   dwRVA;
     DWORD   dwOrdinal;
     const char * pszName;
     const char * pszForwarded;
 };
-typedef EXPORT_SYMBOL *LPEXPORT_SYMBOL;
+typedef CR_ExportSymbol *LPEXPORT_SYMBOL;
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOL
+// CR_Symbol
 
-class SYMBOL
+class CR_Symbol
 {
 public:
-    SYMBOL();
-    SYMBOL(const SYMBOL& s);
-    SYMBOL& operator=(const SYMBOL& s);
-    virtual ~SYMBOL();
-    VOID Copy(const SYMBOL& s);
-    VOID clear();
+    CR_Symbol();
+    CR_Symbol(const CR_Symbol& s);
+    CR_Symbol& operator=(const CR_Symbol& s);
+    virtual ~CR_Symbol();
+    void Copy(const CR_Symbol& s);
+    void clear();
 
 public: // accessors
     DWORD&          RVA();
@@ -90,99 +90,99 @@ protected:
     DWORD           m_rva;
     string          m_name;
 };
-typedef SYMBOL *LPSYMBOL;
+typedef CR_Symbol *LPSYMBOL;
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO
+// CR_SymbolInfo
 
-class SYMBOLINFO
+class CR_SymbolInfo
 {
 public:
-    SYMBOLINFO();
-    SYMBOLINFO(const SYMBOLINFO& info);
-    SYMBOLINFO& operator=(const SYMBOLINFO& info);
-    virtual ~SYMBOLINFO();
-    VOID Copy(const SYMBOLINFO& info);
-    VOID clear();
+    CR_SymbolInfo();
+    CR_SymbolInfo(const CR_SymbolInfo& info);
+    CR_SymbolInfo& operator=(const CR_SymbolInfo& info);
+    virtual ~CR_SymbolInfo();
+    void Copy(const CR_SymbolInfo& info);
+    void clear();
 
 public:
-    VOID AddImportDllName(const char *name);
-    VOID AddSymbol(DWORD rva, const char *name);
-    VOID AddSymbol(const SYMBOL& s);
-    VOID AddImportSymbol(const IMPORT_SYMBOL& is);
-    VOID AddExportSymbol(const EXPORT_SYMBOL& es);
+    void AddImportDllName(const char *name);
+    void AddSymbol(DWORD rva, const char *name);
+    void AddSymbol(const CR_Symbol& s);
+    void AddImportSymbol(const CR_ImportSymbol& is);
+    void AddExportSymbol(const CR_ExportSymbol& es);
 
 public: // accessors
-    VECSET<string>&                     GetImportDllNames();
-    VECSET<IMPORT_SYMBOL>&              GetImportSymbols();
-    VECSET<EXPORT_SYMBOL>&              GetExportSymbols();
-    IMPORT_SYMBOL *                     GetImportSymbolFromRVA(DWORD RVA);
-    IMPORT_SYMBOL *                     GetImportSymbolFromName(const char *name);
-    EXPORT_SYMBOL *                     GetExportSymbolFromRVA(DWORD RVA);
-    EXPORT_SYMBOL *                     GetExportSymbolFromName(const char *name);
-    SYMBOL *                            GetSymbolFromRVA(DWORD RVA);
-    SYMBOL *                            GetSymbolFromName(const char *name);
-    map<DWORD, IMPORT_SYMBOL>&          MapRVAToImportSymbol();
-    map<string, IMPORT_SYMBOL>&         MapNameToImportSymbol();
-    map<DWORD, EXPORT_SYMBOL>&          MapRVAToExportSymbol();
-    map<string, EXPORT_SYMBOL>&         MapNameToExportSymbol();
-    map<DWORD, SYMBOL>&                 MapRVAToSymbol();
-    map<string, SYMBOL>&                MapNameToSymbol();
+    CR_VecSet<string>&                      GetImportDllNames();
+    CR_VecSet<CR_ImportSymbol>&             GetImportSymbols();
+    CR_VecSet<CR_ExportSymbol>&             GetExportSymbols();
+    CR_ImportSymbol *                       GetImportSymbolFromRVA(DWORD RVA);
+    CR_ImportSymbol *                       GetImportSymbolFromName(const char *name);
+    CR_ExportSymbol *                       GetExportSymbolFromRVA(DWORD RVA);
+    CR_ExportSymbol *                       GetExportSymbolFromName(const char *name);
+    CR_Symbol *                             GetSymbolFromRVA(DWORD RVA);
+    CR_Symbol *                             GetSymbolFromName(const char *name);
+    map<DWORD, CR_ImportSymbol>&            MapRVAToImportSymbol();
+    map<string, CR_ImportSymbol>&           MapNameToImportSymbol();
+    map<DWORD, CR_ExportSymbol>&            MapRVAToExportSymbol();
+    map<string, CR_ExportSymbol>&           MapNameToExportSymbol();
+    map<DWORD, CR_Symbol>&                  MapRVAToSymbol();
+    map<string, CR_Symbol>&                 MapNameToSymbol();
 
 public: // const accessors
-    const VECSET<string>&               GetImportDllNames() const;
-    const VECSET<IMPORT_SYMBOL>&        GetImportSymbols() const;
-    const VECSET<EXPORT_SYMBOL>&        GetExportSymbols() const;
-    const IMPORT_SYMBOL *               GetImportSymbolFromRVA(DWORD RVA) const;
-    const IMPORT_SYMBOL *               GetImportSymbolFromName(const char *name) const;
-    const EXPORT_SYMBOL *               GetExportSymbolFromRVA(DWORD RVA) const;
-    const EXPORT_SYMBOL *               GetExportSymbolFromName(const char *name) const;
-    const SYMBOL *                      GetSymbolFromRVA(DWORD RVA) const;
-    const SYMBOL *                      GetSymbolFromName(const char *name) const;
-    const map<DWORD, IMPORT_SYMBOL>&    MapRVAToImportSymbol() const;
-    const map<string, IMPORT_SYMBOL>&   MapNameToImportSymbol() const;
-    const map<DWORD, EXPORT_SYMBOL>&    MapRVAToExportSymbol() const;
-    const map<string, EXPORT_SYMBOL>&   MapNameToExportSymbol() const;
-    const map<DWORD, SYMBOL>&           MapRVAToSymbol() const;
-    const map<string, SYMBOL>&          MapNameToSymbol() const;
+    const CR_VecSet<string>&                GetImportDllNames() const;
+    const CR_VecSet<CR_ImportSymbol>&       GetImportSymbols() const;
+    const CR_VecSet<CR_ExportSymbol>&       GetExportSymbols() const;
+    const CR_ImportSymbol *                 GetImportSymbolFromRVA(DWORD RVA) const;
+    const CR_ImportSymbol *                 GetImportSymbolFromName(const char *name) const;
+    const CR_ExportSymbol *                 GetExportSymbolFromRVA(DWORD RVA) const;
+    const CR_ExportSymbol *                 GetExportSymbolFromName(const char *name) const;
+    const CR_Symbol *                       GetSymbolFromRVA(DWORD RVA) const;
+    const CR_Symbol *                       GetSymbolFromName(const char *name) const;
+    const map<DWORD, CR_ImportSymbol>&      MapRVAToImportSymbol() const;
+    const map<string, CR_ImportSymbol>&     MapNameToImportSymbol() const;
+    const map<DWORD, CR_ExportSymbol>&      MapRVAToExportSymbol() const;
+    const map<string, CR_ExportSymbol>&     MapNameToExportSymbol() const;
+    const map<DWORD, CR_Symbol>&            MapRVAToSymbol() const;
+    const map<string, CR_Symbol>&           MapNameToSymbol() const;
 
 protected:
     // import symbols
-    VECSET<string>                      m_vImportDllNames;
-    VECSET<IMPORT_SYMBOL>               m_vImportSymbols;
-    map<DWORD, IMPORT_SYMBOL>           m_mRVAToImportSymbol;
-    map<string, IMPORT_SYMBOL>          m_mNameToImportSymbol;
+    CR_VecSet<string>                       m_vImportDllNames;
+    CR_VecSet<CR_ImportSymbol>              m_vImportSymbols;
+    map<DWORD, CR_ImportSymbol>             m_mRVAToImportSymbol;
+    map<string, CR_ImportSymbol>            m_mNameToImportSymbol;
 
     // export symbols
-    VECSET<EXPORT_SYMBOL>               m_vExportSymbols;
-    map<DWORD, EXPORT_SYMBOL>           m_mRVAToExportSymbol;
-    map<string, EXPORT_SYMBOL>          m_mNameToExportSymbol;
+    CR_VecSet<CR_ExportSymbol>              m_vExportSymbols;
+    map<DWORD, CR_ExportSymbol>             m_mRVAToExportSymbol;
+    map<string, CR_ExportSymbol>            m_mNameToExportSymbol;
 
     // symbols
-    map<DWORD, SYMBOL>                  m_mRVAToSymbol;
-    map<string, SYMBOL>                 m_mNameToSymbol;
+    map<DWORD, CR_Symbol>                   m_mRVAToSymbol;
+    map<string, CR_Symbol>                  m_mNameToSymbol;
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE
+// CR_Module
 
-class PEMODULE
+class CR_Module
 {
 public:
-    PEMODULE();
-    PEMODULE(LPCTSTR FileName);
-    virtual ~PEMODULE();
+    CR_Module();
+    CR_Module(LPCTSTR FileName);
+    virtual ~CR_Module();
 
     BOOL LoadModule(LPCTSTR pszFileName);
-    VOID UnloadModule();
+    void UnloadModule();
     BOOL IsModuleLoaded() const;
 
     // dumpers
-    VOID DumpHeaders();
-    VOID DumpImportSymbols();
-    VOID DumpExportSymbols();
-    VOID DumpResource();
-    VOID DumpDelayLoad();
+    void DumpHeaders();
+    void DumpImportSymbols();
+    void DumpExportSymbols();
+    void DumpResource();
+    void DumpDelayLoad();
 
 public:
     // attributes
@@ -195,8 +195,8 @@ public:
     BOOL    IsGUIExe() const;
     DWORD   HeaderSum() const;
     BOOL    RVAInDirEntry(DWORD rva, DWORD index) const;
-    BOOL    IsValidAddr32(ADDR32 addr) const;
-    BOOL    IsValidAddr64(ADDR64 addr) const;
+    BOOL    IsValidAddr32(CR_Addr32 addr) const;
+    BOOL    IsValidAddr64(CR_Addr64 addr) const;
     DWORD   GetBaseOfCode() const;
     DWORD   GetSizeOfHeaders() const;
     DWORD   GetSizeOfImage() const;
@@ -204,15 +204,15 @@ public:
     LPBYTE  GetData(DWORD rva);
     LPBYTE  DirEntryData(DWORD index);
     DWORD   DirEntryDataSize(DWORD index) const;
-    BOOL    AddressInCode32(ADDR32 va) const;
-    BOOL    AddressInData32(ADDR32 va) const;
-    BOOL    AddressInCode64(ADDR64 va) const;
-    BOOL    AddressInData64(ADDR64 va) const;
+    BOOL    AddressInCode32(CR_Addr32 va) const;
+    BOOL    AddressInData32(CR_Addr32 va) const;
+    BOOL    AddressInCode64(CR_Addr64 va) const;
+    BOOL    AddressInData64(CR_Addr64 va) const;
     DWORD   RVAOfEntryPoint() const;
-    DWORD   RVAFromVA32(ADDR32 va) const;
-    DWORD   RVAFromVA64(ADDR64 va) const;
-    ADDR32  VA32FromRVA(DWORD rva) const;
-    ADDR64  VA64FromRVA(DWORD rva) const;
+    DWORD   RVAFromVA32(CR_Addr32 va) const;
+    DWORD   RVAFromVA64(CR_Addr64 va) const;
+    CR_Addr32  VA32FromRVA(DWORD rva) const;
+    CR_Addr64  VA64FromRVA(DWORD rva) const;
     DWORD   CheckSum() const;
 
 public:
@@ -237,10 +237,10 @@ public:
     PIMAGE_EXPORT_DIRECTORY             ExportDirectory();
     PIMAGE_RESOURCE_DIRECTORY           ResourceDirectory();
     vector<ImgDelayDescr>&              DelayLoadDescriptors();
-    VECSET<string>&                     ImportDllNames();
-    VECSET<IMPORT_SYMBOL>&              ImportSymbols();
-    VECSET<EXPORT_SYMBOL>&              ExportSymbols();
-    SYMBOLINFO&                         SymbolInfo();
+    CR_VecSet<string>&                     ImportDllNames();
+    CR_VecSet<CR_ImportSymbol>&              ImportSymbols();
+    CR_VecSet<CR_ExportSymbol>&              ExportSymbols();
+    CR_SymbolInfo&                         SymbolInfo();
     HANDLE&                             File();
     LPCTSTR&                            FileName();
     DWORD&                              FileSize();
@@ -267,10 +267,10 @@ public:
     const PIMAGE_EXPORT_DIRECTORY       ExportDirectory() const;
     const PIMAGE_RESOURCE_DIRECTORY     ResourceDirectory() const;
     const vector<ImgDelayDescr>&        DelayLoadDescriptors() const;
-    const VECSET<string>&               ImportDllNames() const;
-    const VECSET<IMPORT_SYMBOL>&        ImportSymbols() const;
-    const VECSET<EXPORT_SYMBOL>&        ExportSymbols() const;
-    const SYMBOLINFO&                   SymbolInfo() const;
+    const CR_VecSet<string>&               ImportDllNames() const;
+    const CR_VecSet<CR_ImportSymbol>&        ImportSymbols() const;
+    const CR_VecSet<CR_ExportSymbol>&        ExportSymbols() const;
+    const CR_SymbolInfo&                   SymbolInfo() const;
     HANDLE&                             File() const;
     const LPCTSTR&                      FileName() const;
     const DWORD&                        FileSize() const;
@@ -285,51 +285,51 @@ public:
 
 public:
     // finding
-    const IMPORT_SYMBOL *FindImportSymbolByRVA(DWORD rva) const;
-    const IMPORT_SYMBOL *FindImportSymbolByName(const char *Name) const;
-    const EXPORT_SYMBOL *FindExportSymbolByRVA(DWORD rva) const;
-    const EXPORT_SYMBOL *FindExportSymbolByName(const char *Name) const;
-    const SYMBOL *FindSymbolByRVA(DWORD rva) const;
-    const SYMBOL *FindSymbolByName(const char *Name) const;
-    const SYMBOL *FindSymbolByAddr32(ADDR32 addr) const;
-    const SYMBOL *FindSymbolByAddr64(ADDR64 addr) const;
+    const CR_ImportSymbol *FindImportSymbolByRVA(DWORD rva) const;
+    const CR_ImportSymbol *FindImportSymbolByName(const char *Name) const;
+    const CR_ExportSymbol *FindExportSymbolByRVA(DWORD rva) const;
+    const CR_ExportSymbol *FindExportSymbolByName(const char *Name) const;
+    const CR_Symbol *FindSymbolByRVA(DWORD rva) const;
+    const CR_Symbol *FindSymbolByName(const char *Name) const;
+    const CR_Symbol *FindSymbolByAddr32(CR_Addr32 addr) const;
+    const CR_Symbol *FindSymbolByAddr64(CR_Addr64 addr) const;
     const char *GetSymbolNameFromRVA(DWORD rva) const;
-    const char *GetSymbolNameFromAddr32(ADDR32 addr) const;
-    const char *GetSymbolNameFromAddr64(ADDR64 addr) const;
+    const char *GetSymbolNameFromAddr32(CR_Addr32 addr) const;
+    const char *GetSymbolNameFromAddr64(CR_Addr64 addr) const;
 
 public:
-    BOOL DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va);
-    BOOL DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va);
-    BOOL DisAsm32(DECOMPSTATUS32& status);
-    BOOL DisAsm64(DECOMPSTATUS64& status);
+    BOOL DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr32 va);
+    BOOL DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr64 va);
+    BOOL DisAsm32(CR_DecompStatus32& status);
+    BOOL DisAsm64(CR_DecompStatus64& status);
 
-    BOOL FixUpAsm32(DECOMPSTATUS32& status);
-    BOOL FixUpAsm64(DECOMPSTATUS64& status);
+    BOOL FixUpAsm32(CR_DecompStatus32& status);
+    BOOL FixUpAsm64(CR_DecompStatus64& status);
 
-    BOOL DumpDisAsm32(DECOMPSTATUS32& status);
-    BOOL DumpDisAsmFunc32(DECOMPSTATUS32& status, ADDR32 func);
+    BOOL DumpDisAsm32(CR_DecompStatus32& status);
+    BOOL DumpDisAsmFunc32(CR_DecompStatus32& status, CR_Addr32 func);
 
-    BOOL DumpDisAsm64(DECOMPSTATUS64& status);
-    BOOL DumpDisAsmFunc64(DECOMPSTATUS64& status, ADDR64 func);
+    BOOL DumpDisAsm64(CR_DecompStatus64& status);
+    BOOL DumpDisAsmFunc64(CR_DecompStatus64& status, CR_Addr64 func);
 
-    BOOL DecompileAddr32(DECOMPSTATUS32& status, ADDR32 va);
-    BOOL DecompileAddr64(DECOMPSTATUS64& status, ADDR64 va);
-    BOOL Decompile32(DECOMPSTATUS32& status);
-    BOOL Decompile64(DECOMPSTATUS64& status);
+    BOOL DecompileAddr32(CR_DecompStatus32& status, CR_Addr32 va);
+    BOOL DecompileAddr64(CR_DecompStatus64& status, CR_Addr64 va);
+    BOOL Decompile32(CR_DecompStatus32& status);
+    BOOL Decompile64(CR_DecompStatus64& status);
     BOOL Decompile();
 
-    VOID ParseOperand(OPERAND& opr, INT bits);
+    void ParseOperand(OPERAND& opr, INT bits);
 
 protected:
     BOOL _LoadImage(LPVOID Data);
     BOOL _LoadNTHeaders(LPVOID Data);
 
-    BOOL _GetImportDllNames(VECSET<string>& names);
-    BOOL _GetImportSymbols(DWORD dll_index, VECSET<IMPORT_SYMBOL>& symbols);
-    BOOL _GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols);
+    BOOL _GetImportDllNames(CR_VecSet<string>& names);
+    BOOL _GetImportSymbols(DWORD dll_index, CR_VecSet<CR_ImportSymbol>& symbols);
+    BOOL _GetExportSymbols(CR_VecSet<CR_ExportSymbol>& symbols);
 
-    VOID _ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn);
-    VOID _ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn);
+    void _ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *insn);
+    void _ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *insn);
 
 protected:
     LPCTSTR                     m_pszFileName;
@@ -366,37 +366,37 @@ protected:
     PREAL_IMAGE_SECTION_HEADER  m_pCodeSectionHeader;
     PREAL_IMAGE_DATA_DIRECTORY  m_pDataDirectories;
 
-    SYMBOLINFO                  m_SymbolInfo;
+    CR_SymbolInfo               m_SymbolInfo;
 
     // delay loading
     vector<ImgDelayDescr>       m_vImgDelayDescrs;
 
 private:
     // Don't copy it
-    PEMODULE(const PEMODULE&);
-    PEMODULE& operator=(const PEMODULE&);
+    CR_Module(const CR_Module&);
+    CR_Module& operator=(const CR_Module&);
 };
 
 ////////////////////////////////////////////////////////////////////////////
 // dumpfn.cpp
 
-const char *GetTimeStampString(DWORD TimeStamp);
-const char *GetMachineString(WORD Machine);
-const char *GetFileCharacteristicsString(WORD w);
-const char *GetSectionFlagsString(DWORD dw);
-const char *GetDllCharacteristicsString(WORD w);
-const char *GetSubsystemString(WORD w);
-VOID DumpDataDirectory(LPVOID Data, DWORD index);
-VOID DumpDOSHeader(LPVOID Data);
-VOID DumpFileHeader(LPVOID Data);
-VOID DumpOptionalHeader32(LPVOID Data, DWORD CheckSum);
-VOID DumpOptionalHeader64(LPVOID Data, DWORD CheckSum);
-VOID DumpSectionHeader(LPVOID Data);
-VOID DumpCodes(const vector<BYTE>& codes, INT bits);
+const char *CrGetTimeStampString(DWORD TimeStamp);
+const char *CrGetMachineString(WORD Machine);
+const char *CrGetFileCharacteristicsString(WORD w);
+const char *CrGetSectionFlagsString(DWORD dw);
+const char *CrGetDllCharacteristicsString(WORD w);
+const char *CrGetSubsystemString(WORD w);
+void CrDumpDataDirectory(LPVOID Data, DWORD index);
+void CrDumpDOSHeader(LPVOID Data);
+void CrDumpFileHeader(LPVOID Data);
+void CrDumpOptionalHeader32(LPVOID Data, DWORD CheckSum);
+void CrDumpOptionalHeader64(LPVOID Data, DWORD CheckSum);
+void CrDumpSectionHeader(LPVOID Data);
+void CrDumpCodes(const vector<BYTE>& codes, INT bits);
 
 ////////////////////////////////////////////////////////////////////////////
 
 // inline functions
-#include "module_inl.h"
+#include "Module_inl.h"
 
 #endif  // ndef MODULE_H_

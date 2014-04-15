@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// module.cpp
+// Module.cpp
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
@@ -8,40 +8,40 @@
 #include "stdafx.h"
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOL
+// CR_Symbol
 
-SYMBOL::SYMBOL()
+CR_Symbol::CR_Symbol()
 {
 }
 
-SYMBOL::SYMBOL(const SYMBOL& s)
+CR_Symbol::CR_Symbol(const CR_Symbol& s)
 {
     Copy(s);
 }
 
-SYMBOL& SYMBOL::operator=(const SYMBOL& s)
+CR_Symbol& CR_Symbol::operator=(const CR_Symbol& s)
 {
     Copy(s);
     return *this;
 }
 
-/*virtual*/ SYMBOL::~SYMBOL()
+/*virtual*/ CR_Symbol::~CR_Symbol()
 {
 }
 
-VOID SYMBOL::Copy(const SYMBOL& s)
+void CR_Symbol::Copy(const CR_Symbol& s)
 {
     Name() = s.Name();
     RVA() = s.RVA();
 }
 
-VOID SYMBOL::clear()
+void CR_Symbol::clear()
 {
     Name().clear();
     RVA() = 0;
 }
 
-IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA)
+CR_ImportSymbol *CR_SymbolInfo::GetImportSymbolFromRVA(DWORD RVA)
 {
     for (auto& p : MapRVAToImportSymbol())
     {
@@ -51,7 +51,7 @@ IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA)
     return NULL;
 }
 
-IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name)
+CR_ImportSymbol *CR_SymbolInfo::GetImportSymbolFromName(const char *name)
 {
     for (auto& p : MapNameToImportSymbol())
     {
@@ -61,7 +61,7 @@ IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name)
     return NULL;
 }
 
-EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA)
+CR_ExportSymbol *CR_SymbolInfo::GetExportSymbolFromRVA(DWORD RVA)
 {
     for (auto& p : MapRVAToExportSymbol())
     {
@@ -71,7 +71,7 @@ EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA)
     return NULL;
 }
 
-EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name)
+CR_ExportSymbol *CR_SymbolInfo::GetExportSymbolFromName(const char *name)
 {
     for (auto& p : MapNameToExportSymbol())
     {
@@ -81,7 +81,7 @@ EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name)
     return NULL;
 }
 
-SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA)
+CR_Symbol *CR_SymbolInfo::GetSymbolFromRVA(DWORD RVA)
 {
     for (auto& p : MapRVAToSymbol())
     {
@@ -91,7 +91,7 @@ SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA)
     return NULL;
 }
 
-SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name)
+CR_Symbol *CR_SymbolInfo::GetSymbolFromName(const char *name)
 {
     for (auto& p : MapNameToSymbol())
     {
@@ -102,7 +102,7 @@ SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name)
     return NULL;
 }
 
-const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA) const
+const CR_ImportSymbol *CR_SymbolInfo::GetImportSymbolFromRVA(DWORD RVA) const
 {
     for (auto& p : MapRVAToImportSymbol())
     {
@@ -112,7 +112,7 @@ const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromRVA(DWORD RVA) const
     return NULL;
 }
 
-const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name) const
+const CR_ImportSymbol *CR_SymbolInfo::GetImportSymbolFromName(const char *name) const
 {
     for (auto& p : MapNameToImportSymbol())
     {
@@ -122,7 +122,7 @@ const IMPORT_SYMBOL *SYMBOLINFO::GetImportSymbolFromName(const char *name) const
     return NULL;
 }
 
-const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA) const
+const CR_ExportSymbol *CR_SymbolInfo::GetExportSymbolFromRVA(DWORD RVA) const
 {
     for (auto& p : MapRVAToExportSymbol())
     {
@@ -132,7 +132,7 @@ const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromRVA(DWORD RVA) const
     return NULL;
 }
 
-const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name) const
+const CR_ExportSymbol *CR_SymbolInfo::GetExportSymbolFromName(const char *name) const
 {
     for (auto& p : MapNameToExportSymbol())
     {
@@ -142,7 +142,7 @@ const EXPORT_SYMBOL *SYMBOLINFO::GetExportSymbolFromName(const char *name) const
     return NULL;
 }
 
-const SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA) const
+const CR_Symbol *CR_SymbolInfo::GetSymbolFromRVA(DWORD RVA) const
 {
     for (auto& p : MapRVAToSymbol())
     {
@@ -152,7 +152,7 @@ const SYMBOL *SYMBOLINFO::GetSymbolFromRVA(DWORD RVA) const
     return NULL;
 }
 
-const SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name) const
+const CR_Symbol *CR_SymbolInfo::GetSymbolFromName(const char *name) const
 {
     for (auto& p : MapNameToSymbol())
     {
@@ -163,28 +163,28 @@ const SYMBOL *SYMBOLINFO::GetSymbolFromName(const char *name) const
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// SYMBOLINFO
+// CR_SymbolInfo
 
-SYMBOLINFO::SYMBOLINFO()
+CR_SymbolInfo::CR_SymbolInfo()
 {
 }
 
-SYMBOLINFO::SYMBOLINFO(const SYMBOLINFO& info)
+CR_SymbolInfo::CR_SymbolInfo(const CR_SymbolInfo& info)
 {
     Copy(info);
 }
 
-SYMBOLINFO& SYMBOLINFO::operator=(const SYMBOLINFO& info)
+CR_SymbolInfo& CR_SymbolInfo::operator=(const CR_SymbolInfo& info)
 {
     Copy(info);
     return *this;
 }
 
-/*virtual*/ SYMBOLINFO::~SYMBOLINFO()
+/*virtual*/ CR_SymbolInfo::~CR_SymbolInfo()
 {
 }
 
-VOID SYMBOLINFO::Copy(const SYMBOLINFO& info)
+void CR_SymbolInfo::Copy(const CR_SymbolInfo& info)
 {
     GetImportDllNames() = info.GetImportDllNames();
     GetImportSymbols() = info.GetImportSymbols();
@@ -197,7 +197,7 @@ VOID SYMBOLINFO::Copy(const SYMBOLINFO& info)
     MapNameToSymbol() = info.MapNameToSymbol();
 }
 
-VOID SYMBOLINFO::clear()
+void CR_SymbolInfo::clear()
 {
     GetImportDllNames().clear();
     GetImportSymbols().clear();
@@ -210,14 +210,14 @@ VOID SYMBOLINFO::clear()
     MapNameToSymbol().clear();
 }
 
-VOID SYMBOLINFO::AddImportDllName(const char *name)
+void CR_SymbolInfo::AddImportDllName(const char *name)
 {
     GetImportDllNames().insert(name);
 }
 
-VOID SYMBOLINFO::AddSymbol(DWORD rva, const char *name)
+void CR_SymbolInfo::AddSymbol(DWORD rva, const char *name)
 {
-    SYMBOL s;
+    CR_Symbol s;
     s.RVA() = rva;
     if (name)
         s.Name() = name;
@@ -226,12 +226,12 @@ VOID SYMBOLINFO::AddSymbol(DWORD rva, const char *name)
         MapNameToSymbol().insert(make_pair(name, s));
 }
 
-VOID SYMBOLINFO::AddSymbol(const SYMBOL& s)
+void CR_SymbolInfo::AddSymbol(const CR_Symbol& s)
 {
     AddSymbol(s.RVA(), s.Name().c_str());
 }
 
-VOID SYMBOLINFO::AddImportSymbol(const IMPORT_SYMBOL& is)
+void CR_SymbolInfo::AddImportSymbol(const CR_ImportSymbol& is)
 {
     GetImportSymbols().insert(is);
     MapRVAToImportSymbol().insert(make_pair(is.dwRVA, is));
@@ -242,7 +242,7 @@ VOID SYMBOLINFO::AddImportSymbol(const IMPORT_SYMBOL& is)
     }
 }
 
-VOID SYMBOLINFO::AddExportSymbol(const EXPORT_SYMBOL& es)
+void CR_SymbolInfo::AddExportSymbol(const CR_ExportSymbol& es)
 {
     GetExportSymbols().insert(es);
     MapRVAToExportSymbol().insert(make_pair(es.dwRVA, es));
@@ -254,9 +254,9 @@ VOID SYMBOLINFO::AddExportSymbol(const EXPORT_SYMBOL& es)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE
+// CR_Module
 
-PEMODULE::PEMODULE() :
+CR_Module::CR_Module() :
     m_pszFileName(NULL),
     m_hFile(INVALID_HANDLE_VALUE),
     m_hFileMapping(NULL),
@@ -284,7 +284,7 @@ PEMODULE::PEMODULE() :
 {
 }
 
-PEMODULE::PEMODULE(LPCTSTR FileName) :
+CR_Module::CR_Module(LPCTSTR FileName) :
     m_pszFileName(NULL),
     m_hFile(INVALID_HANDLE_VALUE),
     m_hFileMapping(NULL),
@@ -313,13 +313,13 @@ PEMODULE::PEMODULE(LPCTSTR FileName) :
     LoadModule(FileName);
 }
 
-/*virtual*/ PEMODULE::~PEMODULE()
+/*virtual*/ CR_Module::~CR_Module()
 {
     if (IsModuleLoaded())
         UnloadModule();
 }
 
-VOID PEMODULE::UnloadModule()
+void CR_Module::UnloadModule()
 {
     if (m_pLoadedImage != NULL)
     {
@@ -367,7 +367,7 @@ VOID PEMODULE::UnloadModule()
     m_vImgDelayDescrs.clear();
 }
 
-LPBYTE PEMODULE::DirEntryData(DWORD index)
+LPBYTE CR_Module::DirEntryData(DWORD index)
 {
     if (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
     {
@@ -380,7 +380,7 @@ LPBYTE PEMODULE::DirEntryData(DWORD index)
     return NULL;
 }
 
-BOOL PEMODULE::AddressInCode32(ADDR32 va) const
+BOOL CR_Module::AddressInCode32(CR_Addr32 va) const
 {
     if (!Is32Bit())
         return FALSE;
@@ -389,12 +389,12 @@ BOOL PEMODULE::AddressInCode32(ADDR32 va) const
     if (pCode == NULL)
         return FALSE;
 
-    const ADDR32 begin = OptionalHeader32()->ImageBase + pCode->RVA;
-    const ADDR32 end = begin + pCode->Misc.VirtualSize;
+    const CR_Addr32 begin = OptionalHeader32()->ImageBase + pCode->RVA;
+    const CR_Addr32 end = begin + pCode->Misc.VirtualSize;
     return begin <= va && va < end;
 }
 
-BOOL PEMODULE::AddressInCode64(ADDR64 va) const
+BOOL CR_Module::AddressInCode64(CR_Addr64 va) const
 {
     if (!Is64Bit())
         return FALSE;
@@ -403,12 +403,12 @@ BOOL PEMODULE::AddressInCode64(ADDR64 va) const
     if (pCode == NULL)
         return FALSE;
 
-    const ADDR64 begin = OptionalHeader64()->ImageBase + pCode->RVA;
-    const ADDR64 end = begin + pCode->Misc.VirtualSize;
+    const CR_Addr64 begin = OptionalHeader64()->ImageBase + pCode->RVA;
+    const CR_Addr64 end = begin + pCode->Misc.VirtualSize;
     return begin <= va && va < end;
 }
 
-PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
+PREAL_IMAGE_SECTION_HEADER CR_Module::CodeSectionHeader()
 {
     if (m_pCodeSectionHeader)
         return m_pCodeSectionHeader;
@@ -427,7 +427,7 @@ PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader()
     return NULL;
 }
 
-const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
+const PREAL_IMAGE_SECTION_HEADER CR_Module::CodeSectionHeader() const
 {
     if (m_pCodeSectionHeader)
         return m_pCodeSectionHeader;
@@ -447,9 +447,9 @@ const PREAL_IMAGE_SECTION_HEADER PEMODULE::CodeSectionHeader() const
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE loading
+// CR_Module loading
 
-BOOL PEMODULE::_LoadImage(LPVOID Data)
+BOOL CR_Module::_LoadImage(LPVOID Data)
 {
     PIMAGE_DOS_HEADER pDOSHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(Data);
     PIMAGE_NT_HEADERS pNTHeaders;
@@ -494,7 +494,7 @@ BOOL PEMODULE::_LoadImage(LPVOID Data)
     return FALSE;
 }
 
-BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
+BOOL CR_Module::_LoadNTHeaders(LPVOID Data)
 {
 #ifndef IMAGE_SIZEOF_NT_OPTIONAL32_HEADER
     #define IMAGE_SIZEOF_NT_OPTIONAL32_HEADER sizeof(IMAGE_OPTIONAL_HEADER32)
@@ -547,7 +547,7 @@ BOOL PEMODULE::_LoadNTHeaders(LPVOID Data)
     return TRUE;
 }
 
-BOOL PEMODULE::LoadModule(LPCTSTR pszFileName)
+BOOL CR_Module::LoadModule(LPCTSTR pszFileName)
 {
     File() = CreateFile(pszFileName, GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -607,7 +607,7 @@ BOOL PEMODULE::LoadModule(LPCTSTR pszFileName)
     return FALSE;
 }
 
-BOOL PEMODULE::LoadImportTables()
+BOOL CR_Module::LoadImportTables()
 {
     if (!_GetImportDllNames(ImportDllNames()))
         return FALSE;
@@ -615,7 +615,7 @@ BOOL PEMODULE::LoadImportTables()
     const DWORD size = (DWORD)ImportDllNames().size();
     for (DWORD i = 0; i < size; i++)
     {
-        VECSET<IMPORT_SYMBOL> symbols;
+        CR_VecSet<CR_ImportSymbol> symbols;
         if (_GetImportSymbols(i, symbols))
         {
             for (DWORD j = 0; j < symbols.size(); j++)
@@ -627,10 +627,10 @@ BOOL PEMODULE::LoadImportTables()
     return TRUE;
 }
 
-BOOL PEMODULE::LoadExportTable()
+BOOL CR_Module::LoadExportTable()
 {
-    VECSET<EXPORT_SYMBOL> symbols;
-    SYMBOL symbol;
+    CR_VecSet<CR_ExportSymbol> symbols;
+    CR_Symbol symbol;
 
     if (!_GetExportSymbols(SymbolInfo().GetExportSymbols()))
         return FALSE;
@@ -647,7 +647,7 @@ BOOL PEMODULE::LoadExportTable()
     return TRUE;
 }
 
-BOOL PEMODULE::LoadDelayLoad()
+BOOL CR_Module::LoadDelayLoad()
 {
     if (!IsModuleLoaded())
         return FALSE;
@@ -675,7 +675,7 @@ BOOL PEMODULE::LoadDelayLoad()
 
 ////////////////////////////////////////////////////////////////////////////
 
-BOOL PEMODULE::_GetImportDllNames(VECSET<string>& names)
+BOOL CR_Module::_GetImportDllNames(CR_VecSet<string>& names)
 {
     PIMAGE_IMPORT_DESCRIPTOR descs = ImportDescriptors();
     names.clear();
@@ -689,10 +689,10 @@ BOOL PEMODULE::_GetImportDllNames(VECSET<string>& names)
     return TRUE;
 }
 
-BOOL PEMODULE::_GetImportSymbols(DWORD dll_index, VECSET<IMPORT_SYMBOL>& symbols)
+BOOL CR_Module::_GetImportSymbols(DWORD dll_index, CR_VecSet<CR_ImportSymbol>& symbols)
 {
     DWORD i, j;
-    IMPORT_SYMBOL symbol;
+    CR_ImportSymbol symbol;
     PIMAGE_IMPORT_BY_NAME pIBN;
     PIMAGE_IMPORT_DESCRIPTOR descs = ImportDescriptors();
 
@@ -776,9 +776,9 @@ BOOL PEMODULE::_GetImportSymbols(DWORD dll_index, VECSET<IMPORT_SYMBOL>& symbols
     return TRUE;
 }
 
-BOOL PEMODULE::_GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols)
+BOOL CR_Module::_GetExportSymbols(CR_VecSet<CR_ExportSymbol>& symbols)
 {
-    EXPORT_SYMBOL symbol;
+    CR_ExportSymbol symbol;
     PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
 
     symbols.clear();
@@ -840,37 +840,37 @@ BOOL PEMODULE::_GetExportSymbols(VECSET<EXPORT_SYMBOL>& symbols)
 ////////////////////////////////////////////////////////////////////////////
 // finding
 
-const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByRVA(DWORD rva) const
+const CR_ImportSymbol *CR_Module::FindImportSymbolByRVA(DWORD rva) const
 {
     return SymbolInfo().GetImportSymbolFromRVA(rva);
 }
 
-const IMPORT_SYMBOL *PEMODULE::FindImportSymbolByName(const char *Name) const
+const CR_ImportSymbol *CR_Module::FindImportSymbolByName(const char *Name) const
 {
     return SymbolInfo().GetImportSymbolFromName(Name);
 }
 
-const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByRVA(DWORD rva) const
+const CR_ExportSymbol *CR_Module::FindExportSymbolByRVA(DWORD rva) const
 {
     return SymbolInfo().GetExportSymbolFromRVA(rva);
 }
 
-const EXPORT_SYMBOL *PEMODULE::FindExportSymbolByName(const char *Name) const
+const CR_ExportSymbol *CR_Module::FindExportSymbolByName(const char *Name) const
 {
     return SymbolInfo().GetExportSymbolFromName(Name);
 }
 
-const SYMBOL *PEMODULE::FindSymbolByRVA(DWORD rva) const
+const CR_Symbol *CR_Module::FindSymbolByRVA(DWORD rva) const
 {
     return SymbolInfo().GetSymbolFromRVA(rva);
 }
 
-const SYMBOL *PEMODULE::FindSymbolByName(const char *Name) const
+const CR_Symbol *CR_Module::FindSymbolByName(const char *Name) const
 {
     return SymbolInfo().GetSymbolFromName(Name);
 }
 
-const SYMBOL *PEMODULE::FindSymbolByAddr32(ADDR32 addr) const
+const CR_Symbol *CR_Module::FindSymbolByAddr32(CR_Addr32 addr) const
 {
     if (OptionalHeader32())
         return FindSymbolByRVA(RVAFromVA32(addr));
@@ -878,7 +878,7 @@ const SYMBOL *PEMODULE::FindSymbolByAddr32(ADDR32 addr) const
         return NULL;
 }
 
-const SYMBOL *PEMODULE::FindSymbolByAddr64(ADDR64 addr) const
+const CR_Symbol *CR_Module::FindSymbolByAddr64(CR_Addr64 addr) const
 {
     if (OptionalHeader64())
         return FindSymbolByRVA(RVAFromVA64(addr));
@@ -886,21 +886,21 @@ const SYMBOL *PEMODULE::FindSymbolByAddr64(ADDR64 addr) const
         return NULL;
 }
 
-const char *PEMODULE::GetSymbolNameFromRVA(DWORD rva) const
+const char *CR_Module::GetSymbolNameFromRVA(DWORD rva) const
 {
-    const SYMBOL *symbol = FindSymbolByRVA(rva);
+    const CR_Symbol *symbol = FindSymbolByRVA(rva);
     return symbol ? symbol->Name().c_str() : NULL;
 }
 
-const char *PEMODULE::GetSymbolNameFromAddr32(ADDR32 addr) const
+const char *CR_Module::GetSymbolNameFromAddr32(CR_Addr32 addr) const
 {
-    const SYMBOL *symbol = FindSymbolByAddr32(addr);
+    const CR_Symbol *symbol = FindSymbolByAddr32(addr);
     return symbol ? symbol->Name().c_str() : NULL;
 }
 
-const char *PEMODULE::GetSymbolNameFromAddr64(ADDR64 addr) const
+const char *CR_Module::GetSymbolNameFromAddr64(CR_Addr64 addr) const
 {
-    const SYMBOL *symbol = FindSymbolByAddr64(addr);
+    const CR_Symbol *symbol = FindSymbolByAddr64(addr);
     return symbol ? symbol->Name().c_str() : NULL;
 }
 
@@ -911,7 +911,7 @@ extern "C"
 int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
                int64_t offset, int autosync, uint32_t prefer);
 
-BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
+BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr32 va)
 {
     if (!IsModuleLoaded() || !Is32Bit())
         return FALSE;
@@ -920,9 +920,9 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
     LPBYTE input = LoadedImage() + rva;
     INT lendis;
     CHAR outbuf[256];
-    ADDR32 addr;
+    CR_Addr32 addr;
 
-    CODEFUNC32& cf = status.MapAddrToCodeFunc()[func];
+    CR_CodeFunc32& cf = status.MapAddrToCodeFunc()[func];
     if (func == va)
         cf.Addr() = func;
 
@@ -932,14 +932,14 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
     LPBYTE iend = LoadedImage() + pCode->RVA + pCode->SizeOfRawData;
     while (input < iend)
     {
-        ASMCODE32& ac = status.MapAddrToAsmCode()[va];
-        if (ac.Funcs().Find(func))
+        CR_CodeInsn32& ac = status.MapAddrToAsmCode()[va];
+        if (ac.FuncAddrs().Find(func))
             break;
 
         ac.Addr() = va;
-        ac.Funcs().insertIfNotFound(func);
+        ac.FuncAddrs().insertIfNotFound(func);
 
-        if (ac.Funcs().size() > 1)
+        if (ac.FuncAddrs().size() > 1)
         {
             cf.Flags() |= FF_FUNCINFUNC;
         }
@@ -952,7 +952,7 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
         {
             lendis = 1;
             ac.Name() = "???";
-            ac.AsmCodeType() = ACT_UNKNOWN;
+            ac.CodeInsnType() = CIT_UNKNOWN;
             // don't decompile if any unknown instruction.
             cf.Flags() |= FF_DONTDECOMPBUTDISASM;
         }
@@ -967,9 +967,9 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
         }
 
         BOOL bBreak = FALSE;
-        switch (ac.AsmCodeType())
+        switch (ac.CodeInsnType())
         {
-        case ACT_JCC:
+        case CIT_JCC:
             // conditional jump
             switch (ac.Operand(0)->OperandType())
             {
@@ -983,7 +983,7 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
             }
             break;
 
-        case ACT_JMP:
+        case CIT_JMP:
             switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM:
@@ -1021,7 +1021,7 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
             bBreak = TRUE;
             break;
 
-        case ACT_CALL:
+        case CIT_CALL:
             switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM:
@@ -1038,7 +1038,7 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
             }
             break;
 
-        case ACT_RETURN:
+        case CIT_RETURN:
             if (!ac.Operands().empty() && ac.Operand(0)->OperandType() == OT_IMM)
             {
                 // func is __stdcall
@@ -1068,7 +1068,7 @@ BOOL PEMODULE::DisAsmAddr32(DECOMPSTATUS32& status, ADDR32 func, ADDR32 va)
     return TRUE;
 }
 
-BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
+BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr64 va)
 {
     if (!IsModuleLoaded() || !Is64Bit())
         return FALSE;
@@ -1078,9 +1078,9 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
     LPBYTE input = LoadedImage() + rva;
     INT lendis;
     CHAR outbuf[256];
-    ADDR64 addr;
+    CR_Addr64 addr;
 
-    CODEFUNC64& cf = status.MapAddrToCodeFunc()[func];
+    CR_CodeFunc64& cf = status.MapAddrToCodeFunc()[func];
     if (func == va)
         cf.Addr() = func;
 
@@ -1090,14 +1090,14 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
     LPBYTE iend = LoadedImage() + pCode->RVA + pCode->SizeOfRawData;
     while (input < iend)
     {
-        ASMCODE64& ac = status.MapAddrToAsmCode()[va];
-        if (ac.Funcs().Find(func))
+        CR_CodeInsn64& ac = status.MapAddrToAsmCode()[va];
+        if (ac.FuncAddrs().Find(func))
             break;
 
         ac.Addr() = va;
-        ac.Funcs().insertIfNotFound(func);
+        ac.FuncAddrs().insertIfNotFound(func);
 
-        if (ac.Funcs().size() > 1)
+        if (ac.FuncAddrs().size() > 1)
         {
             cf.Flags() |= FF_FUNCINFUNC;
         }
@@ -1110,7 +1110,7 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
         {
             lendis = 1;
             ac.Name() = "???";
-            ac.AsmCodeType() = ACT_UNKNOWN;
+            ac.CodeInsnType() = CIT_UNKNOWN;
             // don't decompile if any unknown instruction.
             cf.Flags() |= FF_DONTDECOMPBUTDISASM;
         }
@@ -1125,9 +1125,9 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
         }
 
         BOOL bBreak = FALSE;
-        switch (ac.AsmCodeType())
+        switch (ac.CodeInsnType())
         {
-        case ACT_JCC:
+        case CIT_JCC:
             // conditional jump
             switch (ac.Operand(0)->OperandType())
             {
@@ -1142,7 +1142,7 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
             }
             break;
 
-        case ACT_JMP:
+        case CIT_JMP:
             switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM:
@@ -1179,7 +1179,7 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
             bBreak = TRUE;
             break;
 
-        case ACT_CALL:
+        case CIT_CALL:
             switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM:
@@ -1196,7 +1196,7 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
             }
             break;
 
-        case ACT_RETURN:
+        case CIT_RETURN:
             if (!ac.Operands().empty() && ac.Operand(0)->OperandType() == OT_IMM)
             {
                 // func is __stdcall
@@ -1226,12 +1226,12 @@ BOOL PEMODULE::DisAsmAddr64(DECOMPSTATUS64& status, ADDR64 func, ADDR64 va)
     return TRUE;
 }
 
-BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
+BOOL CR_Module::DisAsm32(CR_DecompStatus32& status)
 {
     if (!IsModuleLoaded() || !Is32Bit())
         return FALSE;
 
-    // VOID WINAPI WinMainCRTStartup(VOID);
+    // void WINAPI WinMainCRTStartup(void);
     // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
     const char *pszEntryPointName;
     if (IsDLL())
@@ -1240,14 +1240,14 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
         pszEntryPointName = "WinMainCRTStartup";
 
     {
-        SYMBOL symbol;
+        CR_Symbol symbol;
         symbol.RVA() = RVAOfEntryPoint();
         symbol.Name() = pszEntryPointName;
         SymbolInfo().AddSymbol(symbol);
     }
 
     // register entrances
-    ADDR32 va;
+    CR_Addr32 va;
     va = VA32FromRVA(RVAOfEntryPoint());
     status.Entrances().insertIfNotFound(va);
 
@@ -1255,7 +1255,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
     status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
     if (IsDLL())
     {
-        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 3 * sizeof(ADDR32);
+        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 3 * sizeof(CR_Addr32);
 
         status.MapAddrToCodeFunc()[va].Args().clear();
 
@@ -1281,7 +1281,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
 
             if (AddressInCode32(va))
             {
-                SYMBOL symbol;
+                CR_Symbol symbol;
                 symbol.RVA() = ExportSymbols()[i].dwRVA;
                 symbol.Name() = ExportSymbols()[i].pszName;
                 SymbolInfo().AddSymbol(symbol);
@@ -1297,7 +1297,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
     // disasm entrances
     {
         std::size_t i = 0, size;
-        ADDR32SET addrset;
+        CR_Addr32Set addrset;
         do
         {
             addrset = status.Entrances();
@@ -1307,7 +1307,7 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
             {
                 DisAsmAddr32(status, addrset[i], addrset[i]);
 
-                CODEFUNC32& cf = status.MapAddrToCodeFunc()[addrset[i]];
+                CR_CodeFunc32& cf = status.MapAddrToCodeFunc()[addrset[i]];
                 for (std::size_t j = 0; j < cf.Jumpees().size(); j++)
                 {
                     DisAsmAddr32(status, addrset[i], cf.Jumpees()[j]);
@@ -1321,12 +1321,12 @@ BOOL PEMODULE::DisAsm32(DECOMPSTATUS32& status)
     return TRUE;
 }
 
-BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
+BOOL CR_Module::DisAsm64(CR_DecompStatus64& status)
 {
     if (!IsModuleLoaded() || !Is64Bit())
         return FALSE;
 
-    // VOID WINAPI WinMainCRTStartup(VOID);
+    // void WINAPI WinMainCRTStartup(void);
     // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
     const char *pszEntryPointName;
     if (IsDLL())
@@ -1336,14 +1336,14 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
 
     // register entrypoint
     {
-        SYMBOL symbol;
+        CR_Symbol symbol;
         symbol.RVA() = RVAOfEntryPoint();
         symbol.Name() = pszEntryPointName;
         SymbolInfo().AddSymbol(symbol);
     }
 
     // register entrances
-    ADDR64 va;
+    CR_Addr64 va;
     va = VA64FromRVA(RVAOfEntryPoint());
     status.Entrances().insertIfNotFound(va);
 
@@ -1351,7 +1351,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
     status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
     if (IsDLL())
     {
-        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 3 * sizeof(ADDR64);
+        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 3 * sizeof(CR_Addr64);
 
         OPERAND opr;
         opr.DataType() = "HANDLE";
@@ -1375,7 +1375,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
 
             if (AddressInCode64(va))
             {
-                SYMBOL symbol;
+                CR_Symbol symbol;
                 symbol.RVA() = ExportSymbols()[i].dwRVA;
                 symbol.Name() = ExportSymbols()[i].pszName;
                 SymbolInfo().AddSymbol(symbol);
@@ -1390,7 +1390,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
     // disasm entrances
     {
         std::size_t i = 0, size;
-        ADDR64SET addrset;
+        CR_Addr64Set addrset;
         do
         {
             addrset = status.Entrances();
@@ -1400,7 +1400,7 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
             {
                 DisAsmAddr64(status, addrset[i], addrset[i]);
 
-                CODEFUNC64& cf = status.MapAddrToCodeFunc()[addrset[i]];
+                CR_CodeFunc64& cf = status.MapAddrToCodeFunc()[addrset[i]];
                 for (std::size_t j = 0; j < cf.Jumpees().size(); j++)
                 {
                     DisAsmAddr64(status, addrset[i], cf.Jumpees()[j]);
@@ -1414,12 +1414,11 @@ BOOL PEMODULE::DisAsm64(DECOMPSTATUS64& status)
     return TRUE;
 }
 
-BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
+BOOL CR_Module::FixUpAsm32(CR_DecompStatus32& status)
 {
     CHAR buf[64];
-    map<ADDR32, ASMCODE32>::iterator it, end;
-    end = status.MapAddrToAsmCode().end();
-    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = status.MapAddrToAsmCode().end();
+    for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
         OPERANDSET& operands =  it->second.Operands();
         std::size_t i, size = operands.size();
@@ -1428,7 +1427,7 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
             if (operands[i].OperandType() == OT_MEMIMM)
             {
                 OPERAND& opr = operands[i];
-                ADDR32 addr = opr.Value32();
+                CR_Addr32 addr = opr.Value32();
                 if (AddressInData32(addr))
                 {
                     sprintf(buf, "M%08lX", addr);
@@ -1442,22 +1441,22 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
             }
         }
 
-        switch (it->second.AsmCodeType())
+        switch (it->second.CodeInsnType())
         {
-        case ACT_JMP:
-        case ACT_LOOP:
-        case ACT_JCC:
-        case ACT_CALL:
+        case CIT_JMP:
+        case CIT_LOOP:
+        case CIT_JCC:
+        case CIT_CALL:
             if (operands[0].OperandType() == OT_MEMIMM)
             {
-                ADDR32 addr = operands[0].Value32();
+                CR_Addr32 addr = operands[0].Value32();
                 const char *pName = GetSymbolNameFromAddr32(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
             }
             else if (operands[0].OperandType() == OT_IMM)
             {
-                ADDR32 addr = operands[0].Value32();
+                CR_Addr32 addr = operands[0].Value32();
                 const char *pName = GetSymbolNameFromAddr32(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
@@ -1469,7 +1468,7 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
             }
             break;
 
-        case ACT_MISC:
+        case CIT_MISC:
             if (it->second.Name() == "mov" ||
                 it->second.Name() == "cmp" ||
                 it->second.Name() == "test" ||
@@ -1484,7 +1483,7 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
             }
             else if (it->second.Name() == "lea")
             {
-                ADDR32 addr = operands[1].Value32();
+                CR_Addr32 addr = operands[1].Value32();
                 if (AddressInData32(addr))
                 {
                     sprintf(buf, "offset M%08lX", addr);
@@ -1505,12 +1504,11 @@ BOOL PEMODULE::FixUpAsm32(DECOMPSTATUS32& status)
     return TRUE;
 }
 
-BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
+BOOL CR_Module::FixUpAsm64(CR_DecompStatus64& status)
 {
     CHAR buf[64];
-    map<ADDR64, ASMCODE64>::iterator it, end;
-    end = status.MapAddrToAsmCode().end();
-    for (it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = status.MapAddrToAsmCode().end();
+    for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
         OPERANDSET& operands =  it->second.Operands();
         std::size_t i, size = operands.size();
@@ -1519,7 +1517,7 @@ BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
             if (operands[i].OperandType() == OT_MEMIMM)
             {
                 OPERAND& opr = operands[i];
-                ADDR64 addr = opr.Value64();
+                CR_Addr64 addr = opr.Value64();
                 if (AddressInData64(addr))
                 {
                     sprintf(buf, "M%08lX%08lX", HILONG(addr), LOLONG(addr));
@@ -1533,22 +1531,22 @@ BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
             }
         }
 
-        switch (it->second.AsmCodeType())
+        switch (it->second.CodeInsnType())
         {
-        case ACT_JMP:
-        case ACT_LOOP:
-        case ACT_JCC:
-        case ACT_CALL:
+        case CIT_JMP:
+        case CIT_LOOP:
+        case CIT_JCC:
+        case CIT_CALL:
             if (operands[0].OperandType() == OT_MEMIMM)
             {
-                ADDR64 addr = operands[0].Value64();
+                CR_Addr64 addr = operands[0].Value64();
                 const char *pName = GetSymbolNameFromAddr64(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
             }
             else if (operands[0].OperandType() == OT_IMM)
             {
-                ADDR64 addr = operands[0].Value64();
+                CR_Addr64 addr = operands[0].Value64();
                 const char *pName = GetSymbolNameFromAddr64(addr);
                 if (pName)
                     operands[0].SetAPI(pName);
@@ -1560,7 +1558,7 @@ BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
             }
             break;
 
-        case ACT_MISC:
+        case CIT_MISC:
             if (it->second.Name() == "mov" ||
                 it->second.Name() == "cmp" ||
                 it->second.Name() == "test" ||
@@ -1575,7 +1573,7 @@ BOOL PEMODULE::FixUpAsm64(DECOMPSTATUS64& status)
             }
             else if (it->second.Name() == "lea")
             {
-                ADDR64 addr = operands[1].Value64();
+                CR_Addr64 addr = operands[1].Value64();
                 if (AddressInData64(addr))
                 {
                     sprintf(buf, "offset M%08lX%08lX", HILONG(addr), LOLONG(addr));
@@ -1703,7 +1701,7 @@ EnumResTypeProc(
     return TRUE;
 }
 
-VOID PEMODULE::DumpResource()
+void CR_Module::DumpResource()
 {
     HINSTANCE hInst;
     hInst = LoadLibraryEx(GetFileName(), NULL, LOAD_LIBRARY_AS_DATAFILE);
@@ -1719,7 +1717,7 @@ VOID PEMODULE::DumpResource()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE::_ParseInsn32, PEMODULE::_ParseInsn64
+// CR_Module::_ParseInsn32, CR_Module::_ParseInsn64
 
 const char * const cr_rep_insns[] =
 {
@@ -1737,7 +1735,7 @@ const char * const cr_rep_insns[] =
 struct CCENTRY
 {
     const char *name;
-    CONDCODE cc;
+    CR_CondCode cc;
 };
 
 const CCENTRY cr_ccentries[] =
@@ -1782,7 +1780,7 @@ const CCENTRY cr_ccentries[] =
     { "jz", C_Z },
 };
 
-VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
+void CR_Module::_ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *insn)
 {
     char buf[128];
     strcpy(buf, insn);
@@ -1857,7 +1855,7 @@ VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
             ac.Operands().insert(opr);
         }
         ac.Name() = q;
-        ac.AsmCodeType() = ACT_RETURN;
+        ac.CodeInsnType() = CIT_RETURN;
         return;
     }
 
@@ -1875,17 +1873,17 @@ VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
 
                 if (strncmp(cr_ccentries[i].name, "loop", 4) == 0)
                 {
-                    ac.AsmCodeType() = ACT_LOOP;
+                    ac.CodeInsnType() = CIT_LOOP;
                 }
                 else if (ac.CondCode() == C_NONE)
                 {
                     if (_stricmp(cr_ccentries[i].name, "call") == 0)
-                        ac.AsmCodeType() = ACT_CALL;
+                        ac.CodeInsnType() = CIT_CALL;
                     else
-                        ac.AsmCodeType() = ACT_JMP;
+                        ac.CodeInsnType() = CIT_JMP;
                 }
                 else
-                    ac.AsmCodeType() = ACT_JCC;
+                    ac.CodeInsnType() = CIT_JCC;
 
                 p++;
                 OPERAND opr;
@@ -1913,7 +1911,7 @@ VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
     if (_stricmp(q, "push") == 0 || _stricmp(q, "pop") == 0 ||
         _stricmp(q, "enter") == 0 || _stricmp(q, "leave") == 0)
     {
-        ac.AsmCodeType() = ACT_STACKOP;
+        ac.CodeInsnType() = CIT_STACKOP;
     }
 
     ac.Operands().clear();
@@ -1941,7 +1939,7 @@ VOID PEMODULE::_ParseInsn32(ASMCODE32& ac, ADDR32 offset, const char *insn)
     }
 }
 
-VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
+void CR_Module::_ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *insn)
 {
     char buf[128];
     strcpy(buf, insn);
@@ -2001,7 +1999,7 @@ VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
             ac.Operands().insert(opr);
         }
         ac.Name() = q;
-        ac.AsmCodeType() = ACT_RETURN;
+        ac.CodeInsnType() = CIT_RETURN;
         return;
     }
 
@@ -2019,17 +2017,17 @@ VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
 
                 if (strncmp(cr_ccentries[i].name, "loop", 4) == 0)
                 {
-                    ac.AsmCodeType() = ACT_LOOP;
+                    ac.CodeInsnType() = CIT_LOOP;
                 }
                 else if (ac.CondCode() == C_NONE)
                 {
                     if (_stricmp(cr_ccentries[i].name, "call") == 0)
-                        ac.AsmCodeType() = ACT_CALL;
+                        ac.CodeInsnType() = CIT_CALL;
                     else
-                        ac.AsmCodeType() = ACT_JMP;
+                        ac.CodeInsnType() = CIT_JMP;
                 }
                 else
-                    ac.AsmCodeType() = ACT_JCC;
+                    ac.CodeInsnType() = CIT_JCC;
 
                 p++;
                 OPERAND opr;
@@ -2057,7 +2055,7 @@ VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
     if (_stricmp(q, "push") == 0 || _stricmp(q, "pop") == 0 ||
         _stricmp(q, "enter") == 0 || _stricmp(q, "leave") == 0)
     {
-        ac.AsmCodeType() = ACT_STACKOP;
+        ac.CodeInsnType() = CIT_STACKOP;
     }
 
     ac.Operands().clear();
@@ -2086,9 +2084,9 @@ VOID PEMODULE::_ParseInsn64(ASMCODE64& ac, ADDR64 offset, const char *insn)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// PEMODULE::ParseOperand
+// CR_Module::ParseOperand
 
-VOID PEMODULE::ParseOperand(OPERAND& opr, INT bits)
+void CR_Module::ParseOperand(OPERAND& opr, INT bits)
 {
     char buf[64];
     strcpy(buf, opr.Text().c_str());
@@ -2197,7 +2195,7 @@ VOID PEMODULE::ParseOperand(OPERAND& opr, INT bits)
             return;
         }
 
-        ADDR64 addr;
+        CR_Addr64 addr;
         char *endptr;
         if (isdigit(*p))
         {
@@ -2214,22 +2212,22 @@ VOID PEMODULE::ParseOperand(OPERAND& opr, INT bits)
 ////////////////////////////////////////////////////////////////////////////
 // decompiling
 
-BOOL PEMODULE::DecompileAddr32(DECOMPSTATUS32& status, ADDR32 va)
+BOOL CR_Module::DecompileAddr32(CR_DecompStatus32& status, CR_Addr32 va)
 {
     return FALSE;
 }
 
-BOOL PEMODULE::DecompileAddr64(DECOMPSTATUS64& status, ADDR64 va)
+BOOL CR_Module::DecompileAddr64(CR_DecompStatus64& status, CR_Addr64 va)
 {
     return FALSE;
 }
 
-BOOL PEMODULE::Decompile32(DECOMPSTATUS32& status)
+BOOL CR_Module::Decompile32(CR_DecompStatus32& status)
 {
     return FALSE;
 }
 
-BOOL PEMODULE::Decompile64(DECOMPSTATUS64& status)
+BOOL CR_Module::Decompile64(CR_DecompStatus64& status)
 {
     return FALSE;
 }

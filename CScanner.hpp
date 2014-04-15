@@ -17,9 +17,9 @@
 #include <vector>   // std::vector
 #include <set>      // std::set
 
-#include "Location.hpp"      // cparser::Location
-#include "CParserAST.hpp"    // cparser::Node, cparser::TokenInfo
-#include "CParser.hpp"       // cparser::Parser
+#include "Location.h"       // Location
+#include "CParserAST.hpp"   // cparser::Node, cparser::TokenInfo
+#include "CParser.hpp"      // cparser::Parser
 
 namespace cparser
 {
@@ -73,7 +73,7 @@ namespace cparser
         {
             for (TokenInfoIt it = begin; it != end; ++it)
             {
-                std::cout << token_to_string(*it) << " ";
+                printf("%s ", token_to_string(*it));
             }
         }
 
@@ -304,6 +304,7 @@ namespace cparser
                     continue;
                 }
 
+                // set token info
                 info.m_text.clear();
                 info.location() = location();
                 info.m_pack = get_pack();
@@ -372,7 +373,7 @@ namespace cparser
                             info.m_flags |= integer_suffix();
 
                             if (info.m_flags & TF_LONGLONG)
-								info.m_long_long_value = strtoll(constant.c_str(), NULL, 16);
+                                info.m_long_long_value = strtoll(constant.c_str(), NULL, 16);
                             else
                                 info.m_int_value = strtol(constant.c_str(), NULL, 16);
 
@@ -1292,7 +1293,7 @@ namespace cparser
                 return TF_LONG; // L, closed
             }
             ungetch();   // closed
-			return 0;
+            return 0;
         }   // integer_suffix
 
         //
@@ -1721,12 +1722,12 @@ namespace cparser
         iterator_type           m_current;
         iterator_type           m_end;
 
-        Location& location()
+        CR_Location& location()
         {
             return m_parser_site.location();
         }
 
-        const Location& location() const
+        const CR_Location& location() const
         {
             return m_parser_site.location();
         }

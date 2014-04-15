@@ -21,11 +21,11 @@ CCFLAGS = -std=c99
 CXXFLAGS = -std=c++0x
 
 OBJS = \
-	codereverse64.o \
-	dumpfn64.o \
-	module64.o \
+	CodeReverse64.o \
+	Dumping64.o \
+	Module64.o \
 	mzc2mini64.o \
-	codereverse_res64.o \
+	CodeReverse_res64.o \
 	h-ndisasm\disasm64.o \
 	h-ndisasm\insnsb64.o \
 	h-ndisasm\insnsd64.o \
@@ -43,12 +43,12 @@ CPARSER_HEADER = \
 
 CR_HEADERS = \
 	stdafx.h \
-	codereverse.h \
-	codereverse_inl.h \
-	module.h \
-	module_inl.h \
+	CodeReverse.h \
+	CodeReverse_inl.h \
+	Module.h \
+	Module_inl.h \
 	mzc2mini.h \
-	CParser.h \
+	CParseHeader.h \
 	$(CPARSER_HEADER)
 
 H_NDISASM_HEADERS = \
@@ -67,12 +67,12 @@ all: coderev64.exe
 coderev64.exe: $(OBJS)
 	$(CXX) -o coderev64.exe $(CXXFLAGS) $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
-codereverse64.o: $(CR_HEADERS) codereverse.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o codereverse64.o codereverse.cpp
-dumpfn64.o: $(CR_HEADERS) dumpfn.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o dumpfn64.o dumpfn.cpp
-module64.o: $(CR_HEADERS) module.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o module64.o module.cpp
+CodeReverse64.o: $(CR_HEADERS) CodeReverse.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o CodeReverse64.o CodeReverse.cpp
+Dumping64.o: $(CR_HEADERS) Dumping.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Dumping64.o Dumping.cpp
+Module64.o: $(CR_HEADERS) Module.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Module64.o Module.cpp
 mzc2mini64.o: $(CR_HEADERS) mzc2mini.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o mzc2mini64.o mzc2mini.cpp
 CParser.hpp: $(CAPER) CParser.cpg
@@ -95,8 +95,8 @@ h-ndisasm\regs64.o: h-ndisasm\regs.c $(H_NDISASM_HEADERS)
 h-ndisasm\ver64.o: h-ndisasm\ver.c $(H_NDISASM_HEADERS)
 	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\ver64.o h-ndisasm\ver.c
 
-codereverse_res64.o: codereverse.rc codereverse.ico
-	windres $(RCFLAGS) -i codereverse.rc -o codereverse_res64.o
+CodeReverse_res64.o: CodeReverse.rc CodeReverse.ico
+	windres $(RCFLAGS) -i CodeReverse.rc -o CodeReverse_res64.o
 
 clean:
 	rm -f *.o
