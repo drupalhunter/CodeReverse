@@ -305,7 +305,7 @@ typedef_direct_declarator<shared_ptr<Declor> >
     | [DoTypedefDirDeclor3] typedef_direct_declarator(0) T_L_BRACKET constant_expression(1) T_R_BRACKET
     | [DoTypedefDirDeclor4] typedef_direct_declarator(0) T_L_BRACKET T_R_BRACKET
     | [DoTypedefDirDeclor5] typedef_direct_declarator(0) T_L_PAREN parameter_type_list(1) T_R_PAREN
-    | [DoTypedefDirDeclor6] typedef_direct_declarator(0) T_L_PAREN identifier_list(1) T_R_PAREN
+//  | [DoTypedefDirDeclor6] typedef_direct_declarator(0) T_L_PAREN identifier_list(1) T_R_PAREN
     | [DoTypedefDirDeclor7] typedef_direct_declarator(0) T_L_PAREN T_R_PAREN
     ;
 
@@ -315,13 +315,13 @@ direct_declarator<shared_ptr<Declor> >
     | [DoDirDeclor3] direct_declarator(0) T_L_BRACKET constant_expression(1) T_R_BRACKET
     | [DoDirDeclor4] direct_declarator(0) T_L_BRACKET T_R_BRACKET
     | [DoDirDeclor5] direct_declarator(0) T_L_PAREN parameter_type_list(1) T_R_PAREN
-    | [DoDirDeclor6] direct_declarator(0) T_L_PAREN identifier_list(1) T_R_PAREN
+//  | [DoDirDeclor6] direct_declarator(0) T_L_PAREN identifier_list(1) T_R_PAREN
     | [DoDirDeclor7] direct_declarator(0) T_L_PAREN T_R_PAREN
     ;
 
 pointer<shared_ptr<Pointers> >
-    : [DoPtr1] asterisk_company(0) type_qualifier_list pointer(1)
-    | [DoPtr2] asterisk_company(0) type_qualifier_list
+    : [DoPtr1] asterisk_company(0) type_qualifier_list(1) pointer(2)
+    | [DoPtr2] asterisk_company(0) type_qualifier_list(1)
     | [DoPtr3] asterisk_company(0) pointer(1)
     | [DoPtr4] asterisk_company(0)
     ;
@@ -356,10 +356,10 @@ parameter_declaration<shared_ptr<Decl> >
     | [DoParamDecl3] declaration_specifiers(0)
     ;
 
-identifier_list<shared_ptr<IdentList> >
-    : [DoIdentList1] identifier_list(0) T_COMMA T_IDENTIFIER(1)
-    | [DoIdentList2] T_IDENTIFIER(0)
-    ;
+//identifier_list<shared_ptr<IdentList> >
+//    : [DoIdentList1] identifier_list(0) T_COMMA T_IDENTIFIER(1)
+//    | [DoIdentList2] T_IDENTIFIER(0)
+//    ;
 
 initializer<shared_ptr<Initer> >
     : [DoIniter1] assignment_expression(0)

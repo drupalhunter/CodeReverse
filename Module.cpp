@@ -933,11 +933,11 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
     while (input < iend)
     {
         CR_CodeInsn32& ac = status.MapAddrToAsmCode()[va];
-        if (ac.FuncAddrs().Find(func))
+        if (ac.FuncAddrs().Contains(func))
             break;
 
         ac.Addr() = va;
-        ac.FuncAddrs().insertIfNotFound(func);
+        ac.FuncAddrs().Insert(func);
 
         if (ac.FuncAddrs().size() > 1)
         {
@@ -974,9 +974,9 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
             switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM: case OT_API:
-                cf.Jumpers().insertIfNotFound(va);
+                cf.Jumpers().Insert(va);
                 addr = ac.Operand(0)->Value32();
-                cf.Jumpees().insertIfNotFound(addr);
+                cf.Jumpees().Insert(addr);
                 break;
 
             default: break;
@@ -993,16 +993,16 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
                     cf.FuncType() = FT_JUMPER;
 
                     addr = ac.Operand(0)->Value32();
-                    status.Entrances().insertIfNotFound(addr);
+                    status.Entrances().Insert(addr);
                     status.MapAddrToCodeFunc()[addr].Addr() = addr;
-                    cf.Callers().insertIfNotFound(va);
-                    status.MapAddrToCodeFunc()[addr].Callees().insertIfNotFound(func);
+                    cf.Callers().Insert(va);
+                    status.MapAddrToCodeFunc()[addr].Callees().Insert(func);
                 }
                 else
                 {
-                    cf.Jumpers().insertIfNotFound(va);
+                    cf.Jumpers().Insert(va);
                     addr = ac.Operand(0)->Value32();
-                    cf.Jumpees().insertIfNotFound(addr);
+                    cf.Jumpees().Insert(addr);
                 }
                 break;
 
@@ -1027,10 +1027,10 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
             case OT_IMM:
                 // function call
                 addr = ac.Operand(0)->Value32();
-                status.Entrances().insertIfNotFound(addr);
+                status.Entrances().Insert(addr);
                 status.MapAddrToCodeFunc()[addr].Addr() = addr;
-                cf.Callers().insertIfNotFound(va);
-                status.MapAddrToCodeFunc()[addr].Callees().insertIfNotFound(func);
+                cf.Callers().Insert(va);
+                status.MapAddrToCodeFunc()[addr].Callees().Insert(func);
                 break;
 
             default:
@@ -1091,11 +1091,11 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
     while (input < iend)
     {
         CR_CodeInsn64& ac = status.MapAddrToAsmCode()[va];
-        if (ac.FuncAddrs().Find(func))
+        if (ac.FuncAddrs().Contains(func))
             break;
 
         ac.Addr() = va;
-        ac.FuncAddrs().insertIfNotFound(func);
+        ac.FuncAddrs().Insert(func);
 
         if (ac.FuncAddrs().size() > 1)
         {
@@ -1132,9 +1132,9 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
             switch (ac.Operand(0)->OperandType())
             {
             case OT_IMM:
-                cf.Jumpers().insertIfNotFound(va);
+                cf.Jumpers().Insert(va);
                 addr = ac.Operand(0)->Value64();
-                cf.Jumpees().insertIfNotFound(addr);
+                cf.Jumpees().Insert(addr);
                 break;
 
             default:
@@ -1152,16 +1152,16 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
                     cf.FuncType() = FT_JUMPER;
 
                     addr = ac.Operand(0)->Value64();
-                    status.Entrances().insertIfNotFound(addr);
+                    status.Entrances().Insert(addr);
                     status.MapAddrToCodeFunc()[addr].Addr() = addr;
-                    cf.Callers().insertIfNotFound(va);
-                    status.MapAddrToCodeFunc()[addr].Callees().insertIfNotFound(func);
+                    cf.Callers().Insert(va);
+                    status.MapAddrToCodeFunc()[addr].Callees().Insert(func);
                 }
                 else
                 {
-                    cf.Jumpers().insertIfNotFound(va);
+                    cf.Jumpers().Insert(va);
                     addr = ac.Operand(0)->Value64();
-                    cf.Jumpees().insertIfNotFound(addr);
+                    cf.Jumpees().Insert(addr);
                 }
                 break;
 
@@ -1185,10 +1185,10 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
             case OT_IMM:
                 // function call
                 addr = ac.Operand(0)->Value64();
-                status.Entrances().insertIfNotFound(addr);
+                status.Entrances().Insert(addr);
                 status.MapAddrToCodeFunc()[addr].Addr() = addr;
-                cf.Callers().insertIfNotFound(va);
-                status.MapAddrToCodeFunc()[addr].Callees().insertIfNotFound(func);
+                cf.Callers().Insert(va);
+                status.MapAddrToCodeFunc()[addr].Callees().Insert(func);
                 break;
 
             default:
@@ -1249,7 +1249,7 @@ BOOL CR_Module::DisAsm32(CR_DecompStatus32& status)
     // register entrances
     CR_Addr32 va;
     va = VA32FromRVA(RVAOfEntryPoint());
-    status.Entrances().insertIfNotFound(va);
+    status.Entrances().Insert(va);
 
     status.MapAddrToCodeFunc()[va].Addr() = va;
     status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
@@ -1287,7 +1287,7 @@ BOOL CR_Module::DisAsm32(CR_DecompStatus32& status)
                 SymbolInfo().AddSymbol(symbol);
             }
 
-            status.Entrances().insertIfNotFound(va);
+            status.Entrances().Insert(va);
 
             status.MapAddrToCodeFunc()[va].Addr() = va;
             status.MapAddrToCodeFunc()[va].Name() = ExportSymbols()[i].pszName;
@@ -1345,7 +1345,7 @@ BOOL CR_Module::DisAsm64(CR_DecompStatus64& status)
     // register entrances
     CR_Addr64 va;
     va = VA64FromRVA(RVAOfEntryPoint());
-    status.Entrances().insertIfNotFound(va);
+    status.Entrances().Insert(va);
 
     status.MapAddrToCodeFunc()[va].Addr() = va;
     status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
@@ -1381,7 +1381,7 @@ BOOL CR_Module::DisAsm64(CR_DecompStatus64& status)
                 SymbolInfo().AddSymbol(symbol);
             }
 
-            status.Entrances().insertIfNotFound(va);
+            status.Entrances().Insert(va);
             status.MapAddrToCodeFunc()[va].Addr() = va;
             status.MapAddrToCodeFunc()[va].Name() = ExportSymbols()[i].pszName;
         }

@@ -35,14 +35,14 @@
     #include <jctype.h>
 #endif
 
-#if 0   // 16-bit
+#if DOS  // 16-bit
     #include <dos.h>
     #include <stdrom.h>
     #include <machine.h>
     #include <fcntl.h>
 #endif
 
-// Windows related
+// Windows-related
 #include <windows.h>
 #include <commdlg.h>
 #include <commctrl.h>

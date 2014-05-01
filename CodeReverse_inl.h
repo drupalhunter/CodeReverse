@@ -1,81 +1,81 @@
 ////////////////////////////////////////////////////////////////////////////
-// CR_TBool - tri-state logical value
+// CR_TriBool - tri-state logical value
 
-inline CR_TBool::CR_TBool()
+inline CR_TriBool::CR_TriBool()
 {
     m_value = TB_UNKNOWN;
 }
 
-inline CR_TBool::CR_TBool(BOOL b)
+inline CR_TriBool::CR_TriBool(BOOL b)
 {
     m_value = (b ? TB_TRUE : TB_FALSE);
 }
 
-inline CR_TBool::CR_TBool(const CR_TBool& tb)
+inline CR_TriBool::CR_TriBool(const CR_TriBool& tb)
 {
     m_value = tb.m_value;
 }
 
-inline /*virtual*/ CR_TBool::~CR_TBool()
+inline /*virtual*/ CR_TriBool::~CR_TriBool()
 {
 }
 
-inline CR_TBool& CR_TBool::operator=(const CR_TBool& tb)
+inline CR_TriBool& CR_TriBool::operator=(const CR_TriBool& tb)
 {
     m_value = tb.m_value;
     return *this;
 }
 
-inline CR_TBool& CR_TBool::operator=(BOOL b)
+inline CR_TriBool& CR_TriBool::operator=(BOOL b)
 {
     m_value = (b ? TB_TRUE : TB_FALSE);
     return *this;
 }
 
-inline bool CR_TBool::operator==(const CR_TBool& tb) const
+inline bool CR_TriBool::operator==(const CR_TriBool& tb) const
 {
     return m_value == tb.m_value;
 }
 
-inline bool CR_TBool::operator!=(const CR_TBool& tb) const
+inline bool CR_TriBool::operator!=(const CR_TriBool& tb) const
 {
     return m_value != tb.m_value;
 }
 
-inline void CR_TBool::clear()
+inline void CR_TriBool::clear()
 {
     m_value = TB_UNKNOWN;
 }
 
-inline BOOL CR_TBool::CanBeTrue() const
+inline BOOL CR_TriBool::CanBeTrue() const
 {
     return m_value != TB_FALSE;
 }
 
-inline BOOL CR_TBool::CanBeFalse() const
+inline BOOL CR_TriBool::CanBeFalse() const
 {
     return m_value != TB_TRUE;
 }
 
-inline BOOL CR_TBool::IsUnknown() const
+inline BOOL CR_TriBool::IsUnknown() const
 {
     return m_value == TB_UNKNOWN;
 }
 
-inline CR_TBool& CR_TBool::IsTrue(const CR_TBool& tb)
+inline CR_TriBool& CR_TriBool::IsTrue(const CR_TriBool& tb)
 {
     m_value = tb.m_value;
     return *this;
 }
 
-inline CR_TBool& CR_TBool::LogicalNot(const CR_TBool& tb1)
+inline CR_TriBool& CR_TriBool::LogicalNot(const CR_TriBool& tb1)
 {
     return IsFalse(tb1);
 }
 
-inline CR_TBool& CR_TBool::NotEqual(const CR_TBool& tb1, const CR_TBool& tb2)
+inline CR_TriBool& CR_TriBool::NotEqual(const CR_TriBool& tb1, const CR_TriBool& tb2)
 {
-    CR_TBool tb;
+    CR_TriBool tb;
     tb.Equal(tb1, tb2);
     return LogicalNot(tb);
 }
@@ -118,17 +118,17 @@ inline string& OPERAND::DataType()
     return m_datatype;
 }
 
-inline CR_TBool& OPERAND::IsInteger()
+inline CR_TriBool& OPERAND::IsInteger()
 {
     return m_is_integer;
 }
 
-inline CR_TBool& OPERAND::IsPointer()
+inline CR_TriBool& OPERAND::IsPointer()
 {
     return m_is_pointer;
 }
 
-inline CR_TBool& OPERAND::IsFunction()
+inline CR_TriBool& OPERAND::IsFunction()
 {
     return m_is_function;
 }
@@ -171,17 +171,17 @@ inline const string& OPERAND::DataType() const
     return m_datatype;
 }
 
-inline const CR_TBool& OPERAND::IsInteger() const
+inline const CR_TriBool& OPERAND::IsInteger() const
 {
     return m_is_integer;
 }
 
-inline const CR_TBool& OPERAND::IsPointer() const
+inline const CR_TriBool& OPERAND::IsPointer() const
 {
     return m_is_pointer;
 }
 
-inline const CR_TBool& OPERAND::IsFunction() const
+inline const CR_TriBool& OPERAND::IsFunction() const
 {
     return m_is_function;
 }

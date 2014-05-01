@@ -22,6 +22,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <stack>
 #include <algorithm>
 #include <cstdint>
@@ -30,7 +31,6 @@ using namespace std;
 #include "CodeReverse.h"
 #include "Module.h"
 #include "mzc2mini.h"
-#include "Contents.h"
 
 #if !defined(NO_CHECKSUM) && defined(_MSC_VER)
     #pragma comment(lib, "imagehlp.lib")

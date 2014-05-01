@@ -1023,7 +1023,7 @@ BOOL CR_Module::DumpDisAsmFunc32(CR_DecompStatus32& status, CR_Addr32 func)
     {
         const CR_CodeInsn32& ac = it->second;
 
-        if (func != 0 && !ac.FuncAddrs().Find(func))
+        if (func != 0 && !ac.FuncAddrs().Contains(func))
             continue;
 
         printf("L%08lX: ", ac.Addr());
@@ -1107,7 +1107,7 @@ BOOL CR_Module::DumpDisAsmFunc64(CR_DecompStatus64& status, CR_Addr64 func)
     {
         const CR_CodeInsn64& ac = it->second;
 
-        if (func != 0 && !ac.FuncAddrs().Find(func))
+        if (func != 0 && !ac.FuncAddrs().Contains(func))
             continue;
 
         printf("L%08lX%08lX: ", HILONG(ac.Addr()), LOLONG(ac.Addr()));

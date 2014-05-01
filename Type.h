@@ -26,31 +26,27 @@ enum
     TF_VA_LIST      = (1 << 6),
     TF_FLOAT        = (1 << 7),
     TF_DOUBLE       = (1 << 8),
-    TF_UNSIGNED     = (1 << 9),
-    TF_STRUCT       = (1 << 10),
-    TF_UNION        = (1 << 11),
-    TF_ENUM         = (1 << 12),
-    TF_POINTER      = (1 << 13),
-    TF_ARRAY        = (1 << 14),
-    TF_FUNCTION     = (1 << 15),
-    TF_STDCALL      = (1 << 16),
-    TF_FASTCALL     = (1 << 17),
-    TF_CONST        = (1 << 18),
-    TF_VOLATILE     = (1 << 19),
-    TF_COMPLEX      = (1 << 20),
-    TF_IMAGINARY    = (1 << 21),
-    TF_ATOMIC       = (1 << 22),
-    TF_EXTERN       = (1 << 23),
-    TF_STATIC       = (1 << 24),
-    TF_THREADLOCAL  = (1 << 25),
-    TF_INLINE       = (1 << 26),
-    TF_VARIABLE     = (1 << 27),
-    TF_TYPE         = (1 << 28),
-    TF_OFFSET       = (1 << 29),
-    TF_PLUS1OFFSET  = TF_OFFSET * 1,
-    TF_PLUS2OFFSET  = TF_OFFSET * 2,
-    TF_PLUS4OFFSET  = TF_OFFSET * 4,
-    TF_OFFSETMASK   = TF_OFFSET * 7
+    TF_SIGNED       = (1 << 9),
+    TF_UNSIGNED     = (1 << 10),
+    TF_STRUCT       = (1 << 11),
+    TF_UNION        = (1 << 12),
+    TF_ENUM         = (1 << 13),
+    TF_POINTER      = (1 << 14),
+    TF_ARRAY        = (1 << 15),
+    TF_FUNCTION     = (1 << 16),
+    TF_CDECL        = (1 << 17),
+    TF_STDCALL      = (1 << 18),
+    TF_FASTCALL     = (1 << 19),
+    TF_CONST        = (1 << 20),
+    TF_VOLATILE     = (1 << 21),
+    TF_COMPLEX      = (1 << 22),
+    TF_IMAGINARY    = (1 << 23),
+    TF_ATOMIC       = (1 << 24),
+    TF_EXTERN       = (1 << 25),
+    TF_STATIC       = (1 << 26),
+    TF_THREADLOCAL  = (1 << 27),
+    TF_INLINE       = (1 << 28),
+    TF_ALIAS        = (1 << 29)
 };
 typedef unsigned long CR_TypeFlags;
 
@@ -70,6 +66,30 @@ inline CR_TypeFlags CrNormalizeTypeFlags(CR_TypeFlags flags)
     }
     return flags;
 }
+
+////////////////////////////////////////////////////////////////////////////
+// IDs
+
+// CR_ID --- ID
+typedef std::size_t CR_ID;
+
+// CR_TypeID --- type ID
+typedef CR_ID CR_TypeID;
+
+// CR_FuncID --- function ID
+typedef CR_ID CR_FuncID;
+
+// CR_VarID --- variable ID
+typedef CR_ID CR_VarID;
+
+// CR_StructID --- struct or union ID
+typedef CR_ID CR_StructID;
+
+// CR_EnumID --- enum ID
+typedef CR_ID CR_EnumID;
+
+// cr_invalid_id --- invalid ID
+#define cr_invalid_id   static_cast<CR_ID>(-1)
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_LogFunc
@@ -119,10 +139,12 @@ struct CR_LogType
 
     // For TF_POINTER:  the type ID (CR_TypeID)
     // For TF_ARRAY:    the type ID (CR_TypeID)
+    // For TF_CONST:    the type ID (CR_TypeID)
     // For TF_FUNCTION: the function ID (CR_FuncID)
     // For TF_STRUCT:   the struct ID (CR_StructID)
     // For TF_ENUM:     the enum ID (CR_EnumID)
     // For TF_UNION:    the union ID (CR_UnionID)
+    // otherwise: zero
     CR_ID        m_id;
 
     int          m_count;   // for TF_ARRAY
@@ -131,14 +153,14 @@ struct CR_LogType
 
     CR_LogType(CR_TypeFlags flags) : m_flags(flags), m_id(0), m_count(0) { }
 
-    bool operator==(const CR_LogType& type)
+    bool operator==(const CR_LogType& type) const
     {
         return m_flags == type.m_flags &&
                m_id == type.m_id &&
                m_count == type.m_count;
     }
 
-    bool operator!=(const CR_LogType& type)
+    bool operator!=(const CR_LogType& type) const
     {
         return m_flags != type.m_flags ||
                m_id != type.m_id ||
@@ -147,44 +169,55 @@ struct CR_LogType
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_LogStruct
+// CR_LogStruct -- logical structure or union
 
 struct CR_LogStruct
 {
-    bool                    m_ellipsis;
+    bool                    m_struct_or_union;
     std::deque<CR_TypeID>   m_type_list;
     std::deque<std::string> m_name_list;
-    std::size_t             m_size;
+
+    CR_LogStruct(bool struct_or_union = true) :
+        m_struct_or_union(struct_or_union)
+    {
+    }
+
+    CR_LogStruct(const CR_LogStruct& ls) :
+        m_struct_or_union(ls.m_struct_or_union),
+        m_type_list(ls.m_type_list),
+        m_name_list(ls.m_name_list)
+    {
+    }
+
+    void operator=(const CR_LogStruct& ls)
+    {
+        m_struct_or_union = ls.m_struct_or_union;
+        m_type_list = ls.m_type_list;
+        m_name_list = ls.m_name_list;
+    }
 
     int FindName(const std::string& name) const
     {
-        for (size_t i : m_name_list)
+        for (size_t i = 0; i < m_name_list.size(); i++)
         {
-            if (it == name)
+            if (m_name_list[i] == name)
                 return i;
         }
         return -1;
     }
-};
 
-////////////////////////////////////////////////////////////////////////////
-// CR_LogUnion
-
-struct CR_LogUnion
-{
-    bool                    m_ellipsis;
-    std::deque<CR_TypeID>   m_type_list;
-    std::deque<std::string> m_name_list;
-    std::size_t             m_size;
-
-    int FindName(const std::string& name) const
+    bool operator==(const CR_LogStruct& ls) const
     {
-        for (size_t i : m_name_list)
-        {
-            if (it == name)
-                return i;
-        }
-        return -1;
+        return m_struct_or_union == ls.m_struct_or_union &&
+               m_type_list == ls.m_type_list &&
+               m_name_list == ls.m_name_list;
+    }
+
+    bool operator!=(const CR_LogStruct& ls) const
+    {
+        return m_struct_or_union != ls.m_struct_or_union ||
+               m_type_list != ls.m_type_list ||
+               m_name_list != ls.m_name_list;
     }
 };
 
@@ -195,6 +228,20 @@ struct CR_LogEnum
 {
     std::unordered_map<std::string, int>  m_mNameToValue;
     std::unordered_map<int, std::string>  m_mValueToName;
+
+    CR_LogEnum() { }
+
+    CR_LogEnum(const CR_LogEnum& le) :
+        m_mNameToValue(le.m_mNameToValue),
+        m_mValueToName(le.m_mValueToName)
+    {
+    }
+
+    void operator=(const CR_LogEnum& le)
+    {
+        m_mNameToValue = le.m_mNameToValue;
+        m_mValueToName = le.m_mValueToName;
+    }
 
     std::unordered_map<std::string, int>& MapNameToValue()
     { return m_mNameToValue; }
@@ -207,16 +254,6 @@ struct CR_LogEnum
 
     const std::unordered_map<int, std::string>& MapValueToName() const
     { return m_mValueToName; }
-
-    int MapNameToValue(const std::string& name) const
-    {
-        return m_mNameToValue[name];
-    }
-
-    std::string MapValueToName(int value) const
-    {
-        return m_mValueToName[value];
-    }
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -244,130 +281,447 @@ struct CR_LogVar
 
 struct CR_NameScope
 {
-    std::map<std::string, CR_TypeFlags>     m_mNameToTypeFlags;
-    std::deque<CR_LogType>                  m_types;
-    std::deque<CR_LogFunc>                  m_funcs;
-    std::deque<CR_LogStruct>                m_structs;
-    std::deque<CR_LogEnum>                  m_enums;
-    std::deque<CR_LogUnion>                 m_unions;
-    std::deque<CR_LogVar>                   m_vars;
+    std::map<std::string, CR_TypeID>        m_mNameToTypeID;
+    std::map<CR_TypeID, std::string>        m_mTypeIDToName;
+    std::map<std::string, CR_VarID>         m_mNameToVarID;
+    std::map<CR_VarID, std::string>         m_mVarIDToName;
+    std::map<std::string, CR_TypeID>        m_mNameToFuncTypeID;
+    CR_VecSet<CR_LogType>                   m_types;
+    std::vector<CR_LogFunc>                 m_funcs;
+    std::vector<CR_LogStruct>               m_structs_or_unions;
+    std::vector<CR_LogEnum>                 m_enums;
+    std::vector<CR_LogVar>                  m_vars;
 
     CR_NameScope()
     {
         Init();
     }
 
+    CR_NameScope(const CR_NameScope& ns) :
+        m_mNameToTypeID(ns.m_mNameToTypeID),
+        m_mTypeIDToName(ns.m_mTypeIDToName),
+        m_mNameToVarID(ns.m_mNameToVarID),
+        m_mVarIDToName(ns.m_mVarIDToName),
+        m_mNameToFuncTypeID(ns.m_mNameToFuncTypeID),
+        m_types(ns.m_types),
+        m_funcs(ns.m_funcs),
+        m_structs_or_unions(ns.m_structs_or_unions),
+        m_enums(ns.m_enums),
+        m_vars(ns.m_vars)
+    {
+    }
+
+    void operator=(const CR_NameScope& ns)
+    {
+        m_mNameToTypeID = ns.m_mNameToTypeID;
+        m_mTypeIDToName = ns.m_mTypeIDToName;
+        m_mNameToVarID = ns.m_mNameToVarID;
+        m_mVarIDToName = ns.m_mVarIDToName;
+        m_mNameToFuncTypeID = ns.m_mNameToFuncTypeID;
+        m_types = ns.m_types;
+        m_funcs = ns.m_funcs;
+        m_structs_or_unions = ns.m_structs_or_unions;
+        m_enums = ns.m_enums;
+        m_vars = ns.m_vars;
+    }
+
     void Init()
     {
-        MapNameToTypeFlags("void", TF_VOID);
+        AddType("void", TF_VOID);
 
-        MapNameToTypeFlags("char", TF_CHAR);
-        MapNameToTypeFlags("short", TF_SHORT);
-        MapNameToTypeFlags("long", TF_LONG);
-        MapNameToTypeFlags("long long", TF_LONGLONG);
-        MapNameToTypeFlags("int", TF_INT);
+        AddType("char", TF_CHAR);
+        AddType("short", TF_SHORT);
+        AddType("long", TF_LONG);
+        AddType("long long", TF_LONGLONG);
+        AddType("int", TF_INT);
 
-        MapNameToTypeFlags("unsigned char", TF_UNSIGNED | TF_CHAR);
-        MapNameToTypeFlags("unsigned short", TF_UNSIGNED | TF_SHORT);
-        MapNameToTypeFlags("unsigned long", TF_UNSIGNED | TF_LONG);
-        MapNameToTypeFlags("unsigned long long", TF_UNSIGNED | TF_LONGLONG);
-        MapNameToTypeFlags("unsigned int", TF_UNSIGNED | TF_INT);
+        AddType("unsigned char", TF_UNSIGNED | TF_CHAR);
+        AddType("unsigned short", TF_UNSIGNED | TF_SHORT);
+        AddType("unsigned long", TF_UNSIGNED | TF_LONG);
+        AddType("unsigned long long", TF_UNSIGNED | TF_LONGLONG);
+        AddType("unsigned int", TF_UNSIGNED | TF_INT);
 
-        MapNameToTypeFlags("float", TF_FLOAT);
-        MapNameToTypeFlags("double", TF_DOUBLE);
-        MapNameToTypeFlags("long double", TF_LONG | TF_DOUBLE);
+        AddType("float", TF_FLOAT);
+        AddType("double", TF_DOUBLE);
+        AddType("long double", TF_LONG | TF_DOUBLE);
 
-        MapNameToTypeFlags("va_list", TF_VA_LIST);
+        AddType("va_list", TF_VA_LIST);
     }
 
-    std::map<std::string, CR_TypeFlags>& MapNameToTypeFlags()
-    { return m_mNameToTypeFlags; }
-
-    const std::map<std::string, CR_TypeFlags>& MapNameToTypeFlags() const
-    { return m_mNameToTypeFlags; }
-
-    void MapNameToTypeFlags(const std::string& name, CR_TypeFlags flags)
+    CR_TypeID TypeIDFromName(const std::string& name) const
     {
-        m_mNameToTypeFlags[name] = flags;
-        m_types.push_back(CR_LogType(flags));
+        auto it = m_mNameToTypeID.find(name);
+        if (it != m_mNameToTypeID.end())
+            return it->second;
+        else
+            return cr_invalid_id;
     }
 
-    CR_TypeFlags TypeFlagsFromName(const std::string& name) const
+    std::string NameFromTypeID(CR_TypeID tid) const
     {
-        auto it = m_mNameToTypeFlags.find(name);
-        return (it != m_mNameToTypeFlags.end() ? *it : 0);
+        auto it = m_mTypeIDToName.find(tid);
+        if (it != m_mTypeIDToName.end())
+            return it->second;
+        else
+            return "";
+    }
+
+    CR_TypeID AddType(const std::string& name, const CR_LogType& lt)
+    {
+        CR_TypeID tid = m_types.Insert(lt);
+        if (!name.empty())
+        {
+            m_mNameToTypeID[name] = tid;
+            m_mTypeIDToName[tid] = name;
+        }
+        return tid;
+    }
+
+    CR_TypeID AddType(const std::string& name, CR_TypeFlags flags)
+    {
+        return AddType(name, CR_LogType(flags));
+    }
+
+    CR_TypeID AddAliasType(const std::string& name, CR_TypeID tid)
+    {
+        return AddType(name, TF_ALIAS);
+    }
+
+    CR_VarID AddVar(const std::string& name, CR_TypeID tid)
+    {
+        CR_LogVar var;
+        var.m_type_id = tid;
+        var.m_int_value = 0;
+        m_vars.push_back(var);
+        CR_VarID vid;
+        vid = static_cast<CR_VarID>(m_vars.size()) - 1;;
+        if (!name.empty())
+        {
+            m_mNameToVarID[name] = vid;
+            m_mVarIDToName[vid] = name;
+        }
+        return vid;
+    }
+
+    CR_VarID AddVar(const std::string& name, const CR_LogType& lt)
+    {
+        CR_TypeID tid = m_types.Insert(lt);
+        return AddVar(name, tid);
+    }
+
+    CR_TypeID AddConstType(CR_TypeID tid)
+    {
+        CR_LogType lt;
+        lt.m_flags = TF_CONST;
+        lt.m_id = tid;
+        CR_TypeID newtid = m_types.Insert(lt);
+        std::string name = NameFromTypeID(tid);
+        if (!name.empty())
+        {
+            name = std::string("const ") + name;
+            m_mNameToTypeID[name] = newtid;
+            m_mTypeIDToName[newtid] = name;
+        }
+        return newtid;
+    }
+
+    CR_TypeID AddPtrType(CR_TypeID tid, CR_TypeFlags flags = 0)
+    {
+        CR_LogType lt;
+        lt.m_flags = TF_POINTER | flags;
+        lt.m_id = tid;
+        CR_LogType type = m_types[tid];
+        CR_TypeID newtid = m_types.Insert(lt);
+        std::string name = NameFromTypeID(tid);
+        if (!name.empty() && !(type.m_flags & TF_FUNCTION))
+        {
+            name += "*";
+            m_mNameToTypeID[name] = newtid;
+            m_mTypeIDToName[newtid] = name;
+        }
+        return newtid;
+    }
+
+    CR_TypeID AddArrayType(const std::string& name, CR_TypeID tid, int count)
+    {
+        CR_LogType lt;
+        lt.m_flags = TF_ARRAY;
+        lt.m_id = tid;
+        lt.m_count = count;
+        tid = m_types.Insert(lt);
+        return tid;
+    }
+
+    CR_TypeID AddFuncType(const CR_LogFunc& lf)
+    {
+        m_funcs.push_back(lf);
+        CR_FuncID fid = static_cast<CR_FuncID>(m_funcs.size()) - 1;
+        CR_LogType lt;
+        lt.m_flags = TF_FUNCTION;
+        lt.m_id = fid;
+        CR_TypeID tid = m_types.Insert(lt);
+        return tid;
+    }
+
+    CR_TypeID AddFunc(const std::string& name, const CR_LogFunc& lf)
+    {
+        m_funcs.push_back(lf);
+        CR_FuncID fid = static_cast<CR_FuncID>(m_funcs.size()) - 1;
+        CR_LogType lt;
+        lt.m_flags = TF_FUNCTION;
+        lt.m_id = fid;
+        CR_TypeID tid = m_types.Insert(lt);
+        if (!name.empty())
+            m_mNameToFuncTypeID[name] = tid;
+        return tid;
+    }
+
+    CR_TypeID AddStructOrUnionType(const std::string& name, const CR_LogStruct& ls)
+    {
+        m_structs_or_unions.push_back(ls);
+        CR_StructID sid = static_cast<CR_StructID>(m_structs_or_unions.size()) - 1;
+        CR_LogType lt;
+        lt.m_flags = (ls.m_struct_or_union ? TF_STRUCT : TF_UNION);
+        lt.m_id = sid;
+        CR_TypeID tid = m_types.Insert(lt);
+        if (!name.empty())
+        {
+            if (ls.m_struct_or_union)
+            {
+                std::string newname(std::string("struct ") + name);
+                m_mNameToTypeID[newname] = tid;
+                m_mTypeIDToName[tid] = newname;
+            }
+            else
+            {
+                std::string newname(std::string("union ") + name);
+                m_mNameToTypeID[newname] = tid;
+                m_mTypeIDToName[tid] = newname;
+            }
+        }
+        return tid;
+    }
+
+    CR_TypeID AddEnumType(const std::string& name, const CR_LogEnum& le)
+    {
+        m_enums.push_back(le);
+        CR_EnumID eid = static_cast<CR_EnumID>(m_enums.size()) - 1;
+        CR_LogType lt;
+        lt.m_flags = TF_ENUM;
+        lt.m_id = eid;
+        CR_TypeID newtid = m_types.Insert(lt);
+        if (!name.empty())
+        {
+            std::string newname(std::string("enum ") + name);
+            m_mNameToTypeID[newname] = newtid;
+            m_mTypeIDToName[newtid] = newname;
+        }
+        return newtid;
     }
 
     CR_LogType& TypeFromTypeID(CR_TypeID tid)
     {
-        assert(0 <= tid && tid < m_types.size());
         return m_types[tid];
     }
 
     const CR_LogType& TypeFromTypeID(CR_TypeID tid) const
     {
-        assert(0 <= tid && tid < m_types.size());
         return m_types[tid];
     }
 
     CR_LogFunc& FuncFromFuncID(CR_FuncID fid)
     {
-        assert(0 <= fid && fid < m_funcs.size());
         return m_funcs[fid];
     }
 
     const CR_LogFunc& FuncFromFuncID(CR_FuncID fid) const
     {
-        assert(0 <= fid && fid < m_funcs.size());
         return m_funcs[fid];
     }
 
-    CR_LogStruct& StructFromStructID(CR_StructID sid)
+    CR_LogStruct& StructOrUnionFromStructID(CR_StructID sid)
     {
-        assert(0 <= sid && sid < m_structs.size());
-        return m_structs[sid];
+        return m_structs_or_unions[sid];
     }
 
-    const CR_LogStruct& StructFromStructID(CR_StructID sid) const
+    const CR_LogStruct& StructOrUnionFromStructID(CR_StructID sid) const
     {
-        assert(0 <= sid && sid < m_structs.size());
-        return m_structs[sid];
+        return m_structs_or_unions[sid];
     }
 
     CR_LogEnum& EnumFromEnumID(CR_EnumID eid)
     {
-        assert(0 <= eid && eid < m_enums.size());
         return m_enums[eid];
     }
 
     const CR_LogEnum& EnumFromEnumID(CR_EnumID eid) const
     {
-        assert(0 <= eid && eid < m_enums.size());
         return m_enums[eid];
-    }
-
-    CR_LogUnion& UnionFromUnionID(CR_UnionID uid)
-    {
-        assert(0 <= uid && uid < m_unions.size());
-        return m_unions[uid];
-    }
-
-    const CR_LogUnion& UnionFromUnionID(CR_UnionID uid) const
-    {
-        assert(0 <= uid && uid < m_unions.size());
-        return m_unions[uid];
     }
 
     CR_LogVar& VarFromVarID(CR_VarID vid)
     {
-        assert(0 <= vid && vid < m_vars.size());
         return m_vars[vid];
     }
 
     const CR_LogVar& VarFromVarID(CR_VarID vid) const
     {
-        assert(0 <= vid && vid < m_vars.size());
         return m_vars[vid];
+    }
+
+    int GetSizeofStruct(CR_StructID sid) const
+    {
+        if (sid == cr_invalid_id)
+            return 0;
+        const CR_LogStruct& ls = m_structs_or_unions[sid];
+        int size = 0;
+        for (auto tid : ls.m_type_list)
+        {
+            size += GetSizeofType(tid);
+        }
+        return size;
+    }
+
+    int GetSizeofUnion(CR_StructID sid) const
+    {
+        if (sid == cr_invalid_id)
+            return 0;
+
+        const CR_LogStruct& ls = m_structs_or_unions[sid];
+        int maxsize = 0, size;
+        for (auto tid : ls.m_type_list)
+        {
+            size = GetSizeofType(tid);
+            if (maxsize < size)
+                maxsize = size;
+        }
+        return maxsize;
+    }
+
+    int GetSizeofType(CR_TypeID tid) const
+    {
+        if (tid == cr_invalid_id)
+            return 0;
+        const CR_LogType& lt = m_types[tid];
+        if (lt.m_flags & TF_ALIAS)
+            return GetSizeofType(lt.m_id);
+        if (lt.m_flags & TF_POINTER)
+            return GetSizeofType(lt.m_id);
+        if (lt.m_flags & TF_ARRAY)
+            return GetSizeofType(lt.m_id) * lt.m_count;
+        if (lt.m_flags & TF_CONST)
+            return GetSizeofType(lt.m_id);
+        if (lt.m_flags & TF_FUNCTION)
+            return sizeof(void *);
+        if (lt.m_flags & TF_STRUCT)
+            return GetSizeofStruct(lt.m_id);
+        if (lt.m_flags & TF_UNION)
+            return GetSizeofUnion(lt.m_id);
+        if (lt.m_flags & TF_ENUM)
+            return sizeof(int);
+        if (lt.m_flags & TF_LONGLONG)
+            return 8;
+        if ((lt.m_flags & TF_LONG) && !(lt.m_flags & TF_DOUBLE))
+            return sizeof(long);
+        if ((lt.m_flags & TF_LONG) && (lt.m_flags & TF_DOUBLE))
+            return sizeof(long double);
+        if (lt.m_flags & TF_SHORT)
+            return sizeof(short);
+        if (lt.m_flags & TF_CHAR)
+            return sizeof(char);
+        if (lt.m_flags & TF_FLOAT)
+            return sizeof(float);
+        if (lt.m_flags & TF_DOUBLE)
+            return sizeof(double);
+        return 0;
+    }
+
+    std::string StringOfType(CR_TypeID tid, const std::string& content) const
+    {
+        if (tid == cr_invalid_id)
+        {
+            return "";
+        }
+        auto it = m_mTypeIDToName.find(tid);
+        if (it != m_mTypeIDToName.end())
+        {
+            return it->second + " " + content;
+        }
+        const CR_LogType& type = m_types[tid];
+        if (type.m_flags & TF_POINTER)
+        {
+            const CR_LogType& type2 = m_types[type.m_id];
+            if ((type2.m_flags & TF_FUNCTION) || (type2.m_flags & TF_ARRAY) ||
+                (type2.m_flags & TF_POINTER))
+            {
+                if (type2.m_flags & TF_FUNCTION)
+                {
+                    if (type.m_flags & TF_STDCALL)
+                        return StringOfType(type.m_id, "(__stdcall *" + content + ")");
+                    if (type.m_flags & TF_FASTCALL)
+                        return StringOfType(type.m_id, "(__fastcall *" + content + ")");
+                }
+                return StringOfType(type.m_id, "(*" + content + ")");
+            }
+            else
+                return StringOfType(type.m_id, "") + " *" + content;
+        }
+        if (type.m_flags & TF_ARRAY)
+        {
+            if (type.m_count)
+            {
+                char buf[64];
+                std::sprintf(buf, "[%d]", type.m_count);
+                return StringOfType(type.m_id, content + buf);
+            }
+            else
+                return StringOfType(type.m_id, content + "[]");
+        }
+        if (type.m_flags & TF_CONST)
+        {
+            return std::string("const ") + StringOfType(type.m_id, content);
+        }
+        if (type.m_flags & TF_FUNCTION)
+        {
+            const CR_LogFunc& lf = m_funcs[type.m_id];
+            std::string rettype = StringOfType(lf.m_return_type, "");
+            std::string paramlist =
+                StringOfParamList(lf.m_type_list, lf.m_name_list);
+            if (lf.m_ellipsis)
+                paramlist += ", ...";
+            return rettype + " " + content + "(" + paramlist + ")";
+        }
+        return "";
+    }
+
+    std::string StringOfParamList(
+        const std::deque<CR_TypeID>& type_list,
+        const std::deque<std::string>& name_list) const
+    {
+        assert(type_list.size() == name_list.size());
+        std::size_t i, size = type_list.size();
+        std::string str;
+        if (size > 0)
+        {
+            str += StringOfType(type_list[0], name_list[0]);
+            for (i = 1; i < size; i++)
+            {
+                str += ", ";
+                str += StringOfType(type_list[i], name_list[i]);
+            }
+        }
+        return str;
+    }
+
+    int GetIntValueFromVarName(const std::string& name) const
+    {
+        CR_VarID vid;
+        auto it = m_mNameToVarID.find(name);
+        if (it == m_mNameToVarID.end())
+            return 0;
+        vid = it->second;
+        const CR_LogVar& var = m_vars[vid];
+        return var.m_int_value;
     }
 };
 

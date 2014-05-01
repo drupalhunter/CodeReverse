@@ -5,12 +5,10 @@
 // This file is part of CodeReverse.
 ////////////////////////////////////////////////////////////////////////////
 
-// The description of this file may be imperfect or incorrect.
-
-instruction aaa() {
-    register BYTE al = al;
-    register BYTE ah = ah;
-    volatile BYTE $v = al & 0x0F;
+INSN aaa()
+    register UCHAR al = al;
+    register UCHAR ah = ah;
+    UCHAR $v = al & 0x0F;
     if (v >= 10 || AF) {
         al += 6;
         ah += 1;
@@ -26,13 +24,13 @@ instruction aaa() {
     ZF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction aad($imm8 = 10) {
+INSN aad($imm8 = 10)
     register XCHAR al = al;
     al += $imm8 * ah;
     ZF = al == 0;
-    volatile CHAR $a1 = al;
+    CHAR $a1 = al;
     SF = $a1 < 0;
     ah = 0;
     OF = undefined;
@@ -40,23 +38,23 @@ instruction aad($imm8 = 10) {
     PF = undefined;
     CF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction aam($imm8 = 10) {
-    volatile BYTE $v = al;
+INSN aam($imm8 = 10)
+    UCHAR $v = al;
     ah = $v / $imm8;
     al = $v % $imm8;
     ZF = al == 0;
-    volatile CHAR $a1 = al;
+    CHAR $a1 = al;
     SF = $a1 < 0;
     OF = undefined;
     AF = undefined;
     PF = undefined;
     CF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction aas() {
+INSN aas()
     if ((al & 0x0F) >= 10 || AF) {
         al -= 6;
         ah -= 1;
@@ -72,47 +70,47 @@ instruction aas() {
     ZF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction adc($dest, $src) {
-    volatile SIGNED typeof($dest) $n1 = SIGNED($dest);
-    volatile SIGNED typeof($dest) $n2 = SIGNED($src) + CF;
+INSN adc($dest, $src)
+    SIGNED typeof($dest) $n1 = SIGNED($dest);
+    SIGNED typeof($dest) $n2 = SIGNED($src) + CF;
     SFeqOF = $n1 >= -$n2;
-    volatile UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m2 = UNSIGNED($src) + CF;
+    UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
+    UNSIGNED typeof($dest) $m2 = UNSIGNED($src) + CF;
     $dest += $src + CF;
-    volatile SIGNED typeof($dest) $n3 = SIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
+    SIGNED typeof($dest) $n3 = SIGNED($dest);
+    UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
     OF = ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
     ZF = $dest == 0;
     SF = $n3 < 0;
     CF = $m1 > $m3 - CF || $m1 > $m3;
     AF = undefined;
     PF = undefined;
-}
+END INSN
 
-instruction add($dest, $src) {
-    volatile SIGNED typeof($dest) $n1 = SIGNED($dest);
-    volatile SIGNED typeof($dest) $n2 = SIGNED($src);
+INSN add($dest, $src)
+    SIGNED typeof($dest) $n1 = SIGNED($dest);
+    SIGNED typeof($dest) $n2 = SIGNED($src);
     SFeqOF = $n1 >= -$n2;
-    volatile UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m2 = UNSIGNED($src);
+    UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
+    UNSIGNED typeof($dest) $m2 = UNSIGNED($src);
     $dest += $src;
-    volatile SIGNED typeof($dest) $n3 = SIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
+    SIGNED typeof($dest) $n3 = SIGNED($dest);
+    UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
     OF = ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
     ZF = $dest == 0;
     SF = $n3 < 0;
     CF = $m1 > $m3;
     AF = undefined;
     PF = undefined;
-}
+END INSN
 
-instruction and(XSIGNED $dest, XSIGNED $src) {
-    static if ($dest !== $src) {
+INSN and(XSIGNED $dest, XSIGNED $src)
+    if ($dest !== $src) {
         $dest &= $src;
     }
-    volatile SIGNED $d1 = $dest;
+    SIGNED $d1 = $dest;
     ZF = $dest == 0;
     SF = $d1 < 0;
     CF = 0;
@@ -120,56 +118,56 @@ instruction and(XSIGNED $dest, XSIGNED $src) {
     AF = undefined;
     PF = undefined;
     SFeqOF = $d1 >= 0;
-}
+END INSN
 
-//instruction bound($dest,$src);
-//instruction call($dest);
+// INSN bound($dest,$src);
+// INSN call($dest);
 
-instruction cbw() {
+INSN cbw()
     register CHAR al = al;
     register SHORT ax = al;
-}
+END INSN
 
-instruction clc() {
+INSN clc()
     CF = 0;
-}
+END INSN
 
-instruction cld() {
+INSN cld()
     DF = 0;
-}
+END INSN
 
-instruction cli() {
+INSN cli()
     IF = 0;
-}
+END INSN
 
-instruction cmc() {
+INSN cmc()
     CF = !CF;
-}
+END INSN
 
-instruction cmp($dest, $src) {
-    volatile SIGNED typeof($dest) $sd1 = $dest;
-    volatile UNSIGNED typeof($dest) $ud1 = $dest;
+INSN cmp($dest, $src)
+    SIGNED typeof($dest) $sd1 = $dest;
+    UNSIGNED typeof($dest) $ud1 = $dest;
     SFeqOF = $dest >= $src;
-    volatile typeof($dest) $temp = $dest - $src;
-    volatile SIGNED typeof($dest) $sd2 = $temp;
-    volatile UNSIGNED typeof($dest) $ud2 = $temp;
+    typeof($dest) $temp = $dest - $src;
+    SIGNED typeof($dest) $sd2 = $temp;
+    UNSIGNED typeof($dest) $ud2 = $temp;
     ZF = $dest == 0;
     SF = $sd2 < 0;
     OF = undefined;
     CF = $ud1 < $ud2;
     AF = undefined;
     PF = undefined;
-}
+END INSN
 
-instruction cmpsb() {
+INSN cmpsb()
     register XCHAR *di = di;
     register XCHAR *si = si;
-    volatile CHAR $sd1 = *si;
-    volatile BYTE $ud1 = *si;
+    CHAR $sd1 = *si;
+    UCHAR $ud1 = *si;
     SFeqOF = *si >= *di;
-    volatile XCHAR $v = *si - *di;
-    volatile CHAR $sd2 = $v;
-    volatile BYTE $ud2 = $v;
+    XCHAR $v = *si - *di;
+    CHAR $sd2 = $v;
+    UCHAR $ud2 = $v;
     ZF = $v == 0;
     SF = $sd2 < 0;
     OF = undefined;
@@ -183,16 +181,16 @@ instruction cmpsb() {
         si += 1;
         di += 1;
     }
-}
+END INSN
 
-instruction cmpsw() {
+INSN cmpsw()
     register XSHORT *di = di;
     register XSHORT *si = si;
-    volatile SHORT $sd1 = *si;
-    volatile WORD $ud1 = *si;
-    volatile XSHORT $v = *si - *di;
-    volatile SHORT $sd2 = $v;
-    volatile WORD $ud2 = $v;
+    SHORT $sd1 = *si;
+    WORD $ud1 = *si;
+    XSHORT $v = *si - *di;
+    SHORT $sd2 = $v;
+    WORD $ud2 = $v;
     ZF = $dest == 0;
     SF = $sd2 < 0;
     OF = undefined;
@@ -201,22 +199,22 @@ instruction cmpsw() {
     PF = undefined;
     SFeqOF = $sd2 >= 0;
     if (DF) {
-        register si -= 2;
-        register di -= 2;
+        si -= 1;
+        di -= 1;
     } else {
-        register si += 2;
-        register di += 2;
+        si += 1;
+        di += 1;
     }
-}
+END INSN
 
-instruction repe cmpsb() {
+INSN repe cmpsb()
     register XCHAR *di = di;
     register XCHAR *si = si;
-    volatile XCHAR $v;
-    volatile CHAR $sv1;
-    volatile BYTE $uv1;
-    volatile CHAR $sv2;
-    volatile BYTE $uv2;
+    XCHAR $v;
+    CHAR $sv1;
+    UCHAR $uv1;
+    CHAR $sv2;
+    UCHAR $uv2;
     register WORD cx = cx;
     if (DF) {
         while (cx) {
@@ -263,16 +261,16 @@ instruction repe cmpsb() {
         si += 1;
         di += 1;
     }
-}
+END INSN
 
-instruction repe cmpsw() {
+INSN repe cmpsw()
     register XSHORT *di = di;
     register XSHORT *si = si;
-    volatile XSHORT $v;
-    volatile SHORT $sv1;
-    volatile WORD $uv1;
-    volatile SHORT $sv2;
-    volatile WORD $uv2;
+    XSHORT $v;
+    SHORT $sv1;
+    WORD $uv1;
+    SHORT $sv2;
+    WORD $uv2;
     register WORD cx = cx;
     if (DF) {
         while (cx) {
@@ -313,25 +311,25 @@ instruction repe cmpsw() {
     PF = undefined;
     SFeqOF = $sd2 >= 0;
     if (DF) {
-        register si -= 2;
-        register di -= 2;
+        si -= 1;
+        di -= 1;
     } else {
-        register si += 2;
-        register di += 2;
+        si += 1;
+        di += 1;
     }
-}
+END INSN
 
 alias repz cmpsb = repe cmpsb;
 alias repz cmpsw = repe cmpsw;
 
-instruction repne cmpsb() {
+INSN repne cmpsb()
     register XCHAR *di = di;
     register XCHAR *si = si;
-    volatile XCHAR $v;
-    volatile CHAR $sv1;
-    volatile BYTE $uv1;
-    volatile CHAR $sv2;
-    volatile BYTE $uv2;
+    XCHAR $v;
+    CHAR $sv1;
+    UCHAR $uv1;
+    CHAR $sv2;
+    UCHAR $uv2;
     register WORD cx = cx;
     if (DF) {
         while (cx) {
@@ -378,16 +376,16 @@ instruction repne cmpsb() {
         si += 1;
         di += 1;
     }
-}
+END INSN
 
-instruction repne cmpsw() {
+INSN repne cmpsw()
     register XSHORT *di = di;
     register XSHORT *si = si;
-    volatile XSHORT $v;
-    volatile SHORT $sv1;
-    volatile WORD $uv1;
-    volatile SHORT $sv2;
-    volatile WORD $uv2;
+    XSHORT $v;
+    SHORT $sv1;
+    WORD $uv1;
+    SHORT $sv2;
+    WORD $uv2;
     register WORD cx = cx;
     if (DF) {
         while (cx) {
@@ -428,26 +426,26 @@ instruction repne cmpsw() {
     PF = undefined;
     SFeqOF = $sd2 >= 0;
     if (DF) {
-        register si -= 2;
-        register di -= 2;
+        si -= 1;
+        di -= 1;
     } else {
-        register si += 2;
-        register di += 2;
+        si += 1;
+        di += 1;
     }
-}
+END INSN
 
 alias repnz cmpsb = repne cmpsb;
 alias repnz cmpsw = repne cmpsw;
 
-instruction cwd() {
+INSN cwd()
     register SHORT ax = ax;
     register LONG dx:ax = ax;
-}
+END INSN
 
-instruction daa() {
-    register BYTE al = al;
-    volatile BYTE $oldal = al;
-    volatile BOOL $oldcf = CF;
+INSN daa()
+    register UCHAR al = al;
+    UCHAR $oldal = al;
+    BOOL $oldcf = CF;
     if ((al & 0x0F) >= 10 && AF) {
         al += 6;
         CF = undefined;
@@ -463,17 +461,17 @@ instruction daa() {
         CF = 0;
     }
     OF = undefined;
-    volatile CHAR $c = al;
+    CHAR $c = al;
     SF = $c < 0;
     ZF = al == 0;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction das() {
-    register BYTE al = al;
-    volatile BYTE $oldal = al;
-    volatile BOOL $oldcf = CF;
+INSN das()
+    register UCHAR al = al;
+    UCHAR $oldal = al;
+    BOOL $oldcf = CF;
     if ((al & 0x0F) >= 10 && AF) {
         al -= 6;
         CF = undefined;
@@ -487,33 +485,33 @@ instruction das() {
         CF = 1;
     }
     OF = undefined;
-    volatile CHAR $c = al;
+    CHAR $c = al;
     SF = $c < 0;
     ZF = al == 0;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction dec(XSIGNED $dest) {
+INSN dec(XSIGNED $dest)
     $dest -= 1;
-    volatile SIGNED typeof($dest) $v = $dest;
+    SIGNED typeof($dest) $v = $dest;
     OF = undefined;
     SF = $v < 0;
     ZF = $dest == 0;
     AF = undefined;
     PF = undefined;
     SFeqOF = $v >= 0;
-}
+END INSN
 
-instruction div(UNSIGNED $src) {
-    static if (sizeof($src) == 1) {
-        volatile WORD $v = ax;
+INSN div(UNSIGNED $src)
+    if (sizeof($src) == 1) {
+        WORD $v = ax;
         al = $v / $src;
         ah = $v % $src;
-        register BYTE al = al;
-        register BYTE ah = ah;
-    } else static if (sizeof($src) == 2) {
-        volatile DWORD $v = dx:ax;
+        register UCHAR al = al;
+        register UCHAR ah = ah;
+    } else if (sizeof($src) == 2) {
+        ULONG $v = dx:ax;
         ax = $v / $src;
         dx = $v % $src;
         register WORD ax = ax;
@@ -526,21 +524,21 @@ instruction div(UNSIGNED $src) {
     AF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-// instruction enter(WORD $a, BYTE $b);
-// instruction hlt();
+// INSN enter(WORD $a, UCHAR $b);
+// INSN hlt();
 
-instruction idiv(SIGNED $src) {
-    static if (sizeof($src) == 1) {
-        volatile SHORT $v = ax;
+INSN idiv(SIGNED $src)
+    if (sizeof($src) == 1) {
+        SHORT $v = ax;
         al = $v / $src;
         ah = $v % $src;
         register CHAR al = al;
         register CHAR ah = ah;
         register SHORT ax = ax;
-    } else static if (sizeof($src) == 2) {
-        volatile LONG $v = dx:ax;
+    } else if (sizeof($src) == 2) {
+        LONG $v = dx:ax;
         ax = $v / $src;
         dx = $v % $src;
         register SHORT ax = ax;
@@ -554,17 +552,17 @@ instruction idiv(SIGNED $src) {
     AF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction imul(SIGNED $src) {
+INSN imul(SIGNED $src)
     if (sizeof($src) == 1) {
-        volatile CHAR $v = al;
+        CHAR $v = al;
         ax = $v * $src;
         register SHORT ax = ax;
         CF = al != ax;
         OF = al != ax;
     } else if (sizeof($src) == 2) {
-        volatile SHORT $v = ax;
+        SHORT $v = ax;
         dx:ax = $v / $src;
         register LONG dx:ax = dx:ax;
         CF = ax != dx:ax;
@@ -575,17 +573,17 @@ instruction imul(SIGNED $src) {
     AF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction imul($dest, SIGNED $src) {
+INSN imul($dest, SIGNED $src)
     if (sizeof($dest) == 1) {
-        volatile SHORT temp = $dest;
+        SHORT temp = $dest;
         temp *= $src;
         $dest *= $src;
         CF = temp != $dest;
         OF = temp != $dest;
     } else if (sizeof($dest) == 2) {
-        volatile LONG temp = $dest;
+        LONG temp = $dest;
         temp *= $src;
         $dest *= $src;
         CF = temp != $dest;
@@ -596,17 +594,17 @@ instruction imul($dest, SIGNED $src) {
     AF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction imul($dest, SIGNED $src1, SIGNED $src2) {
+INSN imul($dest, SIGNED $src1, SIGNED $src2)
     if (sizeof($src1) == 1) {
-        volatile SHORT temp = $src1;
+        SHORT temp = $src1;
         temp *= $src2;
         $dest = $src1 * $src2;
         CF = temp != $dest;
         OF = temp != $dest;
     } else if (sizeof($src) == 2) {
-        volatile LONG temp = $src1;
+        LONG temp = $src1;
         temp *= $src2;
         $dest = $src1 * $src2;
         CF = temp != $dest;
@@ -617,257 +615,257 @@ instruction imul($dest, SIGNED $src1, SIGNED $src2) {
     AF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-// instruction in($dest,$src);
-// instruction rep insb();
-// instruction rep insw();
+// INSN in($dest,$src);
+// INSN rep insb();
+// INSN rep insw();
 
-instruction inc($dest) {
+INSN inc($dest)
     $dest += 1;
-    volatile SIGNED typeof($dest) $v = $dest;
+    SIGNED typeof($dest) $v = $dest;
     OF = undefined;
     SF = $v < 0;
     ZF = $dest == 0;
     AF = undefined;
     PF = undefined;
     SFeqOF = $v >= 0;
-}
+END INSN
 
-// instruction insb();
-// instruction insw();
-// instruction int($a);
-// instruction into();
-// instruction iret();
+// INSN insb();
+// INSN insw();
+// INSN int($a);
+// INSN into();
+// INSN iret();
 
-instruction ja($dest) {
+INSN ja($dest)
     if (!ZF && !CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jae($dest) {
+INSN jae($dest)
     if (!CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jb($dest) {
+INSN jb($dest)
     if (CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jbe($dest) {
+INSN jbe($dest)
     if (ZF || CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jc($dest) {
+INSN jc($dest)
     if (CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jcxz($dest) {
+INSN jcxz($dest)
     register WORD cx = cx;
     if (cx == 0) {
         goto $dest;
     }
-}
+END INSN
 
-instruction je($dest) {
+INSN je($dest)
     if (ZF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jg($dest) {
+INSN jg($dest)
     if (!ZF && SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jge($dest) {
+INSN jge($dest)
     if (SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jl($dest) {
+INSN jl($dest)
     if (!SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jle($dest) {
+INSN jle($dest)
     if (ZF && !SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jmp($dest) {
+INSN jmp($dest)
     goto $dest;
-}
+END INSN
 
-instruction jna($dest) {
+INSN jna($dest)
     if (ZF || CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnae($dest) {
+INSN jnae($dest)
     if (CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnb($dest) {
+INSN jnb($dest)
     if (!CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnbe($dest) {
+INSN jnbe($dest)
     if (!ZF && !CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnc($dest) {
+INSN jnc($dest)
     if (!CF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jne($dest) {
+INSN jne($dest)
     if (!ZF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jng($dest) {
+INSN jng($dest)
     if (ZF || !SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnge($dest) {
+INSN jnge($dest)
     if (!SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnl($dest) {
+INSN jnl($dest)
     if (SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnle($dest) {
+INSN jnle($dest)
     if (!ZF && SFeqOF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jno($dest) {
+INSN jno($dest)
     if (!OF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnp($dest) {
+INSN jnp($dest)
     if (!PF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jns($dest) {
+INSN jns($dest)
     if (!SF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jnz($dest) {
+INSN jnz($dest)
     if (!ZF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jo($dest) {
+INSN jo($dest)
     if (OF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jp($dest) {
+INSN jp($dest)
     if (PF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jpe($dest) {
+INSN jpe($dest)
     if (PF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jpo($dest) {
+INSN jpo($dest)
     if (!PF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction js($dest) {
+INSN js($dest)
     if (SF) {
         goto $dest;
     }
-}
+END INSN
 
-instruction jz($dest) {
+INSN jz($dest)
     if (ZF) {
         goto $dest;
     }
-}
+END INSN
 
-// instruction lahf();
-// instruction lds(void *$dest, void *$src);
-// instruction les(void *$dest, void *$src);
+// INSN lahf();
+// INSN lds(void *$dest, void *$src);
+// INSN les(void *$dest, void *$src);
 
-instruction lea(void *$dest, void *$src) {
+INSN lea(void *$dest, void *$src)
     $dest = $src;
-}
+END INSN
 
-// instruction leave();
+// INSN leave();
 
-instruction lodsb() {
+INSN lodsb()
     register XCHAR *si = si;
     register XCHAR al = al;
     al = *si;
-    static if (DF) {
+    if (DF) {
         si -= 1;
     } else {
         si += 1;
     }
-}
+END INSN
 
-instruction lodsw() {
+INSN lodsw()
     register XSHORT *si = si;
     register XSHORT ax = ax;
     ax = *si;
-    static if (DF) {
-        register si -= 2;
+    if (DF) {
+        si -= 1;
     } else {
-        register si += 2;
+        si += 1;
     }
-}
+END INSN
 
-instruction rep lodsb() {
+INSN rep lodsb()
     register XCHAR *si = si;
     register XCHAR al = al;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             al = *si;
             si -= 1;
@@ -880,102 +878,102 @@ instruction rep lodsb() {
             cx -= 1;
         }
     }
-}
+END INSN
 
-instruction rep lodsw() {
+INSN rep lodsw()
     register XSHORT *si = si;
     register XSHORT ax = ax;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             ax = *si;
-            register si -= 2;
+            si -= 1;
             cx -= 1;
         }
     } else {
         while (cx) {
             ax = *si;
-            register si += 2;
+            si += 1;
             cx -= 1;
         }
     }
-}
+END INSN
 
-instruction loop($dest) {
+INSN loop($dest)
     register WORD cx = cx;
     cx -= 1;
-    static if (cx) {
+    if (cx) {
         goto $dest;
     }
-}
+END INSN
 
-instruction loope($dest) {
+INSN loope($dest)
     register WORD cx = cx;
     cx -= 1;
-    static if (ZF && cx) {
+    if (ZF && cx) {
         goto $dest;
     }
-}
+END INSN
 
-instruction loopne($dest) {
+INSN loopne($dest)
     register WORD cx = cx;
     cx -= 1;
-    static if (!ZF && cx) {
+    if (!ZF && cx) {
         goto $dest;
     }
-}
+END INSN
 
-instruction loopnz($dest) {
+INSN loopnz($dest)
     register WORD cx = cx;
     cx -= 1;
-    static if (!ZF && cx) {
+    if (!ZF && cx) {
         goto $dest;
     }
-}
+END INSN
 
-instruction loopz($dest) {
+INSN loopz($dest)
     register WORD cx = cx;
     cx -= 1;
-    static if (ZF && cx) {
+    if (ZF && cx) {
         goto $dest;
     }
-}
+END INSN
 
-instruction mov($dest, $src) {
+INSN mov($dest, $src)
     $dest = $src;
-}
+END INSN
 
-instruction movsb() {
+INSN movsb()
     register XCHAR *di = di;
     register XCHAR *si = si;
     *di = *si;
-    static if (DF) {
+    if (DF) {
         di -= 1;
         si -= 1;
     } else {
         di += 1;
         si += 1;
     }
-}
+END INSN
 
-instruction movsw() {
+INSN movsw()
     register XSHORT *di = di;
     register XSHORT *si = si;
     *di = *si;
-    static if (DF) {
-        register di -= 2;
-        register si -= 2;
+    if (DF) {
+        di -= 1;
+        si -= 1;
     } else {
-        register di += 2;
-        register si += 2;
+        di += 1;
+        si += 1;
     }
-}
+END INSN
 
-instruction rep movsb() {
+INSN rep movsb()
     register XCHAR *di = di;
     register XCHAR *si = si;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             *di = *si;
             di -= 1;
@@ -990,48 +988,48 @@ instruction rep movsb() {
             cx -= 1;
         }
     }
-}
+END INSN
 
-instruction rep movsw() {
+INSN rep movsw()
     register XSHORT *di = di;
     register XSHORT *si = si;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             *di = *si;
-            register di -= 2;
-            register si -= 2;
+            di -= 1;
+            si -= 1;
             cx -= 1;
         }
     } else {
         while (cx) {
             *di = *si;
-            register di += 2;
-            register si += 2;
+            di += 1;
+            si += 1;
             cx -= 1;
         }
     }
-}
+END INSN
 
-instruction mul(UNSIGNED $src) {
-    static if (sizeof($src) == 1) {
-        volatile WORD $v = al;
+INSN mul(UNSIGNED $src)
+    if (sizeof($src) == 1) {
+        WORD $v = al;
         ax = $v * $src;
         CF = ax != al;
         OF = ax != al;
-        register BYTE al = al;
-        register BYTE ah = ah;
+        register UCHAR al = al;
+        register UCHAR ah = ah;
         register WORD ax = ax;
         OF = ax != al;
         CF = ax != al;
-    } else static if (sizeof($src) == 2) {
-        volatile DWORD $v = ax;
+    } else if (sizeof($src) == 2) {
+        ULONG $v = ax;
         dx:ax = $v * $src;
         CF = dx:ax != ax;
         OF = dx:ax != ax;
         register WORD ax = ax;
         register WORD dx = dx;
-        register DWORD dx:ax = dx:ax;
+        register ULONG dx:ax = dx:ax;
         OF = dx:ax != ax;
         CF = dx:ax != ax;
     }
@@ -1040,9 +1038,9 @@ instruction mul(UNSIGNED $src) {
     AF = undefined;
     PF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction neg(SIGNED $dest) {
+INSN neg(SIGNED $dest)
     $dest = -$dest;
     CF = $dest != 0;
     OF = 0;
@@ -1051,16 +1049,16 @@ instruction neg(SIGNED $dest) {
     AF = undefined;
     PF = undefined;
     SFeqOF = $dest >= 0;
-}
+END INSN
 
-instruction nop() {
-}
+INSN nop()
+END INSN
 
-instruction not(UNSIGNED $dest) {
+INSN not(UNSIGNED $dest)
     $dest = ~$dest;
-}
+END INSN
 
-instruction or($dest, $src) {
+INSN or($dest, $src)
     if ($dest === $src) {
         SF = 0;
         PF = undefined;
@@ -1075,29 +1073,29 @@ instruction or($dest, $src) {
     OF = 0;
     CF = 0;
     AF = undefined;
-}
+END INSN
 
-// instruction out($dest, $src);
-// instruction outsb();
-// instruction outsw();
-// instruction rep outsb();
-// instruction rep outsw();
-// instruction pop($a);
-// instruction popa();
-// instruction popf();
-// instruction push($a);
-// instruction pusha();
-// instruction pushf();
-// instruction rcl(XSIGNED $dest, XSIGNED $src);
-// instruction rcr(XSIGNED $dest, XSIGNED $src);
-// instruction rol(XSIGNED $dest, XSIGNED $src);
-// instruction ror(XSIGNED $dest, XSIGNED $src);
-// instruction ret();
-// instruction retf();
-// instruction retn();
-// instruction sahf();
+// INSN out($dest, $src);
+// INSN outsb();
+// INSN outsw();
+// INSN rep outsb();
+// INSN rep outsw();
+// INSN pop($a);
+// INSN popa();
+// INSN popf();
+// INSN push($a);
+// INSN pusha();
+// INSN pushf();
+// INSN rcl(XSIGNED $dest, XSIGNED $src);
+// INSN rcr(XSIGNED $dest, XSIGNED $src);
+// INSN rol(XSIGNED $dest, XSIGNED $src);
+// INSN ror(XSIGNED $dest, XSIGNED $src);
+// INSN ret();
+// INSN retf();
+// INSN retn();
+// INSN sahf();
 
-instruction sal(SIGNED $dest, XUNSIGNED $src) {
+INSN sal(SIGNED $dest, XUNSIGNED $src)
     $dest <<= $src;
     CF = undefined;
     OF = undefined;
@@ -1106,9 +1104,9 @@ instruction sal(SIGNED $dest, XUNSIGNED $src) {
     PF = undefined;
     AF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction sar(SIGNED $dest, XUNSIGNED $src) {
+INSN sar(SIGNED $dest, XUNSIGNED $src)
     $dest >>= $src;
     CF = undefined;
     OF = undefined;
@@ -1117,9 +1115,9 @@ instruction sar(SIGNED $dest, XUNSIGNED $src) {
     PF = undefined;
     AF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction shl(UNSIGNED $dest, UNSIGNED $src) {
+INSN shl(UNSIGNED $dest, UNSIGNED $src)
     $dest <<= $src;
     CF = undefined;
     OF = undefined;
@@ -1128,9 +1126,9 @@ instruction shl(UNSIGNED $dest, UNSIGNED $src) {
     PF = undefined;
     AF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction shr(UNSIGNED $dest, UNSIGNED $src) {
+INSN shr(UNSIGNED $dest, UNSIGNED $src)
     $dest >>= $src;
     CF = undefined;
     OF = undefined;
@@ -1139,28 +1137,28 @@ instruction shr(UNSIGNED $dest, UNSIGNED $src) {
     PF = undefined;
     AF = undefined;
     SFeqOF = undefined;
-}
+END INSN
 
-instruction sbb($dest, $src) {
-    volatile SIGNED typeof($dest) $n1 = SIGNED($dest);
-    volatile SIGNED typeof($dest) $n2 = SIGNED($src) + CF;
+INSN sbb($dest, $src)
+    SIGNED typeof($dest) $n1 = SIGNED($dest);
+    SIGNED typeof($dest) $n2 = SIGNED($src) + CF;
     SFeqOF = $n1 >= $n2 + CF;
-    volatile UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m2 = UNSIGNED($src) + CF;
+    UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
+    UNSIGNED typeof($dest) $m2 = UNSIGNED($src) + CF;
     $dest -= $src + CF;
-    volatile SIGNED typeof($dest) $n3 = SIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
+    SIGNED typeof($dest) $n3 = SIGNED($dest);
+    UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
     OF = ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
     ZF = $dest == 0;
     SF = $n3 < 0;
     CF = $m1 > $m3 + CF || $m1 > $m3;
     AF = undefined;
     PF = undefined;
-}
+END INSN
 
-instruction scasb() {
+INSN scasb()
     register XCHAR *di = di;
-    volatile XCHAR $v = al - *di;
+    XCHAR $v = al - *di;
 
     OF = 0;
     ZF = $v == 0;
@@ -1170,16 +1168,16 @@ instruction scasb() {
     CF = undefined;
     SFeqOF = $v >= 0;
 
-    static if (DF) {
+    if (DF) {
         di -= 1;
     } else {
         di += 1;
     }
-}
+END INSN
 
-instruction scasw() {
+INSN scasw()
     register XSHORT *di = di;
-    volatile XSHORT $v = ax - *di;
+    XSHORT $v = ax - *di;
 
     OF = 0;
     ZF = $v == 0;
@@ -1189,18 +1187,18 @@ instruction scasw() {
     CF = undefined;
     SFeqOF = $v >= 0;
 
-    static if (DF) {
-        register di -= 2;
+    if (DF) {
+        di -= 1;
     } else {
-        register di += 2;
+        di += 1;
     }
-}
+END INSN
 
-instruction repe scasb() {
+INSN repe scasb()
     register XCHAR *di = di;
-    volatile XCHAR $v;
+    XCHAR $v;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             $v = al - *di;
             ZF = $v == 0;
@@ -1227,13 +1225,13 @@ instruction repe scasb() {
     PF = undefined;
     CF = undefined;
     SFeqOF = $v >= 0;
-}
+END INSN
 
-instruction repe scasw() {
+INSN repe scasw()
     register XSHORT *di = di;
-    volatile XSHORT $v;
+    XSHORT $v;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             $v = ax - *di;
             ZF = $v == 0;
@@ -1260,16 +1258,16 @@ instruction repe scasw() {
     PF = undefined;
     CF = undefined;
     SFeqOF = $v >= 0;
-}
+END INSN
 
 alias repz scasb = repe scasb;
 alias repz scasw = repe scasw;
 
-instruction repne scasb() {
+INSN repne scasb()
     register XCHAR *di = di;
-    volatile XCHAR $v;
+    XCHAR $v;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             $v = al - *di;
             ZF = $v == 0;
@@ -1296,17 +1294,17 @@ instruction repne scasb() {
     PF = undefined;
     CF = undefined;
     SFeqOF = $v >= 0;
-}
+END INSN
 
-instruction repne scasw() {
+INSN repne scasw()
     register XSHORT *di = di;
-    volatile XSHORT $v;
+    XSHORT $v;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             $v = ax - *di;
             ZF = $v == 0;
-            register di -= 2;
+            di -= 1;
             cx -= 1;
             if (ZF) {
                 break;
@@ -1316,7 +1314,7 @@ instruction repne scasw() {
         while (cx) {
             $v = ax - *di;
             ZF = $v == 0;
-            register di += 2;
+            di += 1;
             cx -= 1;
             if (ZF) {
                 break;
@@ -1329,51 +1327,51 @@ instruction repne scasw() {
     PF = undefined;
     CF = undefined;
     SFeqOF = $v >= 0;
-}
+END INSN
 
 alias repnz scasb = repne scasb;
 alias repnz scasw = repne scasw;
 
-instruction stc() {
+INSN stc()
     CF = 1;
-}
+END INSN
 
-instruction std() {
+INSN std()
     DF = 1;
-}
+END INSN
 
-instruction sti() {
+INSN sti()
     IF = 1;
-}
+END INSN
 
-instruction stosb() {
+INSN stosb()
     register XCHAR *di = di;
     register XCHAR al = al;
     *di = al;
-    static if (DF) {
+    if (DF) {
         di -= 1;
     } else {
         di += 1;
     }
-}
+END INSN
 
-instruction stosw() {
+INSN stosw()
     register XSHORT *di = di;
     register XSHORT ax = ax;
     *di = ax;
-    volatile static if (DF) {
-        register di -= 2;
+    if (DF) {
+        di -= 1;
     } else {
-        register di += 2;
+        di += 1;
     }
-}
+END INSN
 
-instruction rep stosb() {
+INSN rep stosb()
     register XCHAR *di = di;
     register XCHAR al = al;
     register WORD cx = cx;
-    volatile BOOL $minus;
-    static if (DF) {
+    BOOL $minus;
+    if (DF) {
         while (cx) {
             *di = al;
             di -= 1;
@@ -1386,45 +1384,45 @@ instruction rep stosb() {
             cx -= 1;
         }
     }
-}
+END INSN
 
-instruction rep stosw() {
+INSN rep stosw()
     register XSHORT *di = di;
     register XSHORT ax = ax;
     register WORD cx = cx;
-    static if (DF) {
+    if (DF) {
         while (cx) {
             *di = ax;
-            register di -= 2;
+            di -= 1;
             cx -= 1;
         }
     } else {
         while (cx) {
             *di = ax;
-            register di += 2;
+            di += 1;
             cx -= 1;
         }
     }
-}
+END INSN
 
-instruction sub(XSIGNED $dest, XSIGNED $src) {
-    volatile SIGNED typeof($dest) $n1 = SIGNED($dest);
-    volatile SIGNED typeof($dest) $n2 = SIGNED($src);
+INSN sub(XSIGNED $dest, XSIGNED $src)
+    SIGNED typeof($dest) $n1 = SIGNED($dest);
+    SIGNED typeof($dest) $n2 = SIGNED($src);
     SFeqOF = $n1 >= $n2;
-    volatile UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m2 = UNSIGNED($src);
+    UNSIGNED typeof($dest) $m1 = UNSIGNED($dest);
+    UNSIGNED typeof($dest) $m2 = UNSIGNED($src);
     $dest -= $src;
-    volatile SIGNED typeof($dest) $n3 = SIGNED($dest);
-    volatile UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
+    SIGNED typeof($dest) $n3 = SIGNED($dest);
+    UNSIGNED typeof($dest) $m3 = UNSIGNED($dest);
     OF = ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
     ZF = $dest == 0;
     SF = $n3 < 0;
     CF = $m1 > $m3;
     AF = undefined;
     PF = undefined;
-}
+END INSN
 
-instruction test(XSIGNED $dest, XSIGNED $src) {
+INSN test(XSIGNED $dest, XSIGNED $src)
     if ($dest === $src) {
         ZF = $dest == 0;
         SF = $dest < 0;
@@ -1437,30 +1435,30 @@ instruction test(XSIGNED $dest, XSIGNED $src) {
     CF = 0;
     OF = 0;
     SFeqOF = undefined;
-}
+END INSN
 
-// instruction wait();
+// INSN wait();
 
-instruction xchg($dest, $src) {
+INSN xchg($dest, $src)
     typeof($dest) $v($dest);
     $dest = $src;
     $src = $v;
-}
+END INSN
 
-instruction xlat(const BYTE *$src) {
-    register BYTE al = al;
+INSN xlat(const UCHAR *$src)
+    register UCHAR al = al;
     al = $src[al];
-    register BYTE al = al;
-}
+    register UCHAR al = al;
+END INSN
 
-instruction xlatb(const BYTE *$src) {
-    register BYTE al = al;
+INSN xlatb(const UCHAR *$src)
+    register UCHAR al = al;
     al = $src[al];
-    register BYTE al = al;
-}
+    register UCHAR al = al;
+END INSN
 
-instruction xor(XSIGNED $dest, XSIGNED $src) {
-    static if ($dest === $src) {
+INSN xor(XSIGNED $dest, XSIGNED $src)
+    if ($dest === $src) {
         $dest = 0;
         ZF = 1;
         SF = 0;
@@ -1473,6 +1471,6 @@ instruction xor(XSIGNED $dest, XSIGNED $src) {
     CF = 0;
     PF = undefined;
     AF = undefined;
-    volatile SIGNED typeof($dest) $v = $dest;
+    SIGNED typeof($dest) $v = $dest;
     SFeqOF = $v >= 0;
-}
+END INSN

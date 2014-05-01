@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////
-// CodeReverse 0.0.9                         //
+// CodeReverse                               //
 // by Katayama Hirofumi MZ (katahiromz)      //
 // https://github.com/katahiromz/CodeReverse //
 // katayama.hirofumi.mz@gmail.com            //

@@ -22,7 +22,7 @@
 namespace cparser
 {
     template <class Iterator>
-    bool parse(shared_ptr<TransUnit>& ts, Iterator begin, Iterator end)
+    bool parse(shared_ptr<TransUnit>& tu, Iterator begin, Iterator end)
     {
         using namespace cparser;
         ParserSite ps;
@@ -54,7 +54,7 @@ namespace cparser
         if (parser.accept(node))
         {
             printf("parser accepted!\n");
-            trans_unit = static_pointer_cast<TransUnit, Node>(node);
+            tu = static_pointer_cast<TransUnit, Node>(node);
             return true;
         }
 

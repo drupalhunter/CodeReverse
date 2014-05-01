@@ -122,7 +122,6 @@ namespace cparser
         shared_ptr<Declor>      m_declor;       // can be NULL
         shared_ptr<CondExpr>    m_const_expr;   // can be NULL
         shared_ptr<ParamList>   m_param_list;   // can be NULL
-        shared_ptr<IdentList>   m_ident_list;   // can be NULL
         shared_ptr<Initer>      m_initer;       // can be NULL
         shared_ptr<Pointers>    m_pointers;     // can be NULL
     };
@@ -190,7 +189,7 @@ namespace cparser
 
     struct TypeSpec : Node
     {
-        CR_TypeFlags                   m_flag;
+        CR_TypeFlags                m_flag;
         // struct/union/enum tag name or typedef name
         std::string                 m_name;
         shared_ptr<DeclList>        m_decl_list;    // for struct, union or enum
@@ -201,7 +200,7 @@ namespace cparser
 
     struct TypeQual : Node
     {
-        CR_TypeFlags                   m_flag;
+        CR_TypeFlags                m_flag;
         TypeQual() : m_flag(0) { }
     };
 
@@ -211,13 +210,13 @@ namespace cparser
 
     struct StorClsSpec : Node
     {
-        CR_TypeFlags               m_flag;
+        CR_TypeFlags                m_flag;
         StorClsSpec() : m_flag(0) { }
     };
 
     struct FuncSpec : Node
     {
-        CR_TypeFlags               m_flag;
+        CR_TypeFlags                m_flag;
         FuncSpec() : m_flag(0) { }
     };
 

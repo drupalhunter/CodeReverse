@@ -15,37 +15,15 @@ extern const char * const cr_logo;
 // LOLONG, HILONG, MAKELONGLONG
 
 #ifndef LOLONG
-    #define LOLONG(dwl) ((DWORD)(dwl))
+    #define LOLONG(dwl) static_cast<DWORD>(dwl)
 #endif
 #ifndef HILONG
-    #define HILONG(dwl) ((DWORD)(((dwl) >> 32) & 0xFFFFFFFF))
+    #define HILONG(dwl) static_cast<DWORD>(((dwl) >> 32) & 0xFFFFFFFF)
 #endif
 #ifndef MAKELONGLONG
-    #define MAKELONGLONG(lo,hi) (((DWORDLONG)(hi) << 32) | (DWORD)(lo))
+    #define MAKELONGLONG(lo,hi) \
+        ((static_cast<DWORDLONG>(hi) << 32) | static_cast<DWORD>(lo))
 #endif
-
-////////////////////////////////////////////////////////////////////////////
-
-// CR_TypeID --- type ID
-typedef long CR_TypeID;
-
-// CR_FuncID --- function ID
-typedef long CR_FuncID;
-
-// CR_VarID --- variable ID
-typedef long CR_VarID;
-
-// CR_StructID --- struct ID
-typedef long CR_StructID;
-
-// CR_UnionID --- union ID
-typedef long CR_UnionID;
-
-// CR_EnumID --- enum ID
-typedef long CR_EnumID;
-
-// CR_INVALID_ID --- invalid ID
-#define CR_INVALID_ID -1
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_Addr32, CR_Addr64 (virtual address)
@@ -54,32 +32,32 @@ typedef unsigned long       CR_Addr32;
 typedef unsigned long long  CR_Addr64;
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_TBool - tri-state logical value
+// CR_TriBool - tri-state logical value
 
-class CR_TBool
+class CR_TriBool
 {
 public:
-    CR_TBool();
-    CR_TBool(BOOL b);
-    CR_TBool(const CR_TBool& tb);
-    virtual ~CR_TBool();
-    CR_TBool& operator=(BOOL b);
-    CR_TBool& operator=(const CR_TBool& tb);
-    bool operator==(const CR_TBool& tb) const;
-    bool operator!=(const CR_TBool& tb) const;
+    CR_TriBool();
+    CR_TriBool(BOOL b);
+    CR_TriBool(const CR_TriBool& tb);
+    virtual ~CR_TriBool();
+    CR_TriBool& operator=(BOOL b);
+    CR_TriBool& operator=(const CR_TriBool& tb);
+    bool operator==(const CR_TriBool& tb) const;
+    bool operator!=(const CR_TriBool& tb) const;
     void clear();
 
     BOOL CanBeTrue() const;
     BOOL CanBeFalse() const;
     BOOL IsUnknown() const;
 
-    CR_TBool& IsFalse(const CR_TBool& tb);
-    CR_TBool& IsTrue(const CR_TBool& tb);
-    CR_TBool& LogicalAnd(const CR_TBool& tb1, const CR_TBool& tb2);
-    CR_TBool& LogicalOr(const CR_TBool& tb1, const CR_TBool& tb2);
-    CR_TBool& LogicalNot(const CR_TBool& tb1);
-    CR_TBool& Equal(const CR_TBool& tb1, const CR_TBool& tb2);
-    CR_TBool& NotEqual(const CR_TBool& tb1, const CR_TBool& tb2);
+    CR_TriBool& IsFalse(const CR_TriBool& tb);
+    CR_TriBool& IsTrue(const CR_TriBool& tb);
+    CR_TriBool& LogicalAnd(const CR_TriBool& tb1, const CR_TriBool& tb2);
+    CR_TriBool& LogicalOr(const CR_TriBool& tb1, const CR_TriBool& tb2);
+    CR_TriBool& LogicalNot(const CR_TriBool& tb1);
+    CR_TriBool& Equal(const CR_TriBool& tb1, const CR_TriBool& tb2);
+    CR_TriBool& NotEqual(const CR_TriBool& tb1, const CR_TriBool& tb2);
 
 public:
     enum {
@@ -88,19 +66,28 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_VecSet<ITEM_T>
+// CR_VecSet<ITEM_T> -- vector and set
 
 template <typename ITEM_T>
 class CR_VecSet : public vector<ITEM_T>
 {
 public:
-    virtual ~CR_VecSet()
+    CR_VecSet()
     {
     }
 
-    void Copy(const CR_VecSet<ITEM_T>& vs)
+    CR_VecSet(const CR_VecSet<ITEM_T>& vs) : vector<ITEM_T>(vs)
+    {
+    }
+
+    CR_VecSet& operator=(const CR_VecSet<ITEM_T>& vs)
     {
         this->assign(vs.begin(), vs.end());
+        return *this;
+    }
+
+    virtual ~CR_VecSet()
+    {
     }
 
     void insert(const ITEM_T& item)
@@ -108,7 +95,7 @@ public:
         this->push_back(item);
     }
 
-    bool Find(const ITEM_T& item) const
+    bool Contains(const ITEM_T& item) const
     {
         const std::size_t siz = this->size();
         for (std::size_t i = 0; i < siz; i++)
@@ -119,10 +106,27 @@ public:
         return false;
     }
 
-    void insertIfNotFound(const ITEM_T& item)
+    std::size_t Find(const ITEM_T& item) const
     {
-        if (!Find(item))
-            insert(item);
+        const std::size_t siz = this->size();
+        for (std::size_t i = 0; i < siz; i++)
+        {
+            if (this->at(i) == item)
+                return i;
+        }
+        return static_cast<std::size_t>(-1);
+    }
+
+    std::size_t Insert(const ITEM_T& item)
+    {
+        const std::size_t siz = this->size();
+        for (std::size_t i = 0; i < siz; i++)
+        {
+            if (this->at(i) == item)
+                return i;
+        }
+        this->push_back(item);
+        return this->size() - 1;
     }
 
     std::size_t count(const ITEM_T& item) const
@@ -322,39 +326,39 @@ public:
     string&                 Text();
     CR_OperandType&         OperandType();
     DWORD&                  Size();
-    CR_Addr32&                 Value32();
-    CR_Addr64&                 Value64();
+    CR_Addr32&              Value32();
+    CR_Addr64&              Value64();
     string&                 Exp();
     string&                 DataType();
-    CR_TBool&               IsInteger();
-    CR_TBool&               IsPointer();
-    CR_TBool&               IsFunction();
+    CR_TriBool&             IsInteger();
+    CR_TriBool&             IsPointer();
+    CR_TriBool&             IsFunction();
     // const accessors
     const string&           Text() const;
     const CR_OperandType&   OperandType() const;
     const DWORD&            Size() const;
-    const CR_Addr32&           Value32() const;
-    const CR_Addr64&           Value64() const;
+    const CR_Addr32&        Value32() const;
+    const CR_Addr64&        Value64() const;
     const string&           Exp() const;
     const string&           DataType() const;
-    const CR_TBool&         IsInteger() const;
-    const CR_TBool&         IsPointer() const;
-    const CR_TBool&         IsFunction() const;
+    const CR_TriBool&       IsInteger() const;
+    const CR_TriBool&       IsPointer() const;
+    const CR_TriBool&       IsFunction() const;
 
 protected:
-    string          m_text;
-    CR_OperandType  m_ot;
-    DWORD           m_size;
+    string                  m_text;
+    CR_OperandType          m_ot;
+    DWORD                   m_size;
     union
     {
-        CR_Addr64      m_value64;
-        CR_Addr32      m_value32;
+        CR_Addr64           m_value64;
+        CR_Addr32           m_value32;
     };
-    string          m_exp;
-    string          m_datatype;
-    CR_TBool        m_is_integer;
-    CR_TBool        m_is_pointer;
-    CR_TBool        m_is_function;
+    string                  m_exp;
+    string                  m_datatype;
+    CR_TriBool              m_is_integer;
+    CR_TriBool              m_is_pointer;
+    CR_TriBool              m_is_function;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -376,32 +380,32 @@ public:
 
 public:
     // accessors
-    CR_Addr32&                 Addr();         // address of assembly
+    CR_Addr32&              Addr();         // address of assembly
     string&                 Name();         // name of instruction
     OPERANDSET&             Operands();     // operands
     OPERAND*                Operand(std::size_t index);
     vector<BYTE>&           Codes();        // code of instruction
-    CR_CodeInsnType&           CodeInsnType(); // type of instruction
-    CR_CondCode&               CondCode();     // condition type
-    CR_Addr32Set&              FuncAddrs();
+    CR_CodeInsnType&        CodeInsnType(); // type of instruction
+    CR_CondCode&            CondCode();     // condition type
+    CR_Addr32Set&           FuncAddrs();
     // const accessors
-    const CR_Addr32&           Addr() const;
+    const CR_Addr32&        Addr() const;
     const string&           Name() const;
     const OPERANDSET&       Operands() const;
     const OPERAND*          Operand(std::size_t index) const;
     const vector<BYTE>&     Codes() const;
-    const CR_CodeInsnType&     CodeInsnType() const;
-    const CR_CondCode&         CondCode() const;
-    const CR_Addr32Set&        FuncAddrs() const;
+    const CR_CodeInsnType&  CodeInsnType() const;
+    const CR_CondCode&      CondCode() const;
+    const CR_Addr32Set&     FuncAddrs() const;
 
 protected:
-    CR_Addr32                  m_addr;
+    CR_Addr32               m_addr;
     string                  m_name;
     OPERANDSET              m_operands;
     std::vector<BYTE>       m_codes;
-    CR_CodeInsnType            m_cit;
-    CR_CondCode                m_ccode;
-    CR_Addr32Set               m_funcaddrs;
+    CR_CodeInsnType         m_cit;
+    CR_CondCode             m_ccode;
+    CR_Addr32Set            m_funcaddrs;
 
     void Copy(const CR_CodeInsn32& ac);
 };
@@ -421,32 +425,32 @@ public:
 
 public:
     // accessors
-    CR_Addr64&                 Addr();         // address of assembly
+    CR_Addr64&              Addr();         // address of assembly
     string&                 Name();         // name of instruction
     OPERANDSET&             Operands();     // operands
     OPERAND*                Operand(std::size_t index);
     vector<BYTE>&           Codes();        // code of instruction
     CR_CodeInsnType&        CodeInsnType(); // type of instruction
     CR_CondCode&            CondCode();     // condition type
-    CR_Addr64Set&              FuncAddrs();
+    CR_Addr64Set&           FuncAddrs();
     // const accessors
-    const CR_Addr64&           Addr() const;
+    const CR_Addr64&        Addr() const;
     const string&           Name() const;
     const OPERANDSET&       Operands() const;
     const OPERAND*          Operand(std::size_t index) const;
     const vector<BYTE>&     Codes() const;
     const CR_CodeInsnType&  CodeInsnType() const;
     const CR_CondCode&      CondCode() const;
-    const CR_Addr64Set&        FuncAddrs() const;
+    const CR_Addr64Set&     FuncAddrs() const;
 
 protected:
-    CR_Addr64                  m_addr;
+    CR_Addr64               m_addr;
     string                  m_name;
     OPERANDSET              m_operands;
     std::vector<BYTE>       m_codes;
     CR_CodeInsnType         m_cit;
     CR_CondCode             m_ccode;
-    CR_Addr64Set               m_funcaddrs;
+    CR_Addr64Set            m_funcaddrs;
 
     void Copy(const CR_CodeInsn64& ac);
 };
@@ -466,27 +470,27 @@ public:
 
 public:
     // accessors
-    CR_Addr32&                     Addr();
-    CR_VecSet<CR_CodeInsn32>&         AsmCodes();
-    CR_Block32*&                   NextBlock1();
-    CR_Block32*&                   NextBlock2();
-    CR_Addr32&                     NextAddr1();
-    CR_Addr32&                     NextAddr2();
+    CR_Addr32&                      Addr();
+    CR_VecSet<CR_CodeInsn32>&       AsmCodes();
+    CR_Block32*&                    NextBlock1();
+    CR_Block32*&                    NextBlock2();
+    CR_Addr32&                      NextAddr1();
+    CR_Addr32&                      NextAddr2();
     // const accessors
-    const CR_Addr32&               Addr() const;
-    const CR_VecSet<CR_CodeInsn32>&   AsmCodes() const;
-    CR_Block32*&                   NextBlock1() const;
-    CR_Block32*&                   NextBlock2() const;
-    const CR_Addr32&               NextAddr1() const;
-    const CR_Addr32&               NextAddr2() const;
+    const CR_Addr32&                Addr() const;
+    const CR_VecSet<CR_CodeInsn32>& AsmCodes() const;
+    CR_Block32*&                    NextBlock1() const;
+    CR_Block32*&                    NextBlock2() const;
+    const CR_Addr32&                NextAddr1() const;
+    const CR_Addr32&                NextAddr2() const;
 
 protected:
-    CR_Addr32                      m_addr;
-    CR_VecSet<CR_CodeInsn32>       m_asmcodes;
-    CR_Block32 *                   m_nextblock1;
-    CR_Block32 *                   m_nextblock2;
-    CR_Addr32                      m_nextaddr1;
-    CR_Addr32                      m_nextaddr2;
+    CR_Addr32                       m_addr;
+    CR_VecSet<CR_CodeInsn32>        m_asmcodes;
+    CR_Block32 *                    m_nextblock1;
+    CR_Block32 *                    m_nextblock2;
+    CR_Addr32                       m_nextaddr1;
+    CR_Addr32                       m_nextaddr2;
 
     void Copy(const CR_Block32& b);
 };
@@ -505,27 +509,27 @@ public:
 
 public:
     // accessors
-    CR_Addr64&                     Addr();
-    CR_VecSet<CR_CodeInsn64>&         AsmCodes();
-    CR_Block64*&                   NextBlock1();
-    CR_Block64*&                   NextBlock2();
-    CR_Addr64&                     NextAddr1();
-    CR_Addr64&                     NextAddr2();
+    CR_Addr64&                      Addr();
+    CR_VecSet<CR_CodeInsn64>&       AsmCodes();
+    CR_Block64*&                    NextBlock1();
+    CR_Block64*&                    NextBlock2();
+    CR_Addr64&                      NextAddr1();
+    CR_Addr64&                      NextAddr2();
     // const accessors
-    const CR_Addr64&               Addr() const;
-    const CR_VecSet<CR_CodeInsn64>&   AsmCodes() const;
-    CR_Block64*&                   NextBlock1() const;
-    CR_Block64*&                   NextBlock2() const;
-    const CR_Addr64&               NextAddr1() const;
-    const CR_Addr64&               NextAddr2() const;
+    const CR_Addr64&                Addr() const;
+    const CR_VecSet<CR_CodeInsn64>& AsmCodes() const;
+    CR_Block64*&                    NextBlock1() const;
+    CR_Block64*&                    NextBlock2() const;
+    const CR_Addr64&                NextAddr1() const;
+    const CR_Addr64&                NextAddr2() const;
 
 protected:
-    CR_Addr64                      m_addr;
-    CR_VecSet<CR_CodeInsn64>          m_asmcodes;
-    CR_Block64 *                   m_nextblock1;
-    CR_Block64 *                   m_nextblock2;
-    CR_Addr64                      m_nextaddr1;
-    CR_Addr64                      m_nextaddr2;
+    CR_Addr64                       m_addr;
+    CR_VecSet<CR_CodeInsn64>        m_asmcodes;
+    CR_Block64 *                    m_nextblock1;
+    CR_Block64 *                    m_nextblock2;
+    CR_Addr64                       m_nextaddr1;
+    CR_Addr64                       m_nextaddr2;
 
     void Copy(const CR_Block64& b);
 };
@@ -776,10 +780,6 @@ protected:
     // map addr to code function
     map<CR_Addr64, CR_CodeFunc64>           m_mAddrToCodeFunc;
 };
-
-////////////////////////////////////////////////////////////////////////////
-
-#include "CParseHeader.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
