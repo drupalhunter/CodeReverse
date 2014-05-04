@@ -684,7 +684,7 @@ namespace cparser
             assert(0);
             return shared_ptr<TypeSpec>();
         }
-        
+
         shared_ptr<AtomicTypeSpec> DoAtomicTypeSpec1(shared_ptr<TypeName>& tn)
         {
             #ifdef DEEPDEBUG
@@ -1239,6 +1239,7 @@ namespace cparser
             Declor *d = new Declor;
             d->m_declor_type = Declor::IDENTIFIER;
             d->m_name = token->m_text;
+            d->m_flags = token->m_flags;
             return shared_ptr<Declor>(d);
         }
 
@@ -1320,6 +1321,7 @@ namespace cparser
             #ifdef DEEPDEBUG
                 std::printf("DoPtr1\n");
             #endif
+            ac.get()->m_flags |= tql->m_flags;
             p.get()->push_back(ac);
             return p;
         }
@@ -1331,6 +1333,7 @@ namespace cparser
                 std::printf("DoPtr2\n");
             #endif
             Pointers *p = new Pointers;
+            ac.get()->m_flags |= tql->m_flags;
             p->push_back(ac);
             return shared_ptr<Pointers>(p);
         }
@@ -1421,7 +1424,7 @@ namespace cparser
             #ifdef DEEPDEBUG
                 std::printf("DoTypeQualList1\n");
             #endif
-            tql.get()->push_back(tq);
+            tql.get()->m_flags |= tq->m_flag;
             return tql;
         }
 
@@ -1431,7 +1434,7 @@ namespace cparser
                 std::printf("DoTypeQualList2\n");
             #endif
             TypeQualList *tql = new TypeQualList;
-            tql->push_back(tq);
+            tql->m_flags |= tq->m_flag;
             return shared_ptr<TypeQualList>(tql);
         }
 

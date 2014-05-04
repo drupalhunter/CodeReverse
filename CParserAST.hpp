@@ -115,6 +115,8 @@ namespace cparser
 
     struct Declor : Node
     {
+        Declor() : m_flags(0) { }
+        CR_TypeFlags            m_flags;
         enum {
             TYPEDEF_TAG, ARRAY, FUNCTION, IDENTIFIER, BITS, POINTERS
         } m_declor_type;
@@ -204,8 +206,10 @@ namespace cparser
         TypeQual() : m_flag(0) { }
     };
 
-    struct TypeQualList : Node, std::vector<shared_ptr<TypeQual> >
+    struct TypeQualList : Node
     {
+        CR_TypeFlags                m_flags;
+        TypeQualList() : m_flags(0) { }
     };
 
     struct StorClsSpec : Node
@@ -250,6 +254,7 @@ namespace cparser
     struct AstCom : Node
     {
         CR_TypeFlags m_flags;
+        AstCom() : m_flags(0) { }
     };
 
     struct ParamList : Node, std::vector<shared_ptr<Decl> >
@@ -530,10 +535,10 @@ namespace cparser
     {
         typedef TokenType token_type;
 
-        token_type  m_token;
-        std::string m_text;
-        int         m_pack;
-        CR_TypeFlags   m_flags;
+        token_type      m_token;
+        std::string     m_text;
+        int             m_pack;
+        CR_TypeFlags    m_flags;
         union
         {
             long long   m_long_long_value;
@@ -547,9 +552,12 @@ namespace cparser
     public:
         TokenInfo() : m_pack(0), m_flags(0), m_long_long_value(0) { }
 
-        TokenInfo(const TokenInfo& info)
-        : Node(info), m_token(info.m_token), m_text(info.m_text), m_pack(info.m_pack),
-          m_flags(0)
+        TokenInfo(const TokenInfo& info) :
+            Node(info),
+            m_token(info.m_token),
+            m_text(info.m_text),
+            m_pack(info.m_pack),
+            m_flags(info.m_flags)
         {
             m_long_long_value = 0;
         }

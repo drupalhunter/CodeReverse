@@ -1641,8 +1641,15 @@ END INSN
 // INSN pushfd();
 // INSN rcl(XSIGNED $dest, XSIGNED $src);
 // INSN rcr(XSIGNED $dest, XSIGNED $src);
-// INSN rol(XSIGNED $dest, XSIGNED $src);
-// INSN ror(XSIGNED $dest, XSIGNED $src);
+
+INSN rol(UNSIGNED $dest, XSIGNED $src)
+    return _rotl($dest, $src);
+END INSN
+
+INSN ror(UNSIGNED $dest, XSIGNED $src)
+    return _rotr($dest, $src);
+END INSN
+
 // INSN rdmsr();
 // INSN rdpmc();
 // INSN rdrand($dest);

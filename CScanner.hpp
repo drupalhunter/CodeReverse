@@ -73,7 +73,7 @@ namespace cparser
         {
             for (TokenInfoIt it = begin; it != end; ++it)
             {
-                printf("%s ", token_to_string(*it));
+                printf("%s ", token_to_string(*it).c_str());
             }
         }
 
@@ -611,8 +611,11 @@ namespace cparser
 
                     if (str.find("__builtin_") == 0 && str.size() > 10)
                     {
-                        str = str.substr(10);
-                        c = str[0];
+                        if (str != "__builtin_va_list")
+                        {
+                            str = str.substr(10);
+                            c = str[0];
+                        }
                     }
 
                     if (c == '_')
@@ -633,6 +636,7 @@ namespace cparser
                         }
                         else if (str.size() >= 3)
                         {
+                            
                             d = str[2];
                             if (d == 'a' && str == "__asm") return commit_token(T_ASM);
                             else if (d == 'a' && str == "__asm__") return commit_token(T_ASM);
@@ -1382,7 +1386,12 @@ namespace cparser
         void rescan2(TokenInfoIt begin, TokenInfoIt end)
         {
             m_type_names.clear();
-            m_type_names.insert("va_list");
+            #ifdef __GNUC__
+                m_type_names.insert("__builtin_va_list");
+            #else
+                m_type_names.insert("va_list");
+            #endif
+
             for (TokenInfoIt it = begin; it != end; ++it)
             {
                 if (it->m_token == T_ENUM ||

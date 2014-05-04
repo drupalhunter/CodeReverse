@@ -14,8 +14,8 @@ DEFS = -static -m64 -mthreads -DJAPAN -finput-charset=CP932 -fexec-charset=CP932
 #DEFS2 = -municode -DUNICODE -D_UNICODE
 DEFS2 = -DMBCS -D_MBCS
 
-OPTIONS = -mconsole -O9 -Ofast -DNDEBUG $(DEFS) $(DEFS2) -Wall -pedantic
-#OPTIONS = -mconsole -O0 -D_DEBUG $(DEFS) $(DEFS2) -Wall -pedantic
+#OPTIONS = -mconsole -O9 -Ofast -DNDEBUG $(DEFS) $(DEFS2) -Wall -pedantic
+OPTIONS = -mconsole -O0 -D_DEBUG $(DEFS) $(DEFS2) -Wall -pedantic
 
 CCFLAGS = -std=c99
 CXXFLAGS = -std=c++0x
@@ -35,21 +35,21 @@ OBJS = \
 	h-ndisasm\regs64.o \
 	h-ndisasm\ver64.o
 
-CPARSER_HEADER = \
-	CScanner.hpp \
-	CParserAST.hpp \
-	CParserSite.hpp \
-	CParser.hpp \
-
 CR_HEADERS = \
 	stdafx.h \
 	CodeReverse.h \
 	CodeReverse_inl.h \
 	Module.h \
 	Module_inl.h \
-	mzc2mini.h \
+	mzc2mini.h
+
+CPARSER_HEADER = \
 	CParseHeader.h \
-	$(CPARSER_HEADER)
+	CScanner.hpp \
+	CParserAST.hpp \
+	CParserSite.hpp \
+	CParser.hpp \
+	Type.h
 
 H_NDISASM_HEADERS = \
 	h-ndisasm\compiler.h \
@@ -67,7 +67,7 @@ all: coderev64.exe
 coderev64.exe: $(OBJS)
 	$(CXX) -o coderev64.exe $(CXXFLAGS) $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
-CodeReverse64.o: $(CR_HEADERS) CodeReverse.cpp
+CodeReverse64.o: $(CR_HEADERS) $(CPARSER_HEADER) CodeReverse.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o CodeReverse64.o CodeReverse.cpp
 Dumping64.o: $(CR_HEADERS) Dumping.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Dumping64.o Dumping.cpp

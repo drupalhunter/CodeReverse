@@ -30,14 +30,20 @@ namespace cparser
 
         std::vector<TokenValue > infos;
         scanner.scan(infos, begin, end);
-        //scanner.show_tokens(infos.begin(), infos.end());
+        #if 0
+            scanner.show_tokens(infos.begin(), infos.end());
+            printf("\n--------------\n");
+            fflush(stdout);
+        #endif
 
-        //printf("\n--------------\n");
         Parser<shared_ptr<Node>, ParserSite> parser(ps);
         std::vector<TokenValue >::iterator it, end2 = infos.end();
         for (it = infos.begin(); it != end2; ++it)
         {
-            //printf("%s\n", scanner.token_to_string(*it));
+            #if 0
+                printf("%s\n", scanner.token_to_string(*it).c_str());
+                fflush(stdout);
+            #endif
             if (parser.post(it->m_token, make_shared<TokenValue >(*it)))
             {
                 if (parser.error())
@@ -53,7 +59,7 @@ namespace cparser
         shared_ptr<Node> node;
         if (parser.accept(node))
         {
-            printf("parser accepted!\n");
+            fprintf(stderr, "parser accepted!\n");
             tu = static_pointer_cast<TransUnit, Node>(node);
             return true;
         }

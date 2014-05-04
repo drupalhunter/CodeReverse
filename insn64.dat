@@ -1754,8 +1754,27 @@ END INSN
 // INSN pushfq();
 // INSN rcl(XSIGNED $dest, XSIGNED $src);
 // INSN rcr(XSIGNED $dest, XSIGNED $src);
-// INSN rol(XSIGNED $dest, XSIGNED $src);
-// INSN ror(XSIGNED $dest, XSIGNED $src);
+
+INSN rol(UNSIGNED $dest, XSIGNED $src)
+    if (sizeof($dest) == 4) {
+        return _rotl($dest, $src);
+    } else if (sizeof($dest) == 8) {
+        return _rotl64($dest, $src);
+    } else {
+        return 0;
+    }
+END INSN
+
+INSN ror(UNSIGNED $dest, XSIGNED $src)
+    if (sizeof($dest) == 4) {
+        return _rotr($dest, $src);
+    } else if (sizeof($dest) == 8) {
+        return _rotr64($dest, $src);
+    } else {
+        return 0;
+    }
+END INSN
+
 // INSN rdfsbase($dest);
 // INSN rdgsbase($dest);
 // INSN rdmsr();

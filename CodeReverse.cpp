@@ -14,15 +14,15 @@ const char * const cr_logo =
     "///////////////////////////////////////////////\n"
 #ifdef _WIN64
 # ifdef __GNUC__
-    "// CodeReverse 0.1.0 (64-bit) for gcc        //\n"
+    "// CodeReverse 0.1.1 (64-bit) for gcc        //\n"
 # elif defined(_MSC_VER)
-    "// CodeReverse 0.1.0 (64-bit) for cl         //\n"
+    "// CodeReverse 0.1.1 (64-bit) for cl         //\n"
 # endif
 #else   // ndef _WIN64
 # ifdef __GNUC__
-    "// CodeReverse 0.1.0 (32-bit) for gcc        //\n"
+    "// CodeReverse 0.1.1 (32-bit) for gcc        //\n"
 # elif defined(_MSC_VER)
-    "// CodeReverse 0.1.0 (32-bit) for cl         //\n"
+    "// CodeReverse 0.1.1 (32-bit) for cl         //\n"
 # endif
 #endif  // ndef _WIN64
     "// https://github.com/katahiromz/CodeReverse //\n"
@@ -2649,8 +2649,9 @@ CR_TypeID CrAnalysePointers(CR_NameScope& namescope, Pointers *pointers,
                             CR_TypeID tid)
 {
     assert(pointers);
-    for (auto& ac: *pointers)
+    for (auto& ac : *pointers)
     {
+        assert(ac);
         tid = namescope.AddPtrType(tid, ac->m_flags);
     }
     return tid;
@@ -2659,39 +2660,45 @@ CR_TypeID CrAnalysePointers(CR_NameScope& namescope, Pointers *pointers,
 void CrAnalyseTypedefDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                                 DeclorList *dl)
 {
-    CR_TypeID tid2;
     assert(dl);
     for (auto& declor : *dl)
     {
-        tid2 = tid;
+        CR_TypeID tid2 = tid;
 
         int value;
         Declor *d = declor.get();
         while (d)
         {
+            std::string name;
             switch (d->m_declor_type)
             {
-            case Declor::IDENTIFIER:
-                namescope.AddAliasType(d->m_name, tid2);
-                d = NULL;
-                break;
-
             case Declor::TYPEDEF_TAG:
-                namescope.AddAliasType(d->m_name, tid2);
+                assert(!d->m_name.empty());
+                name = d->m_name;
+                #ifdef __GNUC__
+                    if (name == "__builtin_va_list")
+                        name = "va_list";
+                #endif
+                if (d->m_flags)
+                {
+                    if (namescope.IsFuncType(tid2))
+                        namescope.m_types[tid2].m_flags |= d->m_flags;
+                }
+                namescope.AddAliasType(name, tid2);
                 d = NULL;
                 break;
 
             case Declor::POINTERS:
                 tid2 = CrAnalysePointers(namescope, d->m_pointers.get(), tid2);
                 d = d->m_declor.get();
-                break;
+                continue;
 
             case Declor::ARRAY:
                 if (d->m_const_expr)
                     value = CrCalcConstIntCondExpr(namescope, d->m_const_expr.get());
                 else
                     value = 0;
-                tid2 = namescope.AddArrayType("", tid2, value);
+                tid2 = namescope.AddArrayType(tid2, value);
                 d = d->m_declor.get();
                 continue;
 
@@ -2706,10 +2713,11 @@ void CrAnalyseTypedefDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                     tid2 = namescope.AddFuncType(lf);
                 }
                 d = d->m_declor.get();
-                break;
+                continue;
 
             case Declor::BITS:
                 // TODO:
+                assert(0);
                 d = NULL;
                 break;
 
@@ -2725,11 +2733,10 @@ void CrAnalyseTypedefDeclorList(CR_NameScope& namescope, CR_TypeID tid,
 void CrAnalyseDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                          DeclorList *dl)
 {
-    CR_TypeID tid2;
     assert(dl);
     for (auto& declor : *dl)
     {
-        tid2 = tid;
+        CR_TypeID tid2 = tid;
 
         int value;
         Declor *d = declor.get();
@@ -2742,6 +2749,11 @@ void CrAnalyseDeclorList(CR_NameScope& namescope, CR_TypeID tid,
             switch (d->m_declor_type)
             {
             case Declor::IDENTIFIER:
+                if (d->m_flags)
+                {
+                    if (namescope.IsFuncType(tid2))
+                        namescope.m_types[tid2].m_flags |= d->m_flags;
+                }
                 namescope.AddVar(d->m_name, tid2);
                 #ifdef DEEPDEBUG
                     printf("#%s\n", namescope.StringOfType(tid2, d->m_name).c_str());
@@ -2759,7 +2771,7 @@ void CrAnalyseDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                     value = CrCalcConstIntCondExpr(namescope, d->m_const_expr.get());
                 else
                     value = 0;
-                tid2 = namescope.AddArrayType("", tid2, value);
+                tid2 = namescope.AddArrayType(tid2, value);
                 d = d->m_declor.get();
                 continue;
 
@@ -2791,11 +2803,10 @@ void CrAnalyseDeclorList(CR_NameScope& namescope, CR_TypeID tid,
 void CrAnalyseStructDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                                DeclorList *dl, CR_LogStruct& ls)
 {
-    CR_TypeID tid2;
     assert(dl);
     for (auto& declor : *dl)
     {
-        tid2 = tid;
+        CR_TypeID tid2 = tid;
 
         int value;
         std::string name;
@@ -2805,6 +2816,11 @@ void CrAnalyseStructDeclorList(CR_NameScope& namescope, CR_TypeID tid,
             switch (d->m_declor_type)
             {
             case Declor::IDENTIFIER:
+                if (d->m_flags)
+                {
+                    if (namescope.IsFuncType(tid2))
+                        namescope.m_types[tid2].m_flags |= d->m_flags;
+                }
                 name = d->m_name;
                 d = NULL;
                 break;
@@ -2819,7 +2835,7 @@ void CrAnalyseStructDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                     value = CrCalcConstIntCondExpr(namescope, d->m_const_expr.get());
                 else
                     value = 0;
-                tid2 = namescope.AddArrayType("", tid2, value);
+                tid2 = namescope.AddArrayType(tid2, value);
                 d = d->m_declor.get();
                 continue;
 
@@ -2833,10 +2849,11 @@ void CrAnalyseStructDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                     tid2 = namescope.AddFuncType(lf);
                 }
                 d = d->m_declor.get();
-                break;
+                continue;
 
             case Declor::BITS:
-                // TODO:
+                // TODO: bitfields
+                //assert(0);
                 d = NULL;
                 break;
 
@@ -2887,9 +2904,8 @@ void CrAnalyseDeclList(CR_NameScope& namescope, DeclList *dl)
 void CrAnalyseParamList(CR_NameScope& namescope, CR_LogFunc& func,
                         ParamList *pl)
 {
-    func.m_ellipsis = pl->m_ellipsis;
-
     assert(pl);
+    func.m_ellipsis = pl->m_ellipsis;
     for (auto& decl : *pl)
     {
         assert(decl->m_decl_type == Decl::PARAM);
@@ -2917,8 +2933,8 @@ void CrAnalyseParamList(CR_NameScope& namescope, CR_LogFunc& func,
             {
             case Declor::IDENTIFIER:
                 name = d->m_name;
-                d = d->m_declor.get();
-                continue;
+                d = NULL;
+                break;
 
             case Declor::POINTERS:
                 tid2 = CrAnalysePointers(namescope, d->m_pointers.get(), tid2);
@@ -2930,7 +2946,7 @@ void CrAnalyseParamList(CR_NameScope& namescope, CR_LogFunc& func,
                     value = CrCalcConstIntCondExpr(namescope, d->m_const_expr.get());
                 else
                     value = 0;
-                tid2 = namescope.AddArrayType("", tid2, value);
+                tid2 = namescope.AddArrayType(tid2, value);
                 d = d->m_declor.get();
                 continue;
 
@@ -2955,7 +2971,6 @@ void CrAnalyseParamList(CR_NameScope& namescope, CR_LogFunc& func,
             default:
                 assert(0);
                 d = NULL;
-                break;
             }
         }
         func.m_type_list.push_back(tid2);
@@ -3037,11 +3052,12 @@ CR_TypeID CrAnalyseStructDeclList(CR_NameScope& namescope,
             break;
 
         default:
+            assert(0);
             return cr_invalid_id;
         }
     }
 
-    return namescope.AddStructOrUnionType(name, ls);
+    return namescope.AddStructType(name, ls);
 }
 
 CR_TypeID CrAnalyseUnionDeclList(CR_NameScope& namescope,
@@ -3086,11 +3102,12 @@ CR_TypeID CrAnalyseUnionDeclList(CR_NameScope& namescope,
             break;
 
         default:
+            assert(0);
             return cr_invalid_id;
         }
     }
 
-    return namescope.AddStructOrUnionType(name, ls);
+    return namescope.AddStructType(name, ls);
 }
 
 CR_TypeID CrAnalyseEnumorList(CR_NameScope& namescope,
@@ -3100,15 +3117,20 @@ CR_TypeID CrAnalyseEnumorList(CR_NameScope& namescope,
 
     int value, next_value = 0;
     assert(el);
+    CR_TypeID tid_int = namescope.TypeIDFromName("int");
+    CR_TypeID tid_const_int = namescope.AddConstType(tid_int);
     for (auto& e : *el)
     {
         if (e->m_const_expr)
             value = CrCalcConstIntCondExpr(namescope, e->m_const_expr.get());
         else
             value = next_value;
+
         le.MapNameToValue()[e->m_name.c_str()] = value;
         le.MapValueToName()[value] = e->m_name.c_str();
-        namescope.AddVar(e->m_name, CR_LogType(TF_INT));
+        CR_VarID vid = namescope.AddVar(e->m_name, tid_const_int);
+        namescope.m_vars[vid].m_has_value = true;
+        namescope.m_vars[vid].m_int_value = value;
         next_value = value + 1;
     }
 
@@ -3118,6 +3140,7 @@ CR_TypeID CrAnalyseEnumorList(CR_NameScope& namescope,
 CR_TypeID CrAnalyseAtomic(CR_NameScope& namescope, AtomicTypeSpec *ats)
 {
     // TODO: TF_ATOMIC
+    assert(0);
     return 0;
 }
 
@@ -3160,6 +3183,11 @@ CR_TypeID CrAnalyseDeclSpecs(CR_NameScope& namescope, DeclSpecs *ds)
             {
             case TF_ALIAS:
                 name = ds->m_type_spec->m_name;
+                assert(!name.empty());
+                #ifdef __GNUC__
+                    if (name == "__builtin_va_list")
+                        name = "va_list";
+                #endif
                 tid = namescope.TypeIDFromName(name);
                 assert(tid != cr_invalid_id);
                 return tid;
@@ -3175,10 +3203,9 @@ CR_TypeID CrAnalyseDeclSpecs(CR_NameScope& namescope, DeclSpecs *ds)
                 {
                     CR_LogStruct ls;
                     ls.m_struct_or_union = true;
-                    tid = namescope.AddStructOrUnionType(
-                        std::string("struct ") + name, ls);
+                    tid = namescope.AddStructType(name, ls);
                 }
-                if (flags == TF_CONST)
+                if (flags & TF_CONST)
                 {
                     tid = namescope.AddConstType(tid);
                 }
@@ -3196,10 +3223,9 @@ CR_TypeID CrAnalyseDeclSpecs(CR_NameScope& namescope, DeclSpecs *ds)
                 {
                     CR_LogStruct ls;
                     ls.m_struct_or_union = false;
-                    tid = namescope.AddStructOrUnionType(
-                        std::string("union ") + name, ls);
+                    tid = namescope.AddStructType(name, ls);
                 }
-                if (flags == TF_CONST)
+                if (flags & TF_CONST)
                 {
                     tid = namescope.AddConstType(tid);
                 }
@@ -3216,7 +3242,11 @@ CR_TypeID CrAnalyseDeclSpecs(CR_NameScope& namescope, DeclSpecs *ds)
                 else
                 {
                     CR_LogEnum le;
-                    tid = namescope.AddEnumType(std::string("enum ") + name, le);
+                    tid = namescope.AddEnumType(name, le);
+                }
+                if (flags & TF_CONST)
+                {
+                    tid = namescope.AddConstType(tid);
                 }
                 assert(tid != cr_invalid_id);
                 return tid;
@@ -3256,8 +3286,16 @@ CR_TypeID CrAnalyseDeclSpecs(CR_NameScope& namescope, DeclSpecs *ds)
     }
 
     flags = CrNormalizeTypeFlags(flags);
-    CR_LogType lt(flags);
-    tid = namescope.m_types.Insert(lt);
+    if (flags & TF_CONST)
+    {
+        tid = namescope.AddType("", flags & ~TF_CONST);
+        assert(tid != cr_invalid_id);
+        tid = namescope.AddConstType(tid);
+    }
+    else
+    {
+        tid = namescope.AddType("", flags);
+    }
     assert(tid != cr_invalid_id);
     return tid;
 }
@@ -3274,6 +3312,7 @@ int CrSemanticAnalysis(CR_NameScope& namescope, shared_ptr<TransUnit>& tu)
         {
         case Decl::FUNCTION:
             {
+                fflush(stderr);
                 shared_ptr<DeclSpecs>& ds = decl->m_decl_specs;
                 CR_TypeID tid = CrAnalyseDeclSpecs(namescope, ds.get());
                 shared_ptr<DeclorList>& dl = decl->m_declor_list;
@@ -3292,10 +3331,12 @@ int CrSemanticAnalysis(CR_NameScope& namescope, shared_ptr<TransUnit>& tu)
                 CR_TypeID tid = CrAnalyseDeclSpecs(namescope, ds.get());
                 if (decl->m_decl_type == Decl::TYPEDEF)
                 {
+                    fflush(stderr);
                     CrAnalyseTypedefDeclorList(namescope, tid, dl.get());
                 }
                 else
                 {
+                    fflush(stderr);
                     CrAnalyseDeclorList(namescope, tid, dl.get());
                 }
             }
@@ -3311,18 +3352,48 @@ int CrSemanticAnalysis(CR_NameScope& namescope, shared_ptr<TransUnit>& tu)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CrDumpParsedFuncs(CR_NameScope& namescope)
+void CrDumpParsedInfo(CR_NameScope& namescope)
 {
-    printf("\n### FUNCTIONS ###\n");
+    printf("\n### TYPES ###\n");
+
+    for (auto& it : namescope.m_mNameToTypeID)
+    {
+        auto tid = it.second;
+        auto& type = namescope.m_types[tid];
+        if (type.m_flags & TF_ALIAS)
+        {
+            auto& name = it.first;
+            auto str = namescope.StringOfType(type.m_id, name);
+            if (!str.empty())
+                printf("typedef %s;\n", str.c_str());
+        }
+    }
+    printf("\n");
+
+    printf("\n### VARIABLES ###\n");
     auto& vars = namescope.m_vars;
     for (CR_VarID i = 0; i < vars.size(); ++i)
     {
         auto& var = vars[i];
-        auto& type = namescope.m_types[var.m_type_id];
-        if (type.m_flags & TF_FUNCTION)
+        auto& name = namescope.m_mVarIDToName[i];
+        if (var.m_has_value && namescope.IsIntegerType(var.m_type_id))
         {
-            auto& name = namescope.m_mVarIDToName[i];
-            printf("%s\n",
+            if (namescope.IsUnsignedType(var.m_type_id))
+            {
+                printf("%s = %u\n;",
+                       namescope.StringOfType(var.m_type_id, name).c_str(),
+                       var.m_int_value);
+            }
+            else
+            {
+                printf("%s = %d;\n",
+                       namescope.StringOfType(var.m_type_id, name).c_str(),
+                       var.m_int_value);
+            }
+        }
+        else
+        {
+            printf("%s;\n",
                    namescope.StringOfType(var.m_type_id, name).c_str());
         }
     }
@@ -3378,20 +3449,11 @@ int main(int argc, char **argv)
             return result;
     }
 
-    CR_NameScope namescope;
-    {
-        int result = CrSemanticAnalysis(namescope, tu);
-        if (result)
-            return result;
-    }
-
-    #if 1
-        CrDumpParsedFuncs(namescope);
-    #endif
-
+    fprintf(stderr, "Loading module %s...\n", argv[1]);
     CR_Module module;
     if (module.LoadModule(argv[1]))
     {
+        fprintf(stderr, "Dumping module %s...\n", argv[1]);
         module.DumpHeaders();
         module.DumpImportSymbols();
         module.DumpExportSymbols();
@@ -3400,18 +3462,51 @@ int main(int argc, char **argv)
 
         if (module.Is64Bit())
         {
+            CR_NameScope namescope;
+            namescope.Set64Bit();
+
+            fprintf(stderr, "Semantic analysis...\n");
+            int result = CrSemanticAnalysis(namescope, tu);
+            if (result)
+                return result;
+
+            tu = shared_ptr<TransUnit>();
+
+            #if 1
+                fprintf(stderr, "Dumping parsed info...\n");
+                CrDumpParsedInfo(namescope);
+            #endif
+
             CR_DecompStatus64 status;
             module.DisAsm64(status);
             module.FixUpAsm64(status);
-            status.AnalyzeCFG();
+            //status.AnalyzeCFG();
+
+            fprintf(stderr, "Dumping disassembly...\n");
             module.DumpDisAsm64(status);
         }
         else if (module.Is32Bit())
         {
+            CR_NameScope namescope;
+
+            fprintf(stderr, "Semantic analysis...\n");
+            int result = CrSemanticAnalysis(namescope, tu);
+            if (result)
+                return result;
+
+            tu = shared_ptr<TransUnit>();
+
+            #if 1
+                fprintf(stderr, "Dumping parsed info...\n");
+                CrDumpParsedInfo(namescope);
+            #endif
+
             CR_DecompStatus32 status;
             module.DisAsm32(status);
             module.FixUpAsm32(status);
-            status.AnalyzeCFG();
+            //status.AnalyzeCFG();
+
+            fprintf(stderr, "Dumping disassembly...\n");
             module.DumpDisAsm32(status);
         }
     }
