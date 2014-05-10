@@ -80,8 +80,8 @@ Module64.o: $(CR_HEADERS) Module.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Module64.o Module.cpp
 mzc2mini64.o: $(CR_HEADERS) mzc2mini.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o mzc2mini64.o mzc2mini.cpp
-CParser.hpp: $(CAPER) CParser.cpg
-	$(CAPER) CParser.cpg CParser.hpp
+CParser.h: $(CAPER) CParser.cpg
+	$(CAPER) CParser.cpg CParser.h
 
 h-ndisasm\disasm64.o: h-ndisasm\disasm.c $(H_NDISASM_HEADERS)
 	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\disasm64.o h-ndisasm\disasm.c

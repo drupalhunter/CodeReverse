@@ -82,13 +82,13 @@ public:
 
 public: // accessors
     DWORD&              RVA();
-    CR_String&        Name();
+    CR_String&          Name();
     const DWORD&        RVA() const;
-    const CR_String&  Name() const;
+    const CR_String&    Name() const;
 
 protected:
     DWORD               m_rva;
-    CR_String         m_name;
+    CR_String           m_name;
 };
 typedef CR_Symbol *LPSYMBOL;
 
@@ -298,24 +298,24 @@ public:
     const char *GetSymbolNameFromAddr64(CR_Addr64 addr) const;
 
 public:
-    BOOL DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr32 va);
-    BOOL DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr64 va);
-    BOOL DisAsm32(CR_DecompStatus32& status);
-    BOOL DisAsm64(CR_DecompStatus64& status);
+    BOOL DisAsmAddr32(CR_DisAsmInfo32& info, CR_Addr32 func, CR_Addr32 va);
+    BOOL DisAsmAddr64(CR_DisAsmInfo64& info, CR_Addr64 func, CR_Addr64 va);
+    BOOL DisAsm32(CR_DisAsmInfo32& info);
+    BOOL DisAsm64(CR_DisAsmInfo64& info);
 
-    BOOL FixUpAsm32(CR_DecompStatus32& status);
-    BOOL FixUpAsm64(CR_DecompStatus64& status);
+    BOOL FixupAsm32(CR_DisAsmInfo32& info);
+    BOOL FixupAsm64(CR_DisAsmInfo64& info);
 
-    BOOL DumpDisAsm32(CR_DecompStatus32& status);
-    BOOL DumpDisAsmFunc32(CR_DecompStatus32& status, CR_Addr32 func);
+    BOOL DumpDisAsm32(CR_DisAsmInfo32& info);
+    BOOL DumpDisAsmFunc32(CR_DisAsmInfo32& info, CR_Addr32 func);
 
-    BOOL DumpDisAsm64(CR_DecompStatus64& status);
-    BOOL DumpDisAsmFunc64(CR_DecompStatus64& status, CR_Addr64 func);
+    BOOL DumpDisAsm64(CR_DisAsmInfo64& info);
+    BOOL DumpDisAsmFunc64(CR_DisAsmInfo64& info, CR_Addr64 func);
 
-    BOOL DecompileAddr32(CR_DecompStatus32& status, CR_Addr32 va);
-    BOOL DecompileAddr64(CR_DecompStatus64& status, CR_Addr64 va);
-    BOOL Decompile32(CR_DecompStatus32& status);
-    BOOL Decompile64(CR_DecompStatus64& status);
+    BOOL DecompileAddr32(CR_DisAsmInfo32& info, CR_Addr32 va);
+    BOOL DecompileAddr64(CR_DisAsmInfo64& info, CR_Addr64 va);
+    BOOL Decompile32(CR_DisAsmInfo32& info);
+    BOOL Decompile64(CR_DisAsmInfo64& info);
     BOOL Decompile();
 
 protected:
@@ -325,9 +325,6 @@ protected:
     BOOL _GetImportDllNames(CR_StringSet& names);
     BOOL _GetImportSymbols(DWORD dll_index, CR_DeqSet<CR_ImportSymbol>& symbols);
     BOOL _GetExportSymbols(CR_DeqSet<CR_ExportSymbol>& symbols);
-
-    void _ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *insn);
-    void _ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *insn);
 
 protected:
     LPCTSTR                     m_pszFileName;

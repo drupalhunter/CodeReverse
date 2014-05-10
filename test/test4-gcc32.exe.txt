@@ -1,0 +1,1504 @@
+///////////////////////////////////////////////
+// CodeReverse 0.1.2 (32-bit) for gcc        //
+// https://github.com/katahiromz/CodeReverse //
+// katayama.hirofumi.mz@gmail.com            //
+///////////////////////////////////////////////
+
+Command Line: ..\coderev.exe -a test4-gcc32.exe
+### DISASSEMBLY ###
+
+;; Function WinMainCRTStartup @ L004014E0
+ft = unknown, SizeOfStackArgs == 0
+L00401180: 55                                  push ebp
+L00401181: 31 C0                               xor eax,eax
+L00401183: 89 E5                               mov ebp,esp
+L00401185: B9 11 00 00 00                      mov ecx,0x11
+L0040118A: 57                                  push edi
+L0040118B: 56                                  push esi
+L0040118C: 8D 55 A4                            lea edx,[ebp-0x5c]
+L0040118F: 53                                  push ebx
+L00401190: 89 D7                               mov edi,edx
+L00401192: 83 EC 7C                            sub esp,124
+L00401195: F3 AB                               rep stosd 
+L00401197: B0 30                               mov al,0x30
+L00401199: E8 C2 14 00 00                      call L00402660
+L0040119E: 29 C4                               sub esp,eax
+L004011A0: 8D 44 24 1B                         lea eax,[esp+0x1b]
+L004011A4: 83 E0 F0                            and eax,-16
+L004011A7: C7 00 CC CC CC CC                   mov dword [eax],0xCCCCCCCC
+L004011AD: C7 40 04 CC CC CC CC                mov dword [eax+0x4],0xCCCCCCCC
+L004011B4: C7 40 08 CC CC CC CC                mov dword [eax+0x8],0xCCCCCCCC
+L004011BB: C7 40 0C CC CC CC CC                mov dword [eax+0xc],0xCCCCCCCC
+L004011C2: C7 40 10 CC CC CC CC                mov dword [eax+0x10],0xCCCCCCCC
+L004011C9: C7 40 14 CC CC CC CC                mov dword [eax+0x14],0xCCCCCCCC
+L004011D0: C7 40 18 CC CC CC CC                mov dword [eax+0x18],0xCCCCCCCC
+L004011D7: C7 40 1C CC CC CC CC                mov dword [eax+0x1c],0xCCCCCCCC
+L004011DE: 83 E4 F0                            and esp,-16
+L004011E1: A1 3C 50 40 00                      mov eax,M0040503C
+L004011E6: 85 C0                               test eax,eax
+L004011E8: 0F 85 92 02 00 00                   jnz L00401480
+L004011EE: 64 A1 18 00 00 00                   mov eax,[fs:0x18]
+L004011F4: 8B 35 58 71 40 00                   mov esi,M00407158
+L004011FA: 8B 58 04                            mov ebx,[eax+0x4]
+L004011FD: 8B 3D 6C 71 40 00                   mov edi,M0040716C
+L00401203: EB 14                               jmp L00401219
+L00401205: 39 D8                               cmp eax,ebx
+L00401207: 0F 84 03 02 00 00                   jz L00401410
+L0040120D: C7 04 24 E8 03 00 00                mov dword [esp],0x03E8
+L00401214: FF D7                               call edi
+L00401216: 83 EC 04                            sub esp,4
+L00401219: C7 44 24 08 00 00 00 00             mov dword [esp+0x8],0x00
+L00401221: 89 5C 24 04                         mov [esp+0x4],ebx
+L00401225: C7 04 24 D8 53 40 00                mov dword [esp],0x004053D8
+L0040122C: FF D6                               call esi
+L0040122E: 83 EC 0C                            sub esp,12
+L00401231: 85 C0                               test eax,eax
+L00401233: 75 D0                               jnz L00401205
+L00401235: A1 DC 53 40 00                      mov eax,M004053DC
+L0040123A: 31 DB                               xor ebx,ebx
+L0040123C: 83 F8 01                            cmp eax,1
+L0040123F: 0F 84 DE 01 00 00                   jz L00401423
+L00401245: A1 DC 53 40 00                      mov eax,M004053DC
+L0040124A: 85 C0                               test eax,eax
+L0040124C: 0F 84 3F 02 00 00                   jz L00401491
+L00401252: C7 05 00 50 40 00 01 00 00 00       mov M00405000,0x01
+L0040125C: A1 DC 53 40 00                      mov eax,M004053DC
+L00401261: 83 F8 01                            cmp eax,1
+L00401264: 0F 84 D3 01 00 00                   jz L0040143D
+L0040126A: 85 DB                               test ebx,ebx
+L0040126C: 0F 84 F1 01 00 00                   jz L00401463
+L00401272: A1 34 40 40 00                      mov eax,M00404034
+L00401277: 85 C0                               test eax,eax
+L00401279: 74 1C                               jz L00401297
+L0040127B: C7 44 24 08 00 00 00 00             mov dword [esp+0x8],0x00
+L00401283: C7 44 24 04 02 00 00 00             mov dword [esp+0x4],0x02
+L0040128B: C7 04 24 00 00 00 00                mov dword [esp],0x00
+L00401292: FF D0                               call eax
+L00401294: 83 EC 0C                            sub esp,12
+L00401297: E8 E4 09 00 00                      call L00401C80
+L0040129C: C7 04 24 A0 17 40 00                mov dword [esp],0x004017A0
+L004012A3: FF 15 68 71 40 00                   call SetUnhandledExceptionFilter
+L004012A9: 83 EC 04                            sub esp,4
+L004012AC: A3 44 50 40 00                      mov M00405044,eax
+L004012B1: C7 04 24 00 10 40 00                mov dword [esp],0x00401000
+L004012B8: E8 67 1D 00 00                      call 0x00403024
+L004012BD: E8 6E 0C 00 00                      call L00401F30
+L004012C2: A1 A0 71 40 00                      mov eax,M004071A0
+L004012C7: 31 C9                               xor ecx,ecx
+L004012C9: C7 05 CC 53 40 00 00 00 40 00       mov M004053CC,0x00400000
+L004012D3: 8B 00                               mov eax,[eax]
+L004012D5: 85 C0                               test eax,eax
+L004012D7: 75 17                               jnz L004012F0
+L004012D9: EB 3E                               jmp L00401319
+L004012E0: 84 D2                               test dl,dl
+L004012E2: 74 30                               jz L00401314
+L004012E4: 85 C9                               test ecx,ecx
+L004012E6: 74 21                               jz L00401309
+L004012E8: B9 01 00 00 00                      mov ecx,0x01
+L004012ED: 83 C0 01                            add eax,1
+L004012F0: 0F B6 10                            movzx edx,byte [eax]
+L004012F3: 80 FA 20                            cmp dl,0x20
+L004012F6: 7E E8                               jng L004012E0
+L004012F8: 89 CB                               mov ebx,ecx
+L004012FA: 83 F3 01                            xor ebx,1
+L004012FD: 80 FA 22                            cmp dl,0x22
+L00401300: 0F 44 CB                            cmovz ecx,ebx
+L00401303: EB E8                               jmp L004012ED
+L00401305: 84 D2                               test dl,dl
+L00401307: 74 0B                               jz L00401314
+L00401309: 83 C0 01                            add eax,1
+L0040130C: 0F B6 10                            movzx edx,byte [eax]
+L0040130F: 80 FA 20                            cmp dl,0x20
+L00401312: 7E F1                               jng L00401305
+L00401314: A3 C8 53 40 00                      mov M004053C8,eax
+L00401319: A1 3C 50 40 00                      mov eax,M0040503C
+L0040131E: 85 C0                               test eax,eax
+L00401320: 74 15                               jz L00401337
+L00401322: 0F B7 55 D4                         movzx edx,word [ebp-0x2c]
+L00401326: B8 0A 00 00 00                      mov eax,0x0A
+L0040132B: F6 45 D0 01                         test byte [ebp-0x30],0x01
+L0040132F: 0F 45 C2                            cmovnz eax,edx
+L00401332: A3 00 30 40 00                      mov M00403000,eax
+L00401337: 8B 15 04 50 40 00                   mov edx,M00405004
+L0040133D: 31 DB                               xor ebx,ebx
+L0040133F: 8D 04 95 04 00 00 00                lea eax,[edx*4+0x4]
+L00401346: 89 55 94                            mov [ebp-0x6c],edx
+L00401349: 89 04 24                            mov [esp],eax
+L0040134C: E8 8F 13 00 00                      call L004026E0
+L00401351: 8B 3D 08 50 40 00                   mov edi,M00405008
+L00401357: 89 45 90                            mov [ebp-0x70],eax
+L0040135A: 8B 45 94                            mov eax,[ebp-0x6c]
+L0040135D: 85 C0                               test eax,eax
+L0040135F: 7E 3A                               jng L0040139B
+L00401361: 8B 04 9F                            mov eax,[edi+ebx*4]
+L00401364: 89 04 24                            mov [esp],eax
+L00401367: E8 7C 13 00 00                      call L004026E8
+L0040136C: 8D 70 01                            lea esi,[eax+0x1]
+L0040136F: 89 34 24                            mov [esp],esi
+L00401372: E8 69 13 00 00                      call L004026E0
+L00401377: 8B 55 90                            mov edx,[ebp-0x70]
+L0040137A: 89 04 9A                            mov [edx+ebx*4],eax
+L0040137D: 8B 14 9F                            mov edx,[edi+ebx*4]
+L00401380: 83 C3 01                            add ebx,1
+L00401383: 89 74 24 08                         mov [esp+0x8],esi
+L00401387: 89 04 24                            mov [esp],eax
+L0040138A: 89 54 24 04                         mov [esp+0x4],edx
+L0040138E: E8 09 13 00 00                      call L0040269C
+L00401393: 3B 5D 94                            cmp ebx,[ebp-0x6c]
+L00401396: 75 C9                               jnz L00401361
+L00401398: C1 E3 02                            shl ebx,0x02
+L0040139B: 8B 45 90                            mov eax,[ebp-0x70]
+L0040139E: C7 04 18 00 00 00 00                mov dword [eax+ebx],0x00
+L004013A5: A3 08 50 40 00                      mov M00405008,eax
+L004013AA: E8 11 0C 00 00                      call L00401FC0
+L004013AF: A1 90 71 40 00                      mov eax,M00407190
+L004013B4: 8B 15 0C 50 40 00                   mov edx,M0040500C
+L004013BA: 89 10                               mov [eax],edx
+L004013BC: A1 0C 50 40 00                      mov eax,M0040500C
+L004013C1: 89 44 24 08                         mov [esp+0x8],eax
+L004013C5: A1 08 50 40 00                      mov eax,M00405008
+L004013CA: 89 44 24 04                         mov [esp+0x4],eax
+L004013CE: A1 04 50 40 00                      mov eax,M00405004
+L004013D3: 89 04 24                            mov [esp],eax
+L004013D6: E8 B6 01 00 00                      call main
+L004013DB: 8B 35 14 50 40 00                   mov esi,M00405014
+L004013E1: 85 F6                               test esi,esi
+L004013E3: A3 10 50 40 00                      mov M00405010,eax
+L004013E8: 0F 84 C6 00 00 00                   jz L004014B4
+L004013EE: 8B 1D 00 50 40 00                   mov ebx,M00405000
+L004013F4: 85 DB                               test ebx,ebx
+L004013F6: 75 0A                               jnz L00401402
+L004013F8: E8 F3 12 00 00                      call L004026F0
+L004013FD: A1 10 50 40 00                      mov eax,M00405010
+L00401402: 8D 65 F4                            lea esp,[ebp-0xc]
+L00401405: 5B                                  pop ebx
+L00401406: 5E                                  pop esi
+L00401407: 5F                                  pop edi
+L00401408: 5D                                  pop ebp
+L00401409: C3                                  ret
+L00401410: A1 DC 53 40 00                      mov eax,M004053DC
+L00401415: BB 01 00 00 00                      mov ebx,0x01
+L0040141A: 83 F8 01                            cmp eax,1
+L0040141D: 0F 85 22 FE FF FF                   jnz L00401245
+L00401423: C7 04 24 1F 00 00 00                mov dword [esp],0x1F
+L0040142A: E8 C9 12 00 00                      call L004026F8
+L0040142F: A1 DC 53 40 00                      mov eax,M004053DC
+L00401434: 83 F8 01                            cmp eax,1
+L00401437: 0F 85 2D FE FF FF                   jnz L0040126A
+L0040143D: C7 44 24 04 08 80 40 00             mov dword [esp+0x4],0x00408008
+L00401445: C7 04 24 00 80 40 00                mov dword [esp],0x00408000
+L0040144C: E8 AF 12 00 00                      call L00402700
+L00401451: 85 DB                               test ebx,ebx
+L00401453: C7 05 DC 53 40 00 02 00 00 00       mov M004053DC,0x02
+L0040145D: 0F 85 0F FE FF FF                   jnz L00401272
+L00401463: C7 44 24 04 00 00 00 00             mov dword [esp+0x4],0x00
+L0040146B: C7 04 24 D8 53 40 00                mov dword [esp],0x004053D8
+L00401472: FF 15 5C 71 40 00                   call InterlockedExchange
+L00401478: 83 EC 08                            sub esp,8
+L0040147B: E9 F2 FD FF FF                      jmp L00401272
+L00401480: 89 14 24                            mov [esp],edx
+L00401483: FF 15 48 71 40 00                   call GetStartupInfoA
+L00401489: 83 EC 04                            sub esp,4
+L0040148C: E9 5D FD FF FF                      jmp L004011EE
+L00401491: C7 05 DC 53 40 00 01 00 00 00       mov M004053DC,0x01
+L0040149B: C7 44 24 04 18 80 40 00             mov dword [esp+0x4],0x00408018
+L004014A3: C7 04 24 0C 80 40 00                mov dword [esp],0x0040800C
+L004014AA: E8 51 12 00 00                      call L00402700
+L004014AF: E9 A8 FD FF FF                      jmp L0040125C
+L004014B4: 89 04 24                            mov [esp],eax
+L004014B7: E8 4C 12 00 00                      call L00402708
+L004014BC: 8D 74 26 00                         lea esi,[esi+0x0]
+L004014C0: 83 EC 0C                            sub esp,12
+L004014C3: C7 05 3C 50 40 00 01 00 00 00       mov M0040503C,0x01
+L004014CD: E8 0E 0B 00 00                      call L00401FE0
+L004014D2: 83 C4 0C                            add esp,12
+L004014D5: E9 A6 FC FF FF                      jmp L00401180
+L004014E0: 83 EC 0C                            sub esp,12
+L004014E3: C7 05 3C 50 40 00 00 00 00 00       mov M0040503C,0x00
+L004014ED: E8 EE 0A 00 00                      call L00401FE0
+L004014F2: 83 C4 0C                            add esp,12
+L004014F5: E9 86 FC FF FF                      jmp L00401180
+;; End of Function WinMainCRTStartup @ L004014E0
+
+;; Function f@0 @ L00401560
+ft = unknown, SizeOfStackArgs == -1
+L00401560: 55                                  push ebp
+L00401561: 89 E5                               mov ebp,esp
+L00401563: 83 EC 18                            sub esp,24
+L00401566: C7 44 24 0C 00 00 00 00             mov dword [esp+0xc],0x00
+L0040156E: C7 44 24 08 00 00 00 00             mov dword [esp+0x8],0x00
+L00401576: C7 44 24 04 24 40 40 00             mov dword [esp+0x4],0x00404024
+L0040157E: C7 04 24 00 00 00 00                mov dword [esp],0x00
+L00401585: A1 F8 71 40 00                      mov eax,M004071F8
+L0040158A: FF D0                               call eax
+L0040158C: 83 EC 10                            sub esp,16
+L0040158F: C9                                  leave
+L00401590: C3                                  ret
+;; End of Function f@0 @ L00401560
+
+;; Function main @ L00401591
+ft = unknown, SizeOfStackArgs == -1
+L00401591: 55                                  push ebp
+L00401592: 89 E5                               mov ebp,esp
+L00401594: 83 E4 F0                            and esp,-16
+L00401597: E8 24 0A 00 00                      call L00401FC0
+L0040159C: E8 BF FF FF FF                      call f@0
+L004015A1: B8 00 00 00 00                      mov eax,0x00
+L004015A6: C9                                  leave
+L004015A7: C3                                  ret
+;; End of Function main @ L00401591
+
+;; Function L004016A0
+ft = unknown, SizeOfStackArgs == -1
+L004016A0: 8B 44 24 04                         mov eax,[esp+0x4]
+L004016A4: C3                                  ret
+;; End of Function L004016A0
+
+;; Function L004016B0
+ft = unknown, SizeOfStackArgs == -1
+L004016B0: 8B 44 24 04                         mov eax,[esp+0x4]
+L004016B4: C3                                  ret
+;; End of Function L004016B0
+
+;; Function L004016C0
+ft = unknown, SizeOfStackArgs == -1
+L004016C0: 53                                  push ebx
+L004016C1: 83 EC 28                            sub esp,40
+L004016C4: A1 D4 53 40 00                      mov eax,M004053D4
+L004016C9: 89 04 24                            mov [esp],eax
+L004016CC: E8 CF FF FF FF                      call L004016A0
+L004016D1: 83 F8 FF                            cmp eax,-1
+L004016D4: 89 44 24 18                         mov [esp+0x18],eax
+L004016D8: 0F 84 82 00 00 00                   jz L00401760
+L004016DE: C7 04 24 08 00 00 00                mov dword [esp],0x08
+L004016E5: E8 26 10 00 00                      call L00402710
+L004016EA: A1 D4 53 40 00                      mov eax,M004053D4
+L004016EF: 89 04 24                            mov [esp],eax
+L004016F2: E8 A9 FF FF FF                      call L004016A0
+L004016F7: 89 44 24 18                         mov [esp+0x18],eax
+L004016FB: A1 D0 53 40 00                      mov eax,M004053D0
+L00401700: 89 04 24                            mov [esp],eax
+L00401703: E8 98 FF FF FF                      call L004016A0
+L00401708: 89 44 24 1C                         mov [esp+0x1c],eax
+L0040170C: 8D 44 24 1C                         lea eax,[esp+0x1c]
+L00401710: 89 44 24 08                         mov [esp+0x8],eax
+L00401714: 8D 44 24 18                         lea eax,[esp+0x18]
+L00401718: 89 44 24 04                         mov [esp+0x4],eax
+L0040171C: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401720: 89 04 24                            mov [esp],eax
+L00401723: E8 F0 0F 00 00                      call L00402718
+L00401728: 89 C3                               mov ebx,eax
+L0040172A: 8B 44 24 18                         mov eax,[esp+0x18]
+L0040172E: 89 04 24                            mov [esp],eax
+L00401731: E8 7A FF FF FF                      call L004016B0
+L00401736: A3 D4 53 40 00                      mov M004053D4,eax
+L0040173B: 8B 44 24 1C                         mov eax,[esp+0x1c]
+L0040173F: 89 04 24                            mov [esp],eax
+L00401742: E8 69 FF FF FF                      call L004016B0
+L00401747: C7 04 24 08 00 00 00                mov dword [esp],0x08
+L0040174E: A3 D0 53 40 00                      mov M004053D0,eax
+L00401753: E8 C8 0F 00 00                      call L00402720
+L00401758: 83 C4 28                            add esp,40
+L0040175B: 89 D8                               mov eax,ebx
+L0040175D: 5B                                  pop ebx
+L0040175E: C3                                  ret
+L00401760: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401764: 89 04 24                            mov [esp],eax
+L00401767: FF 15 BC 71 40 00                   call _onexit
+L0040176D: 83 C4 28                            add esp,40
+L00401770: 89 C3                               mov ebx,eax
+L00401772: 89 D8                               mov eax,ebx
+L00401774: 5B                                  pop ebx
+L00401775: C3                                  ret
+;; End of Function L004016C0
+
+;; Function L00401780
+ft = unknown, SizeOfStackArgs == -1
+L00401780: 83 EC 1C                            sub esp,28
+L00401783: 8B 44 24 20                         mov eax,[esp+0x20]
+L00401787: 89 04 24                            mov [esp],eax
+L0040178A: E8 31 FF FF FF                      call L004016C0
+L0040178F: 83 F8 01                            cmp eax,1
+L00401792: 19 C0                               sbb eax,eax
+L00401794: 83 C4 1C                            add esp,28
+L00401797: C3                                  ret
+;; End of Function L00401780
+
+;; Function L004019D0
+ft = unknown, SizeOfStackArgs == -1
+L004019D0: 53                                  push ebx
+L004019D1: 83 EC 18                            sub esp,24
+L004019D4: A1 B4 71 40 00                      mov eax,M004071B4
+L004019D9: C7 44 24 08 1B 00 00 00             mov dword [esp+0x8],0x1B
+L004019E1: 8D 5C 24 24                         lea ebx,[esp+0x24]
+L004019E5: C7 44 24 04 01 00 00 00             mov dword [esp+0x4],0x01
+L004019ED: C7 04 24 6C 41 40 00                mov dword [esp],0x0040416C
+L004019F4: 83 C0 40                            add eax,64
+L004019F7: 89 44 24 0C                         mov [esp+0xc],eax
+L004019FB: E8 40 0D 00 00                      call L00402740
+L00401A00: 8B 44 24 20                         mov eax,[esp+0x20]
+L00401A04: 89 5C 24 08                         mov [esp+0x8],ebx
+L00401A08: 89 44 24 04                         mov [esp+0x4],eax
+L00401A0C: A1 B4 71 40 00                      mov eax,M004071B4
+L00401A11: 83 C0 40                            add eax,64
+L00401A14: 89 04 24                            mov [esp],eax
+L00401A17: E8 2C 0D 00 00                      call L00402748
+L00401A1C: E8 2F 0D 00 00                      call L00402750
+L00401A21: EB 0D                               jmp L00401A30
+L00401A30: 55                                  push ebp
+L00401A31: 57                                  push edi
+L00401A32: 56                                  push esi
+L00401A33: 89 C6                               mov esi,eax
+L00401A35: 53                                  push ebx
+L00401A36: 83 EC 4C                            sub esp,76
+L00401A39: 89 4C 24 1C                         mov [esp+0x1c],ecx
+L00401A3D: 8B 0D 54 50 40 00                   mov ecx,M00405054
+L00401A43: 89 54 24 18                         mov [esp+0x18],edx
+L00401A47: 85 C9                               test ecx,ecx
+L00401A49: 0F 8E E1 01 00 00                   jng L00401C30
+L00401A4F: 8B 15 50 50 40 00                   mov edx,M00405050
+L00401A55: 31 DB                               xor ebx,ebx
+L00401A57: 8B 42 04                            mov eax,[edx+0x4]
+L00401A5A: 39 C6                               cmp esi,eax
+L00401A5C: 72 0E                               jc L00401A6C
+L00401A5E: 8B 7A 08                            mov edi,[edx+0x8]
+L00401A61: 03 47 08                            add eax,[edi+0x8]
+L00401A64: 39 C6                               cmp esi,eax
+L00401A66: 0F 82 D4 00 00 00                   jc L00401B40
+L00401A6C: 83 C3 01                            add ebx,1
+L00401A6F: 83 C2 0C                            add edx,12
+L00401A72: 39 CB                               cmp ebx,ecx
+L00401A74: 75 E1                               jnz L00401A57
+L00401A76: 89 34 24                            mov [esp],esi
+L00401A79: E8 02 0A 00 00                      call L00402480
+L00401A7E: 85 C0                               test eax,eax
+L00401A80: 89 C5                               mov ebp,eax
+L00401A82: 0F 84 CF 01 00 00                   jz L00401C57
+L00401A88: 8D 0C 5B                            lea ecx,[ebx+ebx*2]
+L00401A8B: 8B 1D 50 50 40 00                   mov ebx,M00405050
+L00401A91: 8D 3C 8D 00 00 00 00                lea edi,[ecx*4+0x0]
+L00401A98: 01 FB                               add ebx,edi
+L00401A9A: 89 43 08                            mov [ebx+0x8],eax
+L00401A9D: C7 03 00 00 00 00                   mov dword [ebx],0x00
+L00401AA3: E8 A8 0A 00 00                      call L00402550
+L00401AA8: 8D 54 24 24                         lea edx,[esp+0x24]
+L00401AAC: 03 45 0C                            add eax,[ebp+0xc]
+L00401AAF: 89 43 04                            mov [ebx+0x4],eax
+L00401AB2: A1 50 50 40 00                      mov eax,M00405050
+L00401AB7: 89 54 24 04                         mov [esp+0x4],edx
+L00401ABB: 8B 1D 80 71 40 00                   mov ebx,M00407180
+L00401AC1: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401AC9: 8B 44 38 04                         mov eax,[eax+edi+0x4]
+L00401ACD: 89 54 24 14                         mov [esp+0x14],edx
+L00401AD1: 89 04 24                            mov [esp],eax
+L00401AD4: FF D3                               call ebx
+L00401AD6: 83 EC 0C                            sub esp,12
+L00401AD9: 85 C0                               test eax,eax
+L00401ADB: 8B 54 24 14                         mov edx,[esp+0x14]
+L00401ADF: 0F 84 52 01 00 00                   jz L00401C37
+L00401AE5: 8B 44 24 38                         mov eax,[esp+0x38]
+L00401AE9: 83 F8 04                            cmp eax,4
+L00401AEC: 0F 85 DE 00 00 00                   jnz L00401BD0
+L00401AF2: 83 05 54 50 40 00 01                add M00405054,1
+L00401AF9: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401B01: 89 54 24 04                         mov [esp+0x4],edx
+L00401B05: 89 34 24                            mov [esp],esi
+L00401B08: FF D3                               call ebx
+L00401B0A: 83 EC 0C                            sub esp,12
+L00401B0D: 85 C0                               test eax,eax
+L00401B0F: 0F 84 52 01 00 00                   jz L00401C67
+L00401B15: 8B 44 24 38                         mov eax,[esp+0x38]
+L00401B19: 83 F8 04                            cmp eax,4
+L00401B1C: 75 32                               jnz L00401B50
+L00401B1E: 8B 44 24 1C                         mov eax,[esp+0x1c]
+L00401B22: 89 34 24                            mov [esp],esi
+L00401B25: 89 44 24 08                         mov [esp+0x8],eax
+L00401B29: 8B 44 24 18                         mov eax,[esp+0x18]
+L00401B2D: 89 44 24 04                         mov [esp+0x4],eax
+L00401B31: E8 66 0B 00 00                      call L0040269C
+L00401B36: 83 C4 4C                            add esp,76
+L00401B39: 5B                                  pop ebx
+L00401B3A: 5E                                  pop esi
+L00401B3B: 5F                                  pop edi
+L00401B3C: 5D                                  pop ebp
+L00401B3D: C3                                  ret
+L00401B40: 8D 54 24 24                         lea edx,[esp+0x24]
+L00401B44: 8B 1D 80 71 40 00                   mov ebx,M00407180
+L00401B4A: EB AD                               jmp L00401AF9
+L00401B50: 83 F8 40                            cmp eax,64
+L00401B53: 74 C9                               jz L00401B1E
+L00401B55: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401B59: 8D 6C 24 20                         lea ebp,[esp+0x20]
+L00401B5D: 8B 1D 7C 71 40 00                   mov ebx,M0040717C
+L00401B63: 89 6C 24 0C                         mov [esp+0xc],ebp
+L00401B67: C7 44 24 08 40 00 00 00             mov dword [esp+0x8],0x40
+L00401B6F: 89 44 24 04                         mov [esp+0x4],eax
+L00401B73: 8B 44 24 24                         mov eax,[esp+0x24]
+L00401B77: 89 04 24                            mov [esp],eax
+L00401B7A: FF D3                               call ebx
+L00401B7C: 83 EC 10                            sub esp,16
+L00401B7F: 8B 44 24 1C                         mov eax,[esp+0x1c]
+L00401B83: 89 34 24                            mov [esp],esi
+L00401B86: 89 44 24 08                         mov [esp+0x8],eax
+L00401B8A: 8B 44 24 18                         mov eax,[esp+0x18]
+L00401B8E: 89 44 24 04                         mov [esp+0x4],eax
+L00401B92: E8 05 0B 00 00                      call L0040269C
+L00401B97: 8B 44 24 38                         mov eax,[esp+0x38]
+L00401B9B: 83 F8 40                            cmp eax,64
+L00401B9E: 74 96                               jz L00401B36
+L00401BA0: 83 F8 04                            cmp eax,4
+L00401BA3: 74 91                               jz L00401B36
+L00401BA5: 8B 44 24 20                         mov eax,[esp+0x20]
+L00401BA9: 89 6C 24 0C                         mov [esp+0xc],ebp
+L00401BAD: 89 44 24 08                         mov [esp+0x8],eax
+L00401BB1: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401BB5: 89 44 24 04                         mov [esp+0x4],eax
+L00401BB9: 8B 44 24 24                         mov eax,[esp+0x24]
+L00401BBD: 89 04 24                            mov [esp],eax
+L00401BC0: FF D3                               call ebx
+L00401BC2: 83 EC 10                            sub esp,16
+L00401BC5: 83 C4 4C                            add esp,76
+L00401BC8: 5B                                  pop ebx
+L00401BC9: 5E                                  pop esi
+L00401BCA: 5F                                  pop edi
+L00401BCB: 5D                                  pop ebp
+L00401BCC: C3                                  ret
+L00401BD0: 83 F8 40                            cmp eax,64
+L00401BD3: 0F 84 19 FF FF FF                   jz L00401AF2
+L00401BD9: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401BDD: 8B 0D 50 50 40 00                   mov ecx,M00405050
+L00401BE3: 89 54 24 14                         mov [esp+0x14],edx
+L00401BE7: C7 44 24 08 40 00 00 00             mov dword [esp+0x8],0x40
+L00401BEF: 89 44 24 04                         mov [esp+0x4],eax
+L00401BF3: 8B 44 24 24                         mov eax,[esp+0x24]
+L00401BF7: 01 F9                               add ecx,edi
+L00401BF9: 89 4C 24 0C                         mov [esp+0xc],ecx
+L00401BFD: 89 04 24                            mov [esp],eax
+L00401C00: FF 15 7C 71 40 00                   call VirtualProtect
+L00401C06: 83 EC 10                            sub esp,16
+L00401C09: 85 C0                               test eax,eax
+L00401C0B: 8B 54 24 14                         mov edx,[esp+0x14]
+L00401C0F: 0F 85 DD FE FF FF                   jnz L00401AF2
+L00401C15: FF 15 3C 71 40 00                   call GetLastError
+L00401C1B: C7 04 24 DC 41 40 00                mov dword [esp],0x004041DC
+L00401C22: 89 44 24 04                         mov [esp+0x4],eax
+L00401C26: E8 A5 FD FF FF                      call L004019D0
+L00401C2B: 90                                  nop
+L00401C2C: 8D 74 26 00                         lea esi,[esi+0x0]
+L00401C30: 31 DB                               xor ebx,ebx
+L00401C32: E9 3F FE FF FF                      jmp L00401A76
+L00401C37: A1 50 50 40 00                      mov eax,M00405050
+L00401C3C: 8B 44 38 04                         mov eax,[eax+edi+0x4]
+L00401C40: 89 44 24 08                         mov [esp+0x8],eax
+L00401C44: 8B 45 08                            mov eax,[ebp+0x8]
+L00401C47: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401C4E: 89 44 24 04                         mov [esp+0x4],eax
+L00401C52: E8 79 FD FF FF                      call L004019D0
+L00401C57: 89 74 24 04                         mov [esp+0x4],esi
+L00401C5B: C7 04 24 88 41 40 00                mov dword [esp],0x00404188
+L00401C62: E8 69 FD FF FF                      call L004019D0
+L00401C67: 89 74 24 08                         mov [esp+0x8],esi
+L00401C6B: C7 44 24 04 1C 00 00 00             mov dword [esp+0x4],0x1C
+L00401C73: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401C7A: E8 51 FD FF FF                      call L004019D0
+L00401C7F: 90                                  nop
+L00401C80: A1 4C 50 40 00                      mov eax,M0040504C
+L00401C85: 85 C0                               test eax,eax
+L00401C87: 74 07                               jz L00401C90
+L00401C89: C3                                  ret
+L00401C90: 55                                  push ebp
+L00401C91: 89 E5                               mov ebp,esp
+L00401C93: 57                                  push edi
+L00401C94: 56                                  push esi
+L00401C95: 53                                  push ebx
+L00401C96: 83 EC 5C                            sub esp,92
+L00401C99: C7 05 4C 50 40 00 01 00 00 00       mov M0040504C,0x01
+L00401CA3: E8 18 08 00 00                      call L004024C0
+L00401CA8: 8D 04 40                            lea eax,[eax+eax*2]
+L00401CAB: 8D 04 85 1E 00 00 00                lea eax,[eax*4+0x1e]
+L00401CB2: 83 E0 F0                            and eax,-16
+L00401CB5: E8 A6 09 00 00                      call L00402660
+L00401CBA: C7 05 54 50 40 00 00 00 00 00       mov M00405054,0x00
+L00401CC4: 29 C4                               sub esp,eax
+L00401CC6: 8D 44 24 1F                         lea eax,[esp+0x1f]
+L00401CCA: 83 E0 F0                            and eax,-16
+L00401CCD: A3 50 50 40 00                      mov M00405050,eax
+L00401CD2: B8 48 43 40 00                      mov eax,0x00404348
+L00401CD7: 2D 30 43 40 00                      sub eax,0x00404330
+L00401CDC: 83 F8 07                            cmp eax,7
+L00401CDF: 0F 8E 9C 00 00 00                   jng L00401D81
+L00401CE5: 83 F8 0B                            cmp eax,11
+L00401CE8: 0F 8E 52 01 00 00                   jng L00401E40
+L00401CEE: A1 30 43 40 00                      mov eax,M00404330
+L00401CF3: 85 C0                               test eax,eax
+L00401CF5: 0F 85 8E 00 00 00                   jnz L00401D89
+L00401CFB: A1 34 43 40 00                      mov eax,M00404334
+L00401D00: 85 C0                               test eax,eax
+L00401D02: 0F 85 81 00 00 00                   jnz L00401D89
+L00401D08: 8B 3D 38 43 40 00                   mov edi,M00404338
+L00401D0E: BB 3C 43 40 00                      mov ebx,0x0040433C
+L00401D13: 85 FF                               test edi,edi
+L00401D15: 0F 84 2A 01 00 00                   jz L00401E45
+L00401D1B: BB 30 43 40 00                      mov ebx,0x00404330
+L00401D20: 8B 43 08                            mov eax,[ebx+0x8]
+L00401D23: 83 F8 01                            cmp eax,1
+L00401D26: 0F 85 EB 01 00 00                   jnz L00401F17
+L00401D2C: 83 C3 0C                            add ebx,12
+L00401D2F: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401D35: 73 4A                               jnc L00401D81
+L00401D37: 8B 13                               mov edx,[ebx]
+L00401D39: 0F B6 73 08                         movzx esi,byte [ebx+0x8]
+L00401D3D: 8B 7B 04                            mov edi,[ebx+0x4]
+L00401D40: 8B 8A 00 00 40 00                   mov ecx,[edx+0x400000]
+L00401D46: 83 FE 10                            cmp esi,16
+L00401D49: 8D 87 00 00 40 00                   lea eax,[edi+0x400000]
+L00401D4F: 89 4D B0                            mov [ebp-0x50],ecx
+L00401D52: 0F 84 07 01 00 00                   jz L00401E5F
+L00401D58: 83 FE 20                            cmp esi,32
+L00401D5B: 0F 84 74 01 00 00                   jz L00401ED5
+L00401D61: 83 FE 08                            cmp esi,8
+L00401D64: 0F 84 3E 01 00 00                   jz L00401EA8
+L00401D6A: 89 74 24 04                         mov [esp+0x4],esi
+L00401D6E: C7 04 24 38 42 40 00                mov dword [esp],0x00404238
+L00401D75: C7 45 C4 00 00 00 00                mov dword [ebp-0x3c],0x00
+L00401D7C: E8 4F FC FF FF                      call L004019D0
+L00401D81: 8D 65 F4                            lea esp,[ebp-0xc]
+L00401D84: 5B                                  pop ebx
+L00401D85: 5E                                  pop esi
+L00401D86: 5F                                  pop edi
+L00401D87: 5D                                  pop ebp
+L00401D88: C3                                  ret
+L00401D89: BB 30 43 40 00                      mov ebx,0x00404330
+L00401D8E: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401D94: 73 EB                               jnc L00401D81
+L00401D96: 8B 53 04                            mov edx,[ebx+0x4]
+L00401D99: B9 04 00 00 00                      mov ecx,0x04
+L00401D9E: 8D 82 00 00 40 00                   lea eax,[edx+0x400000]
+L00401DA4: 8B 92 00 00 40 00                   mov edx,[edx+0x400000]
+L00401DAA: 03 13                               add edx,[ebx]
+L00401DAC: 83 C3 08                            add ebx,8
+L00401DAF: 89 55 C8                            mov [ebp-0x38],edx
+L00401DB2: 8D 55 C8                            lea edx,[ebp-0x38]
+L00401DB5: E8 76 FC FF FF                      call L00401A30
+L00401DBA: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401DC0: 72 D4                               jc L00401D96
+L00401DC2: A1 54 50 40 00                      mov eax,M00405054
+L00401DC7: 31 DB                               xor ebx,ebx
+L00401DC9: 31 F6                               xor esi,esi
+L00401DCB: 8D 7D CC                            lea edi,[ebp-0x34]
+L00401DCE: 85 C0                               test eax,eax
+L00401DD0: 7F 10                               jg L00401DE2
+L00401DD2: EB AD                               jmp L00401D81
+L00401DD4: 83 C6 01                            add esi,1
+L00401DD7: 83 C3 0C                            add ebx,12
+L00401DDA: 3B 35 54 50 40 00                   cmp esi,M00405054
+L00401DE0: 7D 9F                               jnl L00401D81
+L00401DE2: A1 50 50 40 00                      mov eax,M00405050
+L00401DE7: 01 D8                               add eax,ebx
+L00401DE9: 8B 10                               mov edx,[eax]
+L00401DEB: 85 D2                               test edx,edx
+L00401DED: 74 E5                               jz L00401DD4
+L00401DEF: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401DF7: 89 7C 24 04                         mov [esp+0x4],edi
+L00401DFB: 8B 40 04                            mov eax,[eax+0x4]
+L00401DFE: 89 04 24                            mov [esp],eax
+L00401E01: FF 15 80 71 40 00                   call VirtualQuery
+L00401E07: 83 EC 0C                            sub esp,12
+L00401E0A: 85 C0                               test eax,eax
+L00401E0C: 0F 84 E2 00 00 00                   jz L00401EF4
+L00401E12: 8D 45 C8                            lea eax,[ebp-0x38]
+L00401E15: 89 44 24 0C                         mov [esp+0xc],eax
+L00401E19: A1 50 50 40 00                      mov eax,M00405050
+L00401E1E: 8B 04 18                            mov eax,[eax+ebx]
+L00401E21: 89 44 24 08                         mov [esp+0x8],eax
+L00401E25: 8B 45 D8                            mov eax,[ebp-0x28]
+L00401E28: 89 44 24 04                         mov [esp+0x4],eax
+L00401E2C: 8B 45 CC                            mov eax,[ebp-0x34]
+L00401E2F: 89 04 24                            mov [esp],eax
+L00401E32: FF 15 7C 71 40 00                   call VirtualProtect
+L00401E38: 83 EC 10                            sub esp,16
+L00401E3B: EB 97                               jmp L00401DD4
+L00401E40: BB 30 43 40 00                      mov ebx,0x00404330
+L00401E45: 8B 33                               mov esi,[ebx]
+L00401E47: 85 F6                               test esi,esi
+L00401E49: 0F 85 3F FF FF FF                   jnz L00401D8E
+L00401E4F: 8B 4B 04                            mov ecx,[ebx+0x4]
+L00401E52: 85 C9                               test ecx,ecx
+L00401E54: 0F 84 C6 FE FF FF                   jz L00401D20
+L00401E5A: E9 2F FF FF FF                      jmp L00401D8E
+L00401E5F: 0F B7 BF 00 00 40 00                movzx edi,word [edi+0x400000]
+L00401E66: 0F B7 F7                            movzx esi,di
+L00401E69: 89 F1                               mov ecx,esi
+L00401E6B: 81 C9 00 00 FF FF                   or ecx,0xFFFF0000
+L00401E71: 66 85 FF                            test di,di
+L00401E74: 0F 48 F1                            cmovs esi,ecx
+L00401E77: 8B 4D B0                            mov ecx,[ebp-0x50]
+L00401E7A: 29 D6                               sub esi,edx
+L00401E7C: 81 EE 00 00 40 00                   sub esi,0x00400000
+L00401E82: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401E85: 01 F1                               add ecx,esi
+L00401E87: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401E8A: B9 02 00 00 00                      mov ecx,0x02
+L00401E8F: E8 9C FB FF FF                      call L00401A30
+L00401E94: 83 C3 0C                            add ebx,12
+L00401E97: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401E9D: 0F 82 94 FE FF FF                   jc L00401D37
+L00401EA3: E9 1A FF FF FF                      jmp L00401DC2
+L00401EA8: 0F B6 30                            movzx esi,byte [eax]
+L00401EAB: 89 F7                               mov edi,esi
+L00401EAD: 81 CF 00 FF FF FF                   or edi,0xFFFFFF00
+L00401EB3: 80 38 00                            cmp byte [eax],0x00
+L00401EB6: 0F 48 F7                            cmovs esi,edi
+L00401EB9: 81 EE 00 00 40 00                   sub esi,0x00400000
+L00401EBF: 29 D6                               sub esi,edx
+L00401EC1: 01 F1                               add ecx,esi
+L00401EC3: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401EC6: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401EC9: B9 01 00 00 00                      mov ecx,0x01
+L00401ECE: E8 5D FB FF FF                      call L00401A30
+L00401ED3: EB BF                               jmp L00401E94
+L00401ED5: 8B 4D B0                            mov ecx,[ebp-0x50]
+L00401ED8: 81 C2 00 00 40 00                   add edx,0x00400000
+L00401EDE: 29 D1                               sub ecx,edx
+L00401EE0: 03 08                               add ecx,[eax]
+L00401EE2: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401EE5: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401EE8: B9 04 00 00 00                      mov ecx,0x04
+L00401EED: E8 3E FB FF FF                      call L00401A30
+L00401EF2: EB A0                               jmp L00401E94
+L00401EF4: 03 1D 50 50 40 00                   add ebx,M00405050
+L00401EFA: 8B 43 04                            mov eax,[ebx+0x4]
+L00401EFD: 89 44 24 08                         mov [esp+0x8],eax
+L00401F01: 8B 43 08                            mov eax,[ebx+0x8]
+L00401F04: 8B 40 08                            mov eax,[eax+0x8]
+L00401F07: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401F0E: 89 44 24 04                         mov [esp+0x4],eax
+L00401F12: E8 B9 FA FF FF                      call L004019D0
+L00401F17: 89 44 24 04                         mov [esp+0x4],eax
+L00401F1B: C7 04 24 04 42 40 00                mov dword [esp],0x00404204
+L00401F22: E8 A9 FA FF FF                      call L004019D0
+L00401F27: 90                                  nop
+L00401F28: 90                                  nop
+L00401F29: 90                                  nop
+L00401F2A: 90                                  nop
+L00401F2B: 90                                  nop
+L00401F2C: 90                                  nop
+L00401F2D: 90                                  nop
+L00401F2E: 90                                  nop
+L00401F2F: 90                                  nop
+L00401F30: DB E3                               fninit
+L00401F32: C3                                  ret
+;; End of Function L004019D0
+
+;; Function L00401A30
+ft = unknown, SizeOfStackArgs == -1
+L00401A30: 55                                  push ebp
+L00401A31: 57                                  push edi
+L00401A32: 56                                  push esi
+L00401A33: 89 C6                               mov esi,eax
+L00401A35: 53                                  push ebx
+L00401A36: 83 EC 4C                            sub esp,76
+L00401A39: 89 4C 24 1C                         mov [esp+0x1c],ecx
+L00401A3D: 8B 0D 54 50 40 00                   mov ecx,M00405054
+L00401A43: 89 54 24 18                         mov [esp+0x18],edx
+L00401A47: 85 C9                               test ecx,ecx
+L00401A49: 0F 8E E1 01 00 00                   jng L00401C30
+L00401A4F: 8B 15 50 50 40 00                   mov edx,M00405050
+L00401A55: 31 DB                               xor ebx,ebx
+L00401A57: 8B 42 04                            mov eax,[edx+0x4]
+L00401A5A: 39 C6                               cmp esi,eax
+L00401A5C: 72 0E                               jc L00401A6C
+L00401A5E: 8B 7A 08                            mov edi,[edx+0x8]
+L00401A61: 03 47 08                            add eax,[edi+0x8]
+L00401A64: 39 C6                               cmp esi,eax
+L00401A66: 0F 82 D4 00 00 00                   jc L00401B40
+L00401A6C: 83 C3 01                            add ebx,1
+L00401A6F: 83 C2 0C                            add edx,12
+L00401A72: 39 CB                               cmp ebx,ecx
+L00401A74: 75 E1                               jnz L00401A57
+L00401A76: 89 34 24                            mov [esp],esi
+L00401A79: E8 02 0A 00 00                      call L00402480
+L00401A7E: 85 C0                               test eax,eax
+L00401A80: 89 C5                               mov ebp,eax
+L00401A82: 0F 84 CF 01 00 00                   jz L00401C57
+L00401A88: 8D 0C 5B                            lea ecx,[ebx+ebx*2]
+L00401A8B: 8B 1D 50 50 40 00                   mov ebx,M00405050
+L00401A91: 8D 3C 8D 00 00 00 00                lea edi,[ecx*4+0x0]
+L00401A98: 01 FB                               add ebx,edi
+L00401A9A: 89 43 08                            mov [ebx+0x8],eax
+L00401A9D: C7 03 00 00 00 00                   mov dword [ebx],0x00
+L00401AA3: E8 A8 0A 00 00                      call L00402550
+L00401AA8: 8D 54 24 24                         lea edx,[esp+0x24]
+L00401AAC: 03 45 0C                            add eax,[ebp+0xc]
+L00401AAF: 89 43 04                            mov [ebx+0x4],eax
+L00401AB2: A1 50 50 40 00                      mov eax,M00405050
+L00401AB7: 89 54 24 04                         mov [esp+0x4],edx
+L00401ABB: 8B 1D 80 71 40 00                   mov ebx,M00407180
+L00401AC1: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401AC9: 8B 44 38 04                         mov eax,[eax+edi+0x4]
+L00401ACD: 89 54 24 14                         mov [esp+0x14],edx
+L00401AD1: 89 04 24                            mov [esp],eax
+L00401AD4: FF D3                               call ebx
+L00401AD6: 83 EC 0C                            sub esp,12
+L00401AD9: 85 C0                               test eax,eax
+L00401ADB: 8B 54 24 14                         mov edx,[esp+0x14]
+L00401ADF: 0F 84 52 01 00 00                   jz L00401C37
+L00401AE5: 8B 44 24 38                         mov eax,[esp+0x38]
+L00401AE9: 83 F8 04                            cmp eax,4
+L00401AEC: 0F 85 DE 00 00 00                   jnz L00401BD0
+L00401AF2: 83 05 54 50 40 00 01                add M00405054,1
+L00401AF9: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401B01: 89 54 24 04                         mov [esp+0x4],edx
+L00401B05: 89 34 24                            mov [esp],esi
+L00401B08: FF D3                               call ebx
+L00401B0A: 83 EC 0C                            sub esp,12
+L00401B0D: 85 C0                               test eax,eax
+L00401B0F: 0F 84 52 01 00 00                   jz L00401C67
+L00401B15: 8B 44 24 38                         mov eax,[esp+0x38]
+L00401B19: 83 F8 04                            cmp eax,4
+L00401B1C: 75 32                               jnz L00401B50
+L00401B1E: 8B 44 24 1C                         mov eax,[esp+0x1c]
+L00401B22: 89 34 24                            mov [esp],esi
+L00401B25: 89 44 24 08                         mov [esp+0x8],eax
+L00401B29: 8B 44 24 18                         mov eax,[esp+0x18]
+L00401B2D: 89 44 24 04                         mov [esp+0x4],eax
+L00401B31: E8 66 0B 00 00                      call L0040269C
+L00401B36: 83 C4 4C                            add esp,76
+L00401B39: 5B                                  pop ebx
+L00401B3A: 5E                                  pop esi
+L00401B3B: 5F                                  pop edi
+L00401B3C: 5D                                  pop ebp
+L00401B3D: C3                                  ret
+L00401B40: 8D 54 24 24                         lea edx,[esp+0x24]
+L00401B44: 8B 1D 80 71 40 00                   mov ebx,M00407180
+L00401B4A: EB AD                               jmp L00401AF9
+L00401B50: 83 F8 40                            cmp eax,64
+L00401B53: 74 C9                               jz L00401B1E
+L00401B55: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401B59: 8D 6C 24 20                         lea ebp,[esp+0x20]
+L00401B5D: 8B 1D 7C 71 40 00                   mov ebx,M0040717C
+L00401B63: 89 6C 24 0C                         mov [esp+0xc],ebp
+L00401B67: C7 44 24 08 40 00 00 00             mov dword [esp+0x8],0x40
+L00401B6F: 89 44 24 04                         mov [esp+0x4],eax
+L00401B73: 8B 44 24 24                         mov eax,[esp+0x24]
+L00401B77: 89 04 24                            mov [esp],eax
+L00401B7A: FF D3                               call ebx
+L00401B7C: 83 EC 10                            sub esp,16
+L00401B7F: 8B 44 24 1C                         mov eax,[esp+0x1c]
+L00401B83: 89 34 24                            mov [esp],esi
+L00401B86: 89 44 24 08                         mov [esp+0x8],eax
+L00401B8A: 8B 44 24 18                         mov eax,[esp+0x18]
+L00401B8E: 89 44 24 04                         mov [esp+0x4],eax
+L00401B92: E8 05 0B 00 00                      call L0040269C
+L00401B97: 8B 44 24 38                         mov eax,[esp+0x38]
+L00401B9B: 83 F8 40                            cmp eax,64
+L00401B9E: 74 96                               jz L00401B36
+L00401BA0: 83 F8 04                            cmp eax,4
+L00401BA3: 74 91                               jz L00401B36
+L00401BA5: 8B 44 24 20                         mov eax,[esp+0x20]
+L00401BA9: 89 6C 24 0C                         mov [esp+0xc],ebp
+L00401BAD: 89 44 24 08                         mov [esp+0x8],eax
+L00401BB1: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401BB5: 89 44 24 04                         mov [esp+0x4],eax
+L00401BB9: 8B 44 24 24                         mov eax,[esp+0x24]
+L00401BBD: 89 04 24                            mov [esp],eax
+L00401BC0: FF D3                               call ebx
+L00401BC2: 83 EC 10                            sub esp,16
+L00401BC5: 83 C4 4C                            add esp,76
+L00401BC8: 5B                                  pop ebx
+L00401BC9: 5E                                  pop esi
+L00401BCA: 5F                                  pop edi
+L00401BCB: 5D                                  pop ebp
+L00401BCC: C3                                  ret
+L00401BD0: 83 F8 40                            cmp eax,64
+L00401BD3: 0F 84 19 FF FF FF                   jz L00401AF2
+L00401BD9: 8B 44 24 30                         mov eax,[esp+0x30]
+L00401BDD: 8B 0D 50 50 40 00                   mov ecx,M00405050
+L00401BE3: 89 54 24 14                         mov [esp+0x14],edx
+L00401BE7: C7 44 24 08 40 00 00 00             mov dword [esp+0x8],0x40
+L00401BEF: 89 44 24 04                         mov [esp+0x4],eax
+L00401BF3: 8B 44 24 24                         mov eax,[esp+0x24]
+L00401BF7: 01 F9                               add ecx,edi
+L00401BF9: 89 4C 24 0C                         mov [esp+0xc],ecx
+L00401BFD: 89 04 24                            mov [esp],eax
+L00401C00: FF 15 7C 71 40 00                   call VirtualProtect
+L00401C06: 83 EC 10                            sub esp,16
+L00401C09: 85 C0                               test eax,eax
+L00401C0B: 8B 54 24 14                         mov edx,[esp+0x14]
+L00401C0F: 0F 85 DD FE FF FF                   jnz L00401AF2
+L00401C15: FF 15 3C 71 40 00                   call GetLastError
+L00401C1B: C7 04 24 DC 41 40 00                mov dword [esp],0x004041DC
+L00401C22: 89 44 24 04                         mov [esp+0x4],eax
+L00401C26: E8 A5 FD FF FF                      call L004019D0
+L00401C2B: 90                                  nop
+L00401C2C: 8D 74 26 00                         lea esi,[esi+0x0]
+L00401C30: 31 DB                               xor ebx,ebx
+L00401C32: E9 3F FE FF FF                      jmp L00401A76
+L00401C37: A1 50 50 40 00                      mov eax,M00405050
+L00401C3C: 8B 44 38 04                         mov eax,[eax+edi+0x4]
+L00401C40: 89 44 24 08                         mov [esp+0x8],eax
+L00401C44: 8B 45 08                            mov eax,[ebp+0x8]
+L00401C47: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401C4E: 89 44 24 04                         mov [esp+0x4],eax
+L00401C52: E8 79 FD FF FF                      call L004019D0
+L00401C57: 89 74 24 04                         mov [esp+0x4],esi
+L00401C5B: C7 04 24 88 41 40 00                mov dword [esp],0x00404188
+L00401C62: E8 69 FD FF FF                      call L004019D0
+L00401C67: 89 74 24 08                         mov [esp+0x8],esi
+L00401C6B: C7 44 24 04 1C 00 00 00             mov dword [esp+0x4],0x1C
+L00401C73: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401C7A: E8 51 FD FF FF                      call L004019D0
+L00401C7F: 90                                  nop
+L00401C80: A1 4C 50 40 00                      mov eax,M0040504C
+L00401C85: 85 C0                               test eax,eax
+L00401C87: 74 07                               jz L00401C90
+L00401C89: C3                                  ret
+L00401C90: 55                                  push ebp
+L00401C91: 89 E5                               mov ebp,esp
+L00401C93: 57                                  push edi
+L00401C94: 56                                  push esi
+L00401C95: 53                                  push ebx
+L00401C96: 83 EC 5C                            sub esp,92
+L00401C99: C7 05 4C 50 40 00 01 00 00 00       mov M0040504C,0x01
+L00401CA3: E8 18 08 00 00                      call L004024C0
+L00401CA8: 8D 04 40                            lea eax,[eax+eax*2]
+L00401CAB: 8D 04 85 1E 00 00 00                lea eax,[eax*4+0x1e]
+L00401CB2: 83 E0 F0                            and eax,-16
+L00401CB5: E8 A6 09 00 00                      call L00402660
+L00401CBA: C7 05 54 50 40 00 00 00 00 00       mov M00405054,0x00
+L00401CC4: 29 C4                               sub esp,eax
+L00401CC6: 8D 44 24 1F                         lea eax,[esp+0x1f]
+L00401CCA: 83 E0 F0                            and eax,-16
+L00401CCD: A3 50 50 40 00                      mov M00405050,eax
+L00401CD2: B8 48 43 40 00                      mov eax,0x00404348
+L00401CD7: 2D 30 43 40 00                      sub eax,0x00404330
+L00401CDC: 83 F8 07                            cmp eax,7
+L00401CDF: 0F 8E 9C 00 00 00                   jng L00401D81
+L00401CE5: 83 F8 0B                            cmp eax,11
+L00401CE8: 0F 8E 52 01 00 00                   jng L00401E40
+L00401CEE: A1 30 43 40 00                      mov eax,M00404330
+L00401CF3: 85 C0                               test eax,eax
+L00401CF5: 0F 85 8E 00 00 00                   jnz L00401D89
+L00401CFB: A1 34 43 40 00                      mov eax,M00404334
+L00401D00: 85 C0                               test eax,eax
+L00401D02: 0F 85 81 00 00 00                   jnz L00401D89
+L00401D08: 8B 3D 38 43 40 00                   mov edi,M00404338
+L00401D0E: BB 3C 43 40 00                      mov ebx,0x0040433C
+L00401D13: 85 FF                               test edi,edi
+L00401D15: 0F 84 2A 01 00 00                   jz L00401E45
+L00401D1B: BB 30 43 40 00                      mov ebx,0x00404330
+L00401D20: 8B 43 08                            mov eax,[ebx+0x8]
+L00401D23: 83 F8 01                            cmp eax,1
+L00401D26: 0F 85 EB 01 00 00                   jnz L00401F17
+L00401D2C: 83 C3 0C                            add ebx,12
+L00401D2F: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401D35: 73 4A                               jnc L00401D81
+L00401D37: 8B 13                               mov edx,[ebx]
+L00401D39: 0F B6 73 08                         movzx esi,byte [ebx+0x8]
+L00401D3D: 8B 7B 04                            mov edi,[ebx+0x4]
+L00401D40: 8B 8A 00 00 40 00                   mov ecx,[edx+0x400000]
+L00401D46: 83 FE 10                            cmp esi,16
+L00401D49: 8D 87 00 00 40 00                   lea eax,[edi+0x400000]
+L00401D4F: 89 4D B0                            mov [ebp-0x50],ecx
+L00401D52: 0F 84 07 01 00 00                   jz L00401E5F
+L00401D58: 83 FE 20                            cmp esi,32
+L00401D5B: 0F 84 74 01 00 00                   jz L00401ED5
+L00401D61: 83 FE 08                            cmp esi,8
+L00401D64: 0F 84 3E 01 00 00                   jz L00401EA8
+L00401D6A: 89 74 24 04                         mov [esp+0x4],esi
+L00401D6E: C7 04 24 38 42 40 00                mov dword [esp],0x00404238
+L00401D75: C7 45 C4 00 00 00 00                mov dword [ebp-0x3c],0x00
+L00401D7C: E8 4F FC FF FF                      call L004019D0
+L00401D81: 8D 65 F4                            lea esp,[ebp-0xc]
+L00401D84: 5B                                  pop ebx
+L00401D85: 5E                                  pop esi
+L00401D86: 5F                                  pop edi
+L00401D87: 5D                                  pop ebp
+L00401D88: C3                                  ret
+L00401D89: BB 30 43 40 00                      mov ebx,0x00404330
+L00401D8E: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401D94: 73 EB                               jnc L00401D81
+L00401D96: 8B 53 04                            mov edx,[ebx+0x4]
+L00401D99: B9 04 00 00 00                      mov ecx,0x04
+L00401D9E: 8D 82 00 00 40 00                   lea eax,[edx+0x400000]
+L00401DA4: 8B 92 00 00 40 00                   mov edx,[edx+0x400000]
+L00401DAA: 03 13                               add edx,[ebx]
+L00401DAC: 83 C3 08                            add ebx,8
+L00401DAF: 89 55 C8                            mov [ebp-0x38],edx
+L00401DB2: 8D 55 C8                            lea edx,[ebp-0x38]
+L00401DB5: E8 76 FC FF FF                      call L00401A30
+L00401DBA: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401DC0: 72 D4                               jc L00401D96
+L00401DC2: A1 54 50 40 00                      mov eax,M00405054
+L00401DC7: 31 DB                               xor ebx,ebx
+L00401DC9: 31 F6                               xor esi,esi
+L00401DCB: 8D 7D CC                            lea edi,[ebp-0x34]
+L00401DCE: 85 C0                               test eax,eax
+L00401DD0: 7F 10                               jg L00401DE2
+L00401DD2: EB AD                               jmp L00401D81
+L00401DD4: 83 C6 01                            add esi,1
+L00401DD7: 83 C3 0C                            add ebx,12
+L00401DDA: 3B 35 54 50 40 00                   cmp esi,M00405054
+L00401DE0: 7D 9F                               jnl L00401D81
+L00401DE2: A1 50 50 40 00                      mov eax,M00405050
+L00401DE7: 01 D8                               add eax,ebx
+L00401DE9: 8B 10                               mov edx,[eax]
+L00401DEB: 85 D2                               test edx,edx
+L00401DED: 74 E5                               jz L00401DD4
+L00401DEF: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401DF7: 89 7C 24 04                         mov [esp+0x4],edi
+L00401DFB: 8B 40 04                            mov eax,[eax+0x4]
+L00401DFE: 89 04 24                            mov [esp],eax
+L00401E01: FF 15 80 71 40 00                   call VirtualQuery
+L00401E07: 83 EC 0C                            sub esp,12
+L00401E0A: 85 C0                               test eax,eax
+L00401E0C: 0F 84 E2 00 00 00                   jz L00401EF4
+L00401E12: 8D 45 C8                            lea eax,[ebp-0x38]
+L00401E15: 89 44 24 0C                         mov [esp+0xc],eax
+L00401E19: A1 50 50 40 00                      mov eax,M00405050
+L00401E1E: 8B 04 18                            mov eax,[eax+ebx]
+L00401E21: 89 44 24 08                         mov [esp+0x8],eax
+L00401E25: 8B 45 D8                            mov eax,[ebp-0x28]
+L00401E28: 89 44 24 04                         mov [esp+0x4],eax
+L00401E2C: 8B 45 CC                            mov eax,[ebp-0x34]
+L00401E2F: 89 04 24                            mov [esp],eax
+L00401E32: FF 15 7C 71 40 00                   call VirtualProtect
+L00401E38: 83 EC 10                            sub esp,16
+L00401E3B: EB 97                               jmp L00401DD4
+L00401E40: BB 30 43 40 00                      mov ebx,0x00404330
+L00401E45: 8B 33                               mov esi,[ebx]
+L00401E47: 85 F6                               test esi,esi
+L00401E49: 0F 85 3F FF FF FF                   jnz L00401D8E
+L00401E4F: 8B 4B 04                            mov ecx,[ebx+0x4]
+L00401E52: 85 C9                               test ecx,ecx
+L00401E54: 0F 84 C6 FE FF FF                   jz L00401D20
+L00401E5A: E9 2F FF FF FF                      jmp L00401D8E
+L00401E5F: 0F B7 BF 00 00 40 00                movzx edi,word [edi+0x400000]
+L00401E66: 0F B7 F7                            movzx esi,di
+L00401E69: 89 F1                               mov ecx,esi
+L00401E6B: 81 C9 00 00 FF FF                   or ecx,0xFFFF0000
+L00401E71: 66 85 FF                            test di,di
+L00401E74: 0F 48 F1                            cmovs esi,ecx
+L00401E77: 8B 4D B0                            mov ecx,[ebp-0x50]
+L00401E7A: 29 D6                               sub esi,edx
+L00401E7C: 81 EE 00 00 40 00                   sub esi,0x00400000
+L00401E82: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401E85: 01 F1                               add ecx,esi
+L00401E87: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401E8A: B9 02 00 00 00                      mov ecx,0x02
+L00401E8F: E8 9C FB FF FF                      call L00401A30
+L00401E94: 83 C3 0C                            add ebx,12
+L00401E97: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401E9D: 0F 82 94 FE FF FF                   jc L00401D37
+L00401EA3: E9 1A FF FF FF                      jmp L00401DC2
+L00401EA8: 0F B6 30                            movzx esi,byte [eax]
+L00401EAB: 89 F7                               mov edi,esi
+L00401EAD: 81 CF 00 FF FF FF                   or edi,0xFFFFFF00
+L00401EB3: 80 38 00                            cmp byte [eax],0x00
+L00401EB6: 0F 48 F7                            cmovs esi,edi
+L00401EB9: 81 EE 00 00 40 00                   sub esi,0x00400000
+L00401EBF: 29 D6                               sub esi,edx
+L00401EC1: 01 F1                               add ecx,esi
+L00401EC3: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401EC6: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401EC9: B9 01 00 00 00                      mov ecx,0x01
+L00401ECE: E8 5D FB FF FF                      call L00401A30
+L00401ED3: EB BF                               jmp L00401E94
+L00401ED5: 8B 4D B0                            mov ecx,[ebp-0x50]
+L00401ED8: 81 C2 00 00 40 00                   add edx,0x00400000
+L00401EDE: 29 D1                               sub ecx,edx
+L00401EE0: 03 08                               add ecx,[eax]
+L00401EE2: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401EE5: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401EE8: B9 04 00 00 00                      mov ecx,0x04
+L00401EED: E8 3E FB FF FF                      call L00401A30
+L00401EF2: EB A0                               jmp L00401E94
+L00401EF4: 03 1D 50 50 40 00                   add ebx,M00405050
+L00401EFA: 8B 43 04                            mov eax,[ebx+0x4]
+L00401EFD: 89 44 24 08                         mov [esp+0x8],eax
+L00401F01: 8B 43 08                            mov eax,[ebx+0x8]
+L00401F04: 8B 40 08                            mov eax,[eax+0x8]
+L00401F07: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401F0E: 89 44 24 04                         mov [esp+0x4],eax
+L00401F12: E8 B9 FA FF FF                      call L004019D0
+L00401F17: 89 44 24 04                         mov [esp+0x4],eax
+L00401F1B: C7 04 24 04 42 40 00                mov dword [esp],0x00404204
+L00401F22: E8 A9 FA FF FF                      call L004019D0
+L00401F27: 90                                  nop
+L00401F28: 90                                  nop
+L00401F29: 90                                  nop
+L00401F2A: 90                                  nop
+L00401F2B: 90                                  nop
+L00401F2C: 90                                  nop
+L00401F2D: 90                                  nop
+L00401F2E: 90                                  nop
+L00401F2F: 90                                  nop
+L00401F30: DB E3                               fninit
+L00401F32: C3                                  ret
+;; End of Function L00401A30
+
+;; Function L00401C80
+ft = unknown, SizeOfStackArgs == -1
+L00401C80: A1 4C 50 40 00                      mov eax,M0040504C
+L00401C85: 85 C0                               test eax,eax
+L00401C87: 74 07                               jz L00401C90
+L00401C89: C3                                  ret
+L00401C90: 55                                  push ebp
+L00401C91: 89 E5                               mov ebp,esp
+L00401C93: 57                                  push edi
+L00401C94: 56                                  push esi
+L00401C95: 53                                  push ebx
+L00401C96: 83 EC 5C                            sub esp,92
+L00401C99: C7 05 4C 50 40 00 01 00 00 00       mov M0040504C,0x01
+L00401CA3: E8 18 08 00 00                      call L004024C0
+L00401CA8: 8D 04 40                            lea eax,[eax+eax*2]
+L00401CAB: 8D 04 85 1E 00 00 00                lea eax,[eax*4+0x1e]
+L00401CB2: 83 E0 F0                            and eax,-16
+L00401CB5: E8 A6 09 00 00                      call L00402660
+L00401CBA: C7 05 54 50 40 00 00 00 00 00       mov M00405054,0x00
+L00401CC4: 29 C4                               sub esp,eax
+L00401CC6: 8D 44 24 1F                         lea eax,[esp+0x1f]
+L00401CCA: 83 E0 F0                            and eax,-16
+L00401CCD: A3 50 50 40 00                      mov M00405050,eax
+L00401CD2: B8 48 43 40 00                      mov eax,0x00404348
+L00401CD7: 2D 30 43 40 00                      sub eax,0x00404330
+L00401CDC: 83 F8 07                            cmp eax,7
+L00401CDF: 0F 8E 9C 00 00 00                   jng L00401D81
+L00401CE5: 83 F8 0B                            cmp eax,11
+L00401CE8: 0F 8E 52 01 00 00                   jng L00401E40
+L00401CEE: A1 30 43 40 00                      mov eax,M00404330
+L00401CF3: 85 C0                               test eax,eax
+L00401CF5: 0F 85 8E 00 00 00                   jnz L00401D89
+L00401CFB: A1 34 43 40 00                      mov eax,M00404334
+L00401D00: 85 C0                               test eax,eax
+L00401D02: 0F 85 81 00 00 00                   jnz L00401D89
+L00401D08: 8B 3D 38 43 40 00                   mov edi,M00404338
+L00401D0E: BB 3C 43 40 00                      mov ebx,0x0040433C
+L00401D13: 85 FF                               test edi,edi
+L00401D15: 0F 84 2A 01 00 00                   jz L00401E45
+L00401D1B: BB 30 43 40 00                      mov ebx,0x00404330
+L00401D20: 8B 43 08                            mov eax,[ebx+0x8]
+L00401D23: 83 F8 01                            cmp eax,1
+L00401D26: 0F 85 EB 01 00 00                   jnz L00401F17
+L00401D2C: 83 C3 0C                            add ebx,12
+L00401D2F: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401D35: 73 4A                               jnc L00401D81
+L00401D37: 8B 13                               mov edx,[ebx]
+L00401D39: 0F B6 73 08                         movzx esi,byte [ebx+0x8]
+L00401D3D: 8B 7B 04                            mov edi,[ebx+0x4]
+L00401D40: 8B 8A 00 00 40 00                   mov ecx,[edx+0x400000]
+L00401D46: 83 FE 10                            cmp esi,16
+L00401D49: 8D 87 00 00 40 00                   lea eax,[edi+0x400000]
+L00401D4F: 89 4D B0                            mov [ebp-0x50],ecx
+L00401D52: 0F 84 07 01 00 00                   jz L00401E5F
+L00401D58: 83 FE 20                            cmp esi,32
+L00401D5B: 0F 84 74 01 00 00                   jz L00401ED5
+L00401D61: 83 FE 08                            cmp esi,8
+L00401D64: 0F 84 3E 01 00 00                   jz L00401EA8
+L00401D6A: 89 74 24 04                         mov [esp+0x4],esi
+L00401D6E: C7 04 24 38 42 40 00                mov dword [esp],0x00404238
+L00401D75: C7 45 C4 00 00 00 00                mov dword [ebp-0x3c],0x00
+L00401D7C: E8 4F FC FF FF                      call L004019D0
+L00401D81: 8D 65 F4                            lea esp,[ebp-0xc]
+L00401D84: 5B                                  pop ebx
+L00401D85: 5E                                  pop esi
+L00401D86: 5F                                  pop edi
+L00401D87: 5D                                  pop ebp
+L00401D88: C3                                  ret
+L00401D89: BB 30 43 40 00                      mov ebx,0x00404330
+L00401D8E: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401D94: 73 EB                               jnc L00401D81
+L00401D96: 8B 53 04                            mov edx,[ebx+0x4]
+L00401D99: B9 04 00 00 00                      mov ecx,0x04
+L00401D9E: 8D 82 00 00 40 00                   lea eax,[edx+0x400000]
+L00401DA4: 8B 92 00 00 40 00                   mov edx,[edx+0x400000]
+L00401DAA: 03 13                               add edx,[ebx]
+L00401DAC: 83 C3 08                            add ebx,8
+L00401DAF: 89 55 C8                            mov [ebp-0x38],edx
+L00401DB2: 8D 55 C8                            lea edx,[ebp-0x38]
+L00401DB5: E8 76 FC FF FF                      call L00401A30
+L00401DBA: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401DC0: 72 D4                               jc L00401D96
+L00401DC2: A1 54 50 40 00                      mov eax,M00405054
+L00401DC7: 31 DB                               xor ebx,ebx
+L00401DC9: 31 F6                               xor esi,esi
+L00401DCB: 8D 7D CC                            lea edi,[ebp-0x34]
+L00401DCE: 85 C0                               test eax,eax
+L00401DD0: 7F 10                               jg L00401DE2
+L00401DD2: EB AD                               jmp L00401D81
+L00401DD4: 83 C6 01                            add esi,1
+L00401DD7: 83 C3 0C                            add ebx,12
+L00401DDA: 3B 35 54 50 40 00                   cmp esi,M00405054
+L00401DE0: 7D 9F                               jnl L00401D81
+L00401DE2: A1 50 50 40 00                      mov eax,M00405050
+L00401DE7: 01 D8                               add eax,ebx
+L00401DE9: 8B 10                               mov edx,[eax]
+L00401DEB: 85 D2                               test edx,edx
+L00401DED: 74 E5                               jz L00401DD4
+L00401DEF: C7 44 24 08 1C 00 00 00             mov dword [esp+0x8],0x1C
+L00401DF7: 89 7C 24 04                         mov [esp+0x4],edi
+L00401DFB: 8B 40 04                            mov eax,[eax+0x4]
+L00401DFE: 89 04 24                            mov [esp],eax
+L00401E01: FF 15 80 71 40 00                   call VirtualQuery
+L00401E07: 83 EC 0C                            sub esp,12
+L00401E0A: 85 C0                               test eax,eax
+L00401E0C: 0F 84 E2 00 00 00                   jz L00401EF4
+L00401E12: 8D 45 C8                            lea eax,[ebp-0x38]
+L00401E15: 89 44 24 0C                         mov [esp+0xc],eax
+L00401E19: A1 50 50 40 00                      mov eax,M00405050
+L00401E1E: 8B 04 18                            mov eax,[eax+ebx]
+L00401E21: 89 44 24 08                         mov [esp+0x8],eax
+L00401E25: 8B 45 D8                            mov eax,[ebp-0x28]
+L00401E28: 89 44 24 04                         mov [esp+0x4],eax
+L00401E2C: 8B 45 CC                            mov eax,[ebp-0x34]
+L00401E2F: 89 04 24                            mov [esp],eax
+L00401E32: FF 15 7C 71 40 00                   call VirtualProtect
+L00401E38: 83 EC 10                            sub esp,16
+L00401E3B: EB 97                               jmp L00401DD4
+L00401E40: BB 30 43 40 00                      mov ebx,0x00404330
+L00401E45: 8B 33                               mov esi,[ebx]
+L00401E47: 85 F6                               test esi,esi
+L00401E49: 0F 85 3F FF FF FF                   jnz L00401D8E
+L00401E4F: 8B 4B 04                            mov ecx,[ebx+0x4]
+L00401E52: 85 C9                               test ecx,ecx
+L00401E54: 0F 84 C6 FE FF FF                   jz L00401D20
+L00401E5A: E9 2F FF FF FF                      jmp L00401D8E
+L00401E5F: 0F B7 BF 00 00 40 00                movzx edi,word [edi+0x400000]
+L00401E66: 0F B7 F7                            movzx esi,di
+L00401E69: 89 F1                               mov ecx,esi
+L00401E6B: 81 C9 00 00 FF FF                   or ecx,0xFFFF0000
+L00401E71: 66 85 FF                            test di,di
+L00401E74: 0F 48 F1                            cmovs esi,ecx
+L00401E77: 8B 4D B0                            mov ecx,[ebp-0x50]
+L00401E7A: 29 D6                               sub esi,edx
+L00401E7C: 81 EE 00 00 40 00                   sub esi,0x00400000
+L00401E82: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401E85: 01 F1                               add ecx,esi
+L00401E87: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401E8A: B9 02 00 00 00                      mov ecx,0x02
+L00401E8F: E8 9C FB FF FF                      call L00401A30
+L00401E94: 83 C3 0C                            add ebx,12
+L00401E97: 81 FB 48 43 40 00                   cmp ebx,0x00404348
+L00401E9D: 0F 82 94 FE FF FF                   jc L00401D37
+L00401EA3: E9 1A FF FF FF                      jmp L00401DC2
+L00401EA8: 0F B6 30                            movzx esi,byte [eax]
+L00401EAB: 89 F7                               mov edi,esi
+L00401EAD: 81 CF 00 FF FF FF                   or edi,0xFFFFFF00
+L00401EB3: 80 38 00                            cmp byte [eax],0x00
+L00401EB6: 0F 48 F7                            cmovs esi,edi
+L00401EB9: 81 EE 00 00 40 00                   sub esi,0x00400000
+L00401EBF: 29 D6                               sub esi,edx
+L00401EC1: 01 F1                               add ecx,esi
+L00401EC3: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401EC6: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401EC9: B9 01 00 00 00                      mov ecx,0x01
+L00401ECE: E8 5D FB FF FF                      call L00401A30
+L00401ED3: EB BF                               jmp L00401E94
+L00401ED5: 8B 4D B0                            mov ecx,[ebp-0x50]
+L00401ED8: 81 C2 00 00 40 00                   add edx,0x00400000
+L00401EDE: 29 D1                               sub ecx,edx
+L00401EE0: 03 08                               add ecx,[eax]
+L00401EE2: 8D 55 C4                            lea edx,[ebp-0x3c]
+L00401EE5: 89 4D C4                            mov [ebp-0x3c],ecx
+L00401EE8: B9 04 00 00 00                      mov ecx,0x04
+L00401EED: E8 3E FB FF FF                      call L00401A30
+L00401EF2: EB A0                               jmp L00401E94
+L00401EF4: 03 1D 50 50 40 00                   add ebx,M00405050
+L00401EFA: 8B 43 04                            mov eax,[ebx+0x4]
+L00401EFD: 89 44 24 08                         mov [esp+0x8],eax
+L00401F01: 8B 43 08                            mov eax,[ebx+0x8]
+L00401F04: 8B 40 08                            mov eax,[eax+0x8]
+L00401F07: C7 04 24 A8 41 40 00                mov dword [esp],0x004041A8
+L00401F0E: 89 44 24 04                         mov [esp+0x4],eax
+L00401F12: E8 B9 FA FF FF                      call L004019D0
+L00401F17: 89 44 24 04                         mov [esp+0x4],eax
+L00401F1B: C7 04 24 04 42 40 00                mov dword [esp],0x00404204
+L00401F22: E8 A9 FA FF FF                      call L004019D0
+L00401F27: 90                                  nop
+L00401F28: 90                                  nop
+L00401F29: 90                                  nop
+L00401F2A: 90                                  nop
+L00401F2B: 90                                  nop
+L00401F2C: 90                                  nop
+L00401F2D: 90                                  nop
+L00401F2E: 90                                  nop
+L00401F2F: 90                                  nop
+L00401F30: DB E3                               fninit
+L00401F32: C3                                  ret
+;; End of Function L00401C80
+
+;; Function L00401F30
+ft = unknown, SizeOfStackArgs == -1
+L00401F30: DB E3                               fninit
+L00401F32: C3                                  ret
+;; End of Function L00401F30
+
+;; Function L00401FC0
+ft = unknown, SizeOfStackArgs == -1
+L00401F70: 53                                  push ebx
+L00401F71: 83 EC 18                            sub esp,24
+L00401F74: 8B 1D 90 27 40 00                   mov ebx,L00402790
+L00401F7A: 83 FB FF                            cmp ebx,-1
+L00401F7D: 74 24                               jz L00401FA3
+L00401F7F: 85 DB                               test ebx,ebx
+L00401F81: 74 0F                               jz L00401F92
+L00401F83: FF 14 9D 90 27 40 00                call dword [ebx*4+0x402790]
+L00401F8A: 83 EB 01                            sub ebx,1
+L00401F8D: 8D 76 00                            lea esi,[esi+0x0]
+L00401F90: 75 F1                               jnz L00401F83
+L00401F92: C7 04 24 40 1F 40 00                mov dword [esp],0x00401F40
+L00401F99: E8 E2 F7 FF FF                      call L00401780
+L00401F9E: 83 C4 18                            add esp,24
+L00401FA1: 5B                                  pop ebx
+L00401FA2: C3                                  ret
+L00401FA3: 31 DB                               xor ebx,ebx
+L00401FA5: EB 02                               jmp L00401FA9
+L00401FA7: 89 C3                               mov ebx,eax
+L00401FA9: 8D 43 01                            lea eax,[ebx+0x1]
+L00401FAC: 8B 14 85 90 27 40 00                mov edx,[eax*4+0x402790]
+L00401FB3: 85 D2                               test edx,edx
+L00401FB5: 75 F0                               jnz L00401FA7
+L00401FB7: EB C6                               jmp L00401F7F
+L00401FC0: 8B 0D 58 50 40 00                   mov ecx,M00405058
+L00401FC6: 85 C9                               test ecx,ecx
+L00401FC8: 74 06                               jz L00401FD0
+L00401FCA: F3 C3                               ret
+L00401FD0: C7 05 58 50 40 00 01 00 00 00       mov M00405058,0x01
+L00401FDA: EB 94                               jmp L00401F70
+;; End of Function L00401FC0
+
+;; Function L00401FE0
+ft = unknown, SizeOfStackArgs == -1
+L00401FE0: 83 EC 4C                            sub esp,76
+L00401FE3: A1 28 30 40 00                      mov eax,M00403028
+L00401FE8: 89 5C 24 3C                         mov [esp+0x3c],ebx
+L00401FEC: 89 74 24 40                         mov [esp+0x40],esi
+L00401FF0: 89 7C 24 44                         mov [esp+0x44],edi
+L00401FF4: 3D 4E E6 40 BB                      cmp eax,0xBB40E64E
+L00401FF9: 89 6C 24 48                         mov [esp+0x48],ebp
+L00401FFD: C7 44 24 20 00 00 00 00             mov dword [esp+0x20],0x00
+L00402005: C7 44 24 24 00 00 00 00             mov dword [esp+0x24],0x00
+L0040200D: 74 21                               jz L00402030
+L0040200F: F7 D0                               not eax
+L00402011: A3 2C 30 40 00                      mov M0040302C,eax
+L00402016: 8B 5C 24 3C                         mov ebx,[esp+0x3c]
+L0040201A: 8B 74 24 40                         mov esi,[esp+0x40]
+L0040201E: 8B 7C 24 44                         mov edi,[esp+0x44]
+L00402022: 8B 6C 24 48                         mov ebp,[esp+0x48]
+L00402026: 83 C4 4C                            add esp,76
+L00402029: C3                                  ret
+L00402030: 8D 44 24 20                         lea eax,[esp+0x20]
+L00402034: 89 04 24                            mov [esp],eax
+L00402037: FF 15 4C 71 40 00                   call GetSystemTimeAsFileTime
+L0040203D: 83 EC 04                            sub esp,4
+L00402040: 8B 7C 24 20                         mov edi,[esp+0x20]
+L00402044: 8B 6C 24 24                         mov ebp,[esp+0x24]
+L00402048: FF 15 34 71 40 00                   call GetCurrentProcessId
+L0040204E: 31 EF                               xor edi,ebp
+L00402050: 89 C6                               mov esi,eax
+L00402052: FF 15 38 71 40 00                   call GetCurrentThreadId
+L00402058: 89 C3                               mov ebx,eax
+L0040205A: FF 15 50 71 40 00                   call GetTickCount
+L00402060: 89 44 24 1C                         mov [esp+0x1c],eax
+L00402064: 8D 44 24 28                         lea eax,[esp+0x28]
+L00402068: 89 04 24                            mov [esp],eax
+L0040206B: FF 15 64 71 40 00                   call QueryPerformanceCounter
+L00402071: 83 EC 04                            sub esp,4
+L00402074: 33 7C 24 28                         xor edi,[esp+0x28]
+L00402078: 33 7C 24 2C                         xor edi,[esp+0x2c]
+L0040207C: 31 F7                               xor edi,esi
+L0040207E: 31 DF                               xor edi,ebx
+L00402080: 33 7C 24 1C                         xor edi,[esp+0x1c]
+L00402084: 81 FF 4E E6 40 BB                   cmp edi,0xBB40E64E
+L0040208A: 74 14                               jz L004020A0
+L0040208C: 89 F8                               mov eax,edi
+L0040208E: F7 D0                               not eax
+L00402090: 89 3D 28 30 40 00                   mov M00403028,edi
+L00402096: A3 2C 30 40 00                      mov M0040302C,eax
+L0040209B: E9 76 FF FF FF                      jmp L00402016
+L004020A0: B8 B0 19 BF 44                      mov eax,0x44BF19B0
+L004020A5: BF 4F E6 40 BB                      mov edi,0xBB40E64F
+L004020AA: EB E4                               jmp L00402090
+;; End of Function L00401FE0
+
+;; Function L00402380
+ft = unknown, SizeOfStackArgs == -1
+L00402380: 8B 54 24 04                         mov edx,[esp+0x4]
+L00402384: 31 C0                               xor eax,eax
+L00402386: 66 81 3A 4D 5A                      cmp word [edx],0x5A4D
+L0040238B: 74 03                               jz L00402390
+L0040238D: F3 C3                               ret
+L00402390: 03 52 3C                            add edx,[edx+0x3c]
+L00402393: 81 3A 50 45 00 00                   cmp dword [edx],0x4550
+L00402399: 75 F2                               jnz L0040238D
+L0040239B: 31 C0                               xor eax,eax
+L0040239D: 66 81 7A 18 0B 01                   cmp word [edx+0x18],0x010B
+L004023A3: 0F 94 C0                            setz al
+L004023A6: C3                                  ret
+;; End of Function L00402380
+
+;; Function L004023B0
+ft = unknown, SizeOfStackArgs == -1
+L004023B0: 56                                  push esi
+L004023B1: 53                                  push ebx
+L004023B2: 8B 54 24 0C                         mov edx,[esp+0xc]
+L004023B6: 8B 5C 24 10                         mov ebx,[esp+0x10]
+L004023BA: 03 52 3C                            add edx,[edx+0x3c]
+L004023BD: 0F B7 72 06                         movzx esi,word [edx+0x6]
+L004023C1: 0F B7 42 14                         movzx eax,word [edx+0x14]
+L004023C5: 85 F6                               test esi,esi
+L004023C7: 8D 44 02 18                         lea eax,[edx+eax+0x18]
+L004023CB: 74 1B                               jz L004023E8
+L004023CD: 31 D2                               xor edx,edx
+L004023CF: 90                                  nop
+L004023D0: 8B 48 0C                            mov ecx,[eax+0xc]
+L004023D3: 39 D9                               cmp ecx,ebx
+L004023D5: 77 07                               ja L004023DE
+L004023D7: 03 48 08                            add ecx,[eax+0x8]
+L004023DA: 39 CB                               cmp ebx,ecx
+L004023DC: 72 0C                               jc L004023EA
+L004023DE: 83 C2 01                            add edx,1
+L004023E1: 83 C0 28                            add eax,40
+L004023E4: 39 F2                               cmp edx,esi
+L004023E6: 72 E8                               jc L004023D0
+L004023E8: 31 C0                               xor eax,eax
+L004023EA: 5B                                  pop ebx
+L004023EB: 5E                                  pop esi
+L004023EC: C3                                  ret
+;; End of Function L004023B0
+
+;; Function L00402480
+ft = unknown, SizeOfStackArgs == -1
+L00402480: 83 EC 08                            sub esp,8
+L00402483: C7 04 24 00 00 40 00                mov dword [esp],0x00400000
+L0040248A: E8 F1 FE FF FF                      call L00402380
+L0040248F: 89 C2                               mov edx,eax
+L00402491: 31 C0                               xor eax,eax
+L00402493: 85 D2                               test edx,edx
+L00402495: 74 19                               jz L004024B0
+L00402497: 8B 44 24 0C                         mov eax,[esp+0xc]
+L0040249B: C7 04 24 00 00 40 00                mov dword [esp],0x00400000
+L004024A2: 2D 00 00 40 00                      sub eax,0x00400000
+L004024A7: 89 44 24 04                         mov [esp+0x4],eax
+L004024AB: E8 00 FF FF FF                      call L004023B0
+L004024B0: 83 C4 08                            add esp,8
+L004024B3: C3                                  ret
+;; End of Function L00402480
+
+;; Function L004024C0
+ft = unknown, SizeOfStackArgs == -1
+L004024C0: 83 EC 04                            sub esp,4
+L004024C3: C7 04 24 00 00 40 00                mov dword [esp],0x00400000
+L004024CA: E8 B1 FE FF FF                      call L00402380
+L004024CF: 31 D2                               xor edx,edx
+L004024D1: 85 C0                               test eax,eax
+L004024D3: 74 0C                               jz L004024E1
+L004024D5: A1 3C 00 40 00                      mov eax,M0040003C
+L004024DA: 0F B7 90 06 00 40 00                movzx edx,word [eax+0x400006]
+L004024E1: 89 D0                               mov eax,edx
+L004024E3: 83 C4 04                            add esp,4
+L004024E6: C3                                  ret
+;; End of Function L004024C0
+
+;; Function L00402550
+ft = unknown, SizeOfStackArgs == -1
+L00402550: 83 EC 04                            sub esp,4
+L00402553: C7 04 24 00 00 40 00                mov dword [esp],0x00400000
+L0040255A: E8 21 FE FF FF                      call L00402380
+L0040255F: 31 D2                               xor edx,edx
+L00402561: 85 C0                               test eax,eax
+L00402563: B8 00 00 40 00                      mov eax,0x00400000
+L00402568: 0F 45 D0                            cmovnz edx,eax
+L0040256B: 83 C4 04                            add esp,4
+L0040256E: 89 D0                               mov eax,edx
+L00402570: C3                                  ret
+;; End of Function L00402550
+
+;; Function L00402660
+ft = unknown, SizeOfStackArgs == -1
+L00402660: 51                                  push ecx
+L00402661: 50                                  push eax
+L00402662: 3D 00 10 00 00                      cmp eax,0x1000
+L00402667: 8D 4C 24 0C                         lea ecx,[esp+0xc]
+L0040266B: 72 15                               jc L00402682
+L0040266D: 81 E9 00 10 00 00                   sub ecx,0x1000
+L00402673: 83 09 00                            or dword [ecx],0
+L00402676: 2D 00 10 00 00                      sub eax,0x1000
+L0040267B: 3D 00 10 00 00                      cmp eax,0x1000
+L00402680: 77 EB                               ja L0040266D
+L00402682: 29 C1                               sub ecx,eax
+L00402684: 83 09 00                            or dword [ecx],0
+L00402687: 58                                  pop eax
+L00402688: 59                                  pop ecx
+L00402689: C3                                  ret
+;; End of Function L00402660
+
+;; Function L0040269C
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L0040269C: FF 25 E0 71 40 00                   jmp memcpy
+;; End of Function L0040269C
+
+;; Function L004026E0
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L004026E0: FF 25 DC 71 40 00                   jmp malloc
+;; End of Function L004026E0
+
+;; Function L004026E8
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L004026E8: FF 25 E8 71 40 00                   jmp strlen
+;; End of Function L004026E8
+
+;; Function L004026F0
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L004026F0: FF 25 A8 71 40 00                   jmp _cexit
+;; End of Function L004026F0
+
+;; Function L004026F8
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L004026F8: FF 25 A4 71 40 00                   jmp _amsg_exit
+;; End of Function L004026F8
+
+;; Function L00402700
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402700: FF 25 B0 71 40 00                   jmp _initterm
+;; End of Function L00402700
+
+;; Function L00402708
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402708: FF 25 CC 71 40 00                   jmp exit
+;; End of Function L00402708
+
+;; Function L00402710
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402710: FF 25 B8 71 40 00                   jmp _lock
+;; End of Function L00402710
+
+;; Function L00402718
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402718: FF 25 88 71 40 00                   jmp __dllonexit
+;; End of Function L00402718
+
+;; Function L00402720
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402720: FF 25 C0 71 40 00                   jmp _unlock
+;; End of Function L00402720
+
+;; Function L00402740
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402740: FF 25 D8 71 40 00                   jmp fwrite
+;; End of Function L00402740
+
+;; Function L00402748
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402748: FF 25 F0 71 40 00                   jmp vfprintf
+;; End of Function L00402748
+
+;; Function L00402750
+ft = FT_JUMPER, SizeOfStackArgs == -1
+L00402750: FF 25 C4 71 40 00                   jmp abort
+;; End of Function L00402750
+
+;; Function L00403024
+ft = unknown, SizeOfStackArgs == -1
+;; End of Function L00403024
+

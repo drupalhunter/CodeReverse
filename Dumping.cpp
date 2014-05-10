@@ -868,7 +868,7 @@ void CR_Module::DumpDelayLoad()
             return;
     }
 
-    printf("### DELAY LOAD ###\n");
+    printf("\n### DELAY LOAD ###\n");
     const std::size_t size = DelayLoadDescriptors().size();
     DWORD rva;
     if (Is64Bit())
@@ -962,26 +962,28 @@ void CR_Module::DumpDelayLoad()
 ////////////////////////////////////////////////////////////////////////////
 // CR_Module::DumpDisAsm32
 
-BOOL CR_Module::DumpDisAsm32(CR_DecompStatus32& status)
+BOOL CR_Module::DumpDisAsm32(CR_DisAsmInfo32& info)
 {
-    printf("### DISASSEMBLY ###\n\n");
+    printf("\n### DISASSEMBLY ###\n\n");
 
-    status.Entrances().sort();
-    status.Entrances().unique();
-    const std::size_t size = status.Entrances().size();
+    info.Entrances().sort();
+    info.Entrances().unique();
+    const std::size_t size = info.Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
-        const CR_CodeFunc32& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
-        if (cf.Flags() & FF_IGNORE)
+        CR_CodeFunc32 *cf =
+            info.MapAddrToCodeFunc()[info.Entrances()[i]].get();
+        assert(cf);
+        if (cf->Flags() & FF_IGNORE)
             continue;
 
-        const char *pszName = GetSymbolNameFromAddr32(cf.Addr());
+        const char *pszName = GetSymbolNameFromAddr32(cf->Addr());
         if (pszName)
-            printf(";; Function %s @ L%08lX\n", pszName, cf.Addr());
+            printf(";; Function %s @ L%08lX\n", pszName, cf->Addr());
         else
-            printf(";; Function L%08lX\n", cf.Addr());
+            printf(";; Function L%08lX\n", cf->Addr());
 
-        switch (cf.FuncType())
+        switch (cf->FuncType())
         {
         case FT_JUMPERFUNC:
             printf("ft = FT_JUMPERFUNC, ");
@@ -1003,51 +1005,52 @@ BOOL CR_Module::DumpDisAsm32(CR_DecompStatus32& status)
             printf("ft = FT_UNKNOWN, ");
             break;
         }
-        printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
-        DumpDisAsmFunc32(status, status.Entrances()[i]);
+        printf("SizeOfStackArgs == %d\n", cf->SizeOfStackArgs());
+        DumpDisAsmFunc32(info, info.Entrances()[i]);
 
         if (pszName)
-            printf(";; End of Function %s @ L%08lX\n\n", pszName, cf.Addr());
+            printf(";; End of Function %s @ L%08lX\n\n", pszName, cf->Addr());
         else
-            printf(";; End of Function L%08lX\n\n", cf.Addr());
+            printf(";; End of Function L%08lX\n\n", cf->Addr());
     }
     return TRUE;
 }
 
-BOOL CR_Module::DumpDisAsmFunc32(CR_DecompStatus32& status, CR_Addr32 func)
+BOOL CR_Module::DumpDisAsmFunc32(CR_DisAsmInfo32& info, CR_Addr32 func)
 {
-    auto end = status.MapAddrToAsmCode().end();
-    for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = info.MapAddrToAsmCode().end();
+    for (auto it = info.MapAddrToAsmCode().begin(); it != end; it++)
     {
-        const CR_CodeInsn32& ac = it->second;
+        CR_CodeInsn32 *ac = it->second.get();
+        assert(ac);
 
-        if (func != 0 && !ac.FuncAddrs().Contains(func))
+        if (func != 0 && !ac->FuncAddrs().Contains(func))
             continue;
 
-        printf("L%08lX: ", ac.Addr());
+        printf("L%08lX: ", ac->Addr());
 
-        CrDumpCodes(ac.Codes(), 32);
+        CrDumpCodes(ac->Codes(), 32);
 
-        switch (ac.Operands().size())
+        switch (ac->Operands().size())
         {
         case 3:
-            printf("%s %s,%s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str(),
-                ac.Operand(2)->Text().c_str());
+            printf("%s %s,%s,%s\n", ac->Name().c_str(),
+                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str(),
+                ac->Operand(2)->Text().c_str());
             break;
 
         case 2:
-            printf("%s %s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str());
+            printf("%s %s,%s\n", ac->Name().c_str(),
+                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str());
             break;
 
         case 1:
-            printf("%s %s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str());
+            printf("%s %s\n", ac->Name().c_str(),
+                ac->Operand(0)->Text().c_str());
             break;
 
         case 0:
-            printf("%s\n", ac.Name().c_str());
+            printf("%s\n", ac->Name().c_str());
             break;
         }
     }
@@ -1058,26 +1061,28 @@ BOOL CR_Module::DumpDisAsmFunc32(CR_DecompStatus32& status, CR_Addr32 func)
 ////////////////////////////////////////////////////////////////////////////
 // CR_Module::DumpDisAsm64
 
-BOOL CR_Module::DumpDisAsm64(CR_DecompStatus64& status)
+BOOL CR_Module::DumpDisAsm64(CR_DisAsmInfo64& info)
 {
-    printf("### DISASSEMBLY ###\n\n");
+    printf("\n### DISASSEMBLY ###\n\n");
 
-    status.Entrances().sort();
-    status.Entrances().unique();
-    const std::size_t size = status.Entrances().size();
+    info.Entrances().sort();
+    info.Entrances().unique();
+    const std::size_t size = info.Entrances().size();
     for (std::size_t i = 0; i < size; i++)
     {
-        const CR_CodeFunc64& cf = status.MapAddrToCodeFunc()[status.Entrances()[i]];
-        if (cf.Flags() & FF_IGNORE)
+        CR_CodeFunc64 *cf =
+            info.MapAddrToCodeFunc()[info.Entrances()[i]].get();
+        assert(cf);
+        if (cf->Flags() & FF_IGNORE)
             continue;
 
-        const char *pszName = GetSymbolNameFromAddr64(cf.Addr());
+        const char *pszName = GetSymbolNameFromAddr64(cf->Addr());
         if (pszName)
             printf(";; Function %s @ L%08lX%08lX\n", pszName,
-                HILONG(cf.Addr()), LOLONG(cf.Addr()));
+                HILONG(cf->Addr()), LOLONG(cf->Addr()));
         else
-            printf(";; Function L%08lX%08lX\n", HILONG(cf.Addr()), LOLONG(cf.Addr()));
-        if (cf.FuncType() == FT_JUMPERFUNC)
+            printf(";; Function L%08lX%08lX\n", HILONG(cf->Addr()), LOLONG(cf->Addr()));
+        if (cf->FuncType() == FT_JUMPERFUNC)
         {
             printf("ft = FT_JUMPERFUNC, ");
         }
@@ -1085,53 +1090,54 @@ BOOL CR_Module::DumpDisAsm64(CR_DecompStatus64& status)
         {
             printf("ft = FT_64BITFUNC, ");
         }
-        printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
-        DumpDisAsmFunc64(status, status.Entrances()[i]);
+        printf("SizeOfStackArgs == %d\n", cf->SizeOfStackArgs());
+        DumpDisAsmFunc64(info, info.Entrances()[i]);
 
         if (pszName)
             printf(";; End of Function %s @ L%08lX%08lX\n\n", pszName,
-                HILONG(cf.Addr()), LOLONG(cf.Addr()));
+                HILONG(cf->Addr()), LOLONG(cf->Addr()));
         else
             printf(";; End of Function L%08lX%08lX\n\n",
-                HILONG(cf.Addr()), LOLONG(cf.Addr()));
+                HILONG(cf->Addr()), LOLONG(cf->Addr()));
     }
     return TRUE;
 }
 
-BOOL CR_Module::DumpDisAsmFunc64(CR_DecompStatus64& status, CR_Addr64 func)
+BOOL CR_Module::DumpDisAsmFunc64(CR_DisAsmInfo64& info, CR_Addr64 func)
 {
-    auto end = status.MapAddrToAsmCode().end();
-    for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = info.MapAddrToAsmCode().end();
+    for (auto it = info.MapAddrToAsmCode().begin(); it != end; it++)
     {
-        const CR_CodeInsn64& ac = it->second;
+        CR_CodeInsn64 *ac = it->second.get();
+        assert(ac);
 
-        if (func != 0 && !ac.FuncAddrs().Contains(func))
+        if (func != 0 && !ac->FuncAddrs().Contains(func))
             continue;
 
-        printf("L%08lX%08lX: ", HILONG(ac.Addr()), LOLONG(ac.Addr()));
+        printf("L%08lX%08lX: ", HILONG(ac->Addr()), LOLONG(ac->Addr()));
 
-        CrDumpCodes(ac.Codes(), 64);
+        CrDumpCodes(ac->Codes(), 64);
 
-        switch (ac.Operands().size())
+        switch (ac->Operands().size())
         {
         case 3:
-            printf("%s %s,%s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str(),
-                ac.Operand(2)->Text().c_str());
+            printf("%s %s,%s,%s\n", ac->Name().c_str(),
+                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str(),
+                ac->Operand(2)->Text().c_str());
             break;
 
         case 2:
-            printf("%s %s,%s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str(), ac.Operand(1)->Text().c_str());
+            printf("%s %s,%s\n", ac->Name().c_str(),
+                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str());
             break;
 
         case 1:
-            printf("%s %s\n", ac.Name().c_str(),
-                ac.Operand(0)->Text().c_str());
+            printf("%s %s\n", ac->Name().c_str(),
+                ac->Operand(0)->Text().c_str());
             break;
 
         case 0:
-            printf("%s\n", ac.Name().c_str());
+            printf("%s\n", ac->Name().c_str());
             break;
         }
     }

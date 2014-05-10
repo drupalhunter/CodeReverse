@@ -34,10 +34,10 @@ inline void CR_Operand::SetReg(const char *name)
     Size() = CrRegGetSize(name, 64);
 }
 
-inline void CR_Operand::SetAPI(const char *api)
+inline void CR_Operand::SetFuncName(const char *name)
 {
-    Text() = api;
-    OperandType() = OT_API;
+    Text() = name;
+    OperandType() = OT_FUNCNAME;
 }
 
 inline void CR_Operand::SetLabel(const char *label)
@@ -409,11 +409,6 @@ inline int& CR_CodeFunc32::SizeOfStackArgs()
     return m_SizeOfStackArgs;
 }
 
-inline CR_OperandSet& CR_CodeFunc32::Args()
-{
-    return m_args;
-}
-
 inline DWORD& CR_CodeFunc32::Flags()
 {
     return m_flags;
@@ -439,11 +434,6 @@ inline CR_Addr32Set& CR_CodeFunc32::Callers()
     return m_callees;
 }
 
-inline CR_DeqSet<CR_Block32>& CR_CodeFunc32::Blocks()
-{
-    return m_blocks;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // CR_CodeFunc32 const accessors
 
@@ -465,11 +455,6 @@ inline const CR_FuncType& CR_CodeFunc32::FuncType() const
 inline const int& CR_CodeFunc32::SizeOfStackArgs() const
 {
     return m_SizeOfStackArgs;
-}
-
-inline const CR_OperandSet& CR_CodeFunc32::Args() const
-{
-    return m_args;
 }
 
 inline const DWORD& CR_CodeFunc32::Flags() const
@@ -497,11 +482,6 @@ inline const CR_Addr32Set& CR_CodeFunc32::Callers() const
     return m_callees;
 }
 
-inline const CR_DeqSet<CR_Block32>& CR_CodeFunc32::Blocks() const
-{
-    return m_blocks;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // CR_CodeFunc64 accessors
 
@@ -523,11 +503,6 @@ inline CR_FuncType& CR_CodeFunc64::FuncType()
 inline int& CR_CodeFunc64::SizeOfStackArgs()
 {
     return m_SizeOfStackArgs;
-}
-
-inline CR_OperandSet& CR_CodeFunc64::Args()
-{
-    return m_args;
 }
 
 inline DWORD& CR_CodeFunc64::Flags()
@@ -555,11 +530,6 @@ inline CR_Addr64Set& CR_CodeFunc64::Callers()
     return m_callees;
 }
 
-inline CR_DeqSet<CR_Block64>& CR_CodeFunc64::Blocks()
-{
-    return m_blocks;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // CR_CodeFunc64 const accessors
 
@@ -581,11 +551,6 @@ inline const CR_FuncType& CR_CodeFunc64::FuncType() const
 inline const int& CR_CodeFunc64::SizeOfStackArgs() const
 {
     return m_SizeOfStackArgs;
-}
-
-inline const CR_OperandSet& CR_CodeFunc64::Args() const
-{
-    return m_args;
 }
 
 inline const DWORD& CR_CodeFunc64::Flags() const
@@ -611,189 +576,6 @@ inline const CR_Addr64Set& CR_CodeFunc64::Callees() const
 inline const CR_Addr64Set& CR_CodeFunc64::Callers() const
 {
     return m_callees;
-}
-
-inline const CR_DeqSet<CR_Block64>& CR_CodeFunc64::Blocks() const
-{
-    return m_blocks;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Block32
-
-inline CR_Block32::CR_Block32() :
-    m_addr(0),
-    m_nextblock1(NULL),
-    m_nextblock2(NULL),
-    m_nextaddr1(0),
-    m_nextaddr2(0)
-{
-}
-
-inline CR_Block32::CR_Block32(const CR_Block32& b)
-{
-    Copy(b);
-}
-
-inline void CR_Block32::operator=(const CR_Block32& b)
-{
-    Copy(b);
-}
-
-inline /*virtual*/ CR_Block32::~CR_Block32()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Block32 accessors
-
-inline CR_Addr32& CR_Block32::Addr()
-{
-    return m_addr;
-}
-
-inline const CR_Addr32& CR_Block32::Addr() const
-{
-    return m_addr;
-}
-
-inline CR_DeqSet<CR_CodeInsn32>& CR_Block32::AsmCodes()
-{
-    return m_asmcodes;
-}
-
-inline const CR_DeqSet<CR_CodeInsn32>& CR_Block32::AsmCodes() const
-{
-    return m_asmcodes;
-}
-
-inline CR_Block32*& CR_Block32::NextBlock1()
-{
-    return m_nextblock1;
-}
-
-inline CR_Block32*& CR_Block32::NextBlock2()
-{
-    return m_nextblock2;
-}
-
-inline CR_Block32*& CR_Block32::NextBlock1() const
-{
-    return const_cast<CR_Block32*&>(m_nextblock1);
-}
-
-inline CR_Block32*& CR_Block32::NextBlock2() const
-{
-    return const_cast<CR_Block32*&>(m_nextblock2);
-}
-
-inline CR_Addr32& CR_Block32::NextAddr1()
-{
-    return m_nextaddr1;
-}
-
-inline const CR_Addr32& CR_Block32::NextAddr1() const
-{
-    return m_nextaddr1;
-}
-
-inline CR_Addr32& CR_Block32::NextAddr2()
-{
-    return m_nextaddr2;
-}
-
-inline const CR_Addr32& CR_Block32::NextAddr2() const
-{
-    return m_nextaddr2;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Block64
-
-inline CR_Block64::CR_Block64() :
-    m_addr(0),
-    m_nextblock1(NULL),
-    m_nextblock2(NULL),
-    m_nextaddr1(0),
-    m_nextaddr2(0)
-{
-}
-
-inline CR_Block64::CR_Block64(const CR_Block64& b)
-{
-    Copy(b);
-}
-
-inline void CR_Block64::operator=(const CR_Block64& b)
-{
-    Copy(b);
-}
-
-inline /*virtual*/ CR_Block64::~CR_Block64()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Block64 accessors
-
-inline CR_Addr64& CR_Block64::Addr()
-{
-    return m_addr;
-}
-
-inline const CR_Addr64& CR_Block64::Addr() const
-{
-    return m_addr;
-}
-
-inline CR_DeqSet<CR_CodeInsn64>& CR_Block64::AsmCodes()
-{
-    return m_asmcodes;
-}
-
-inline const CR_DeqSet<CR_CodeInsn64>& CR_Block64::AsmCodes() const
-{
-    return m_asmcodes;
-}
-
-inline CR_Block64*& CR_Block64::NextBlock1()
-{
-    return m_nextblock1;
-}
-
-inline CR_Block64*& CR_Block64::NextBlock2()
-{
-    return m_nextblock2;
-}
-
-inline CR_Block64*& CR_Block64::NextBlock1() const
-{
-    return const_cast<CR_Block64*&>(m_nextblock1);
-}
-
-inline CR_Block64*& CR_Block64::NextBlock2() const
-{
-    return const_cast<CR_Block64*&>(m_nextblock2);
-}
-
-inline CR_Addr64& CR_Block64::NextAddr1()
-{
-    return m_nextaddr1;
-}
-
-inline const CR_Addr64& CR_Block64::NextAddr1() const
-{
-    return m_nextaddr1;
-}
-
-inline CR_Addr64& CR_Block64::NextAddr2()
-{
-    return m_nextaddr2;
-}
-
-inline const CR_Addr64& CR_Block64::NextAddr2() const
-{
-    return m_nextaddr2;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -841,135 +623,143 @@ inline /*virtual*/ CR_CodeFunc64::~CR_CodeFunc64()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus32
+// CR_DisAsmInfo32
 
-inline CR_DecompStatus32::CR_DecompStatus32()
+inline CR_DisAsmInfo32::CR_DisAsmInfo32()
 {
 }
 
-inline CR_DecompStatus32::CR_DecompStatus32(const CR_DecompStatus32& status)
+inline CR_DisAsmInfo32::CR_DisAsmInfo32(const CR_DisAsmInfo32& info)
 {
-    Copy(status);
+    Copy(info);
 }
 
-inline void CR_DecompStatus32::operator=(const CR_DecompStatus32& status)
+inline void CR_DisAsmInfo32::operator=(const CR_DisAsmInfo32& info)
 {
-    Copy(status);
+    Copy(info);
 }
 
-inline /*virtual*/ CR_DecompStatus32::~CR_DecompStatus32()
+inline /*virtual*/ CR_DisAsmInfo32::~CR_DisAsmInfo32()
 {
 }
 
-inline void CR_DecompStatus32::MapAddrToAsmCode(CR_Addr32 addr, const CR_CodeInsn32& ac)
+inline void CR_DisAsmInfo32::MapAddrToAsmCode(CR_Addr32 addr, CR_CodeInsn32 *ac)
 {
-    MapAddrToAsmCode()[addr] = ac;
+    MapAddrToAsmCode()[addr] = CR_SharedCodeInsn32(ac);
 }
 
-inline void CR_DecompStatus32::MapAddrToCodeFunc(CR_Addr32 addr, const CR_CodeFunc32& cf)
+inline void CR_DisAsmInfo32::MapAddrToCodeFunc(CR_Addr32 addr, CR_CodeFunc32* cf)
 {
-    MapAddrToCodeFunc()[addr] = cf;
+    MapAddrToCodeFunc()[addr] = CR_SharedCodeFunc32(cf);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus32 accessors
+// CR_DisAsmInfo32 accessors
 
-inline CR_Map<CR_Addr32, CR_CodeInsn32>& CR_DecompStatus32::MapAddrToAsmCode()
+inline CR_Map<CR_Addr32, CR_SharedCodeInsn32>&
+CR_DisAsmInfo32::MapAddrToAsmCode()
 {
     return m_mAddrToAsmCode;
 }
 
-inline CR_Addr32Set& CR_DecompStatus32::Entrances()
+inline CR_Addr32Set& CR_DisAsmInfo32::Entrances()
 {
     return m_sEntrances;
 }
 
-inline CR_Map<CR_Addr32, CR_CodeFunc32>& CR_DecompStatus32::MapAddrToCodeFunc()
+inline CR_Map<CR_Addr32, CR_SharedCodeFunc32>&
+CR_DisAsmInfo32::MapAddrToCodeFunc()
 {
     return m_mAddrToCodeFunc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus32 const accessors
+// CR_DisAsmInfo32 const accessors
 
-inline const CR_Map<CR_Addr32, CR_CodeInsn32>& CR_DecompStatus32::MapAddrToAsmCode() const
+inline const CR_Map<CR_Addr32, CR_SharedCodeInsn32>&
+CR_DisAsmInfo32::MapAddrToAsmCode() const
 {
     return m_mAddrToAsmCode;
 }
 
-inline const CR_Addr32Set& CR_DecompStatus32::Entrances() const
+inline const CR_Addr32Set& CR_DisAsmInfo32::Entrances() const
 {
     return m_sEntrances;
 }
 
-inline const CR_Map<CR_Addr32, CR_CodeFunc32>& CR_DecompStatus32::MapAddrToCodeFunc() const
+inline const CR_Map<CR_Addr32, CR_SharedCodeFunc32>&
+CR_DisAsmInfo32::MapAddrToCodeFunc() const
 {
     return m_mAddrToCodeFunc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus64
+// CR_DisAsmInfo64
 
-inline CR_DecompStatus64::CR_DecompStatus64()
+inline CR_DisAsmInfo64::CR_DisAsmInfo64()
 {
 }
 
-inline CR_DecompStatus64::CR_DecompStatus64(const CR_DecompStatus64& status)
+inline CR_DisAsmInfo64::CR_DisAsmInfo64(const CR_DisAsmInfo64& info)
 {
-    Copy(status);
+    Copy(info);
 }
 
-inline void CR_DecompStatus64::operator=(const CR_DecompStatus64& status)
+inline void CR_DisAsmInfo64::operator=(const CR_DisAsmInfo64& info)
 {
-    Copy(status);
+    Copy(info);
 }
 
-inline /*virtual*/ CR_DecompStatus64::~CR_DecompStatus64()
+inline /*virtual*/ CR_DisAsmInfo64::~CR_DisAsmInfo64()
 {
 }
 
-inline void CR_DecompStatus64::MapAddrToAsmCode(CR_Addr64 addr, const CR_CodeInsn64& ac)
+inline void CR_DisAsmInfo64::MapAddrToAsmCode(CR_Addr64 addr, CR_CodeInsn64 *ac)
 {
-    m_mAddrToAsmCode[addr] = ac;
+    m_mAddrToAsmCode[addr] = CR_SharedCodeInsn64(ac);
 }
 
-inline void CR_DecompStatus64::MapAddrToCodeFunc(CR_Addr64 addr, const CR_CodeFunc64& cf)
+inline void CR_DisAsmInfo64::MapAddrToCodeFunc(CR_Addr64 addr, CR_CodeFunc64 *cf)
 {
-    m_mAddrToCodeFunc[addr] = cf;
+    m_mAddrToCodeFunc[addr] = CR_SharedCodeFunc64(cf);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus64 accessors
+// CR_DisAsmInfo64 accessors
 
-inline CR_Map<CR_Addr64, CR_CodeInsn64>& CR_DecompStatus64::MapAddrToAsmCode()
+inline CR_Map<CR_Addr64, CR_SharedCodeInsn64>&
+CR_DisAsmInfo64::MapAddrToAsmCode()
 {
     return m_mAddrToAsmCode;
 }
 
-inline CR_Addr64Set& CR_DecompStatus64::Entrances()
+inline CR_Addr64Set& CR_DisAsmInfo64::Entrances()
 {
     return m_sEntrances;
 }
 
-inline CR_Map<CR_Addr64, CR_CodeFunc64>& CR_DecompStatus64::MapAddrToCodeFunc()
+inline CR_Map<CR_Addr64, CR_SharedCodeFunc64>&
+CR_DisAsmInfo64::MapAddrToCodeFunc()
 {
     return m_mAddrToCodeFunc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus64 const accessors
+// CR_DisAsmInfo64 const accessors
 
-inline const CR_Map<CR_Addr64, CR_CodeInsn64>& CR_DecompStatus64::MapAddrToAsmCode() const
+inline const CR_Map<CR_Addr64, CR_SharedCodeInsn64>&
+CR_DisAsmInfo64::MapAddrToAsmCode() const
 {
     return m_mAddrToAsmCode;
 }
 
-inline const CR_Addr64Set& CR_DecompStatus64::Entrances() const
+inline const CR_Addr64Set& CR_DisAsmInfo64::Entrances() const
 {
     return m_sEntrances;
 }
 
-inline const CR_Map<CR_Addr64, CR_CodeFunc64>& CR_DecompStatus64::MapAddrToCodeFunc() const
+inline const CR_Map<CR_Addr64, CR_SharedCodeFunc64>&
+CR_DisAsmInfo64::MapAddrToCodeFunc() const
 {
     return m_mAddrToCodeFunc;
 }

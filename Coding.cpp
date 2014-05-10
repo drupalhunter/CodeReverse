@@ -554,6 +554,70 @@ void CR_Operand::ParseText(int bits)
 } // CR_Operand::ParseText
 
 ////////////////////////////////////////////////////////////////////////////
+// cr_rep_insns, cr_ccentries
+
+const char * const cr_rep_insns[] =
+{
+    "rep insb", "rep insw", "rep insd",
+    "rep movsb", "rep movsw", "rep movsd", "rep movsq",
+    "rep outsb", "rep outsw", "rep outsd",
+    "rep stosb", "rep stosw", "rep stosd", "rep stosq",
+    "rep lodsb", "rep lodsw", "rep lodsd", "rep lodsq",
+    "repe cmpsb", "repe cmpsw", "repe cmpsd", "repe cmpsq",
+    "repe scasb", "repe scasw", "repe scasd", "repe scasq",
+    "repne cmpsb", "repne cmpsw", "repne cmpsd", "repne cmpsq",
+    "repne scasb", "repne scasw", "repne scasd", "repne scasq",
+};
+
+struct CR_CCEntry
+{
+    const char *name;
+    CR_CondCode cc;
+};
+
+const CR_CCEntry cr_ccentries[] =
+{
+    { "call", C_NONE },
+
+    { "loop", C_NONE },
+    { "loope", C_E },
+    { "loopne", C_NE },
+
+    { "jmp", C_NONE },
+
+    { "ja", C_A },
+    { "jae", C_AE },
+    { "jb", C_B },
+    { "jbe", C_BE },
+    { "jc", C_C },
+    { "je", C_E },
+    { "jg", C_G },
+    { "jge", C_GE },
+    { "jl", C_L },
+    { "jle", C_LE },
+    { "jna", C_NA },
+    { "jnae", C_NAE },
+    { "jnb", C_NB },
+    { "jnbe", C_NBE },
+    { "jnc", C_NC },
+    { "jne", C_NE },
+    { "jng", C_NG },
+    { "jnge", C_NGE },
+    { "jnl", C_NL },
+    { "jnle", C_NLE },
+    { "jno", C_NO },
+    { "jnp", C_NP },
+    { "jns", C_NS },
+    { "jnz", C_NZ },
+    { "jo", C_O },
+    { "jp", C_P },
+    { "jpe", C_PE },
+    { "jpo", C_PO },
+    { "js", C_S },
+    { "jz", C_Z },
+}; // const CR_CCEntry cr_ccentries[]
+
+////////////////////////////////////////////////////////////////////////////
 // CR_CodeInsn32
 
 void CR_CodeInsn32::Copy(const CR_CodeInsn32& ac)
@@ -576,6 +640,165 @@ void CR_CodeInsn32::clear()
     Codes().clear();
     CodeInsnType() = CIT_MISC;
     CondCode() = C_NONE;
+}
+
+void CR_CodeInsn32::ParseText(const char *text)
+{
+    char buf[128];
+    strcpy(buf, text);
+
+    char *q = buf;
+
+    if (strncmp(q, "cs ", 3) == 0 ||
+        strncmp(q, "ss ", 3) == 0 ||
+        strncmp(q, "ds ", 3) == 0 ||
+        strncmp(q, "es ", 3) == 0 ||
+        strncmp(q, "fs ", 3) == 0 ||
+        strncmp(q, "gs ", 3) == 0)
+    {
+        q += 3;
+    }
+
+    if (strncmp(q, "a16 ", 4) == 0 ||
+        strncmp(q, "o16 ", 4) == 0 ||
+        strncmp(q, "o32 ", 4) == 0 ||
+        strncmp(q, "o64 ", 4) == 0)
+    {
+        q += 4;
+    }
+
+    if (q[0] == 'r' && q[1] == 'e')
+    {
+        const std::size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
+        for (std::size_t i = 0; i < size; i++)
+        {
+            if (_stricmp(q, cr_rep_insns[i]) == 0)
+            {
+                Name() = q;
+                char *p = q + strlen(q) - 1;
+
+                CR_Operand opr;
+                if (*p == 'b')
+                    opr.Size() = 1;
+                else if (*p == 'w')
+                    opr.Size() = 2;
+                else if (*p == 'd')
+                    opr.Size() = 4;
+
+                if (q[3] == 'e')
+                    CondCode() = C_E;
+                else if (q[3] == 'n')
+                    CondCode() = C_NE;
+                else
+                    CondCode() = C_NONE;
+
+                Operands().clear();
+                Operands().insert(opr);
+                return;
+            }
+        }
+    }
+
+    if (strncmp(q, "rep ", 4) == 0)
+        q += 4;
+    if (strncmp(q, "repne ", 6) == 0)
+        q += 6;
+
+    if (strncmp(q, "ret", 3) == 0 || strncmp(q, "iret", 4) == 0)
+    {
+        char *p = strchr(q, ' ');
+        if (p)
+        {
+            *p = '\0';
+            CR_Operand opr;
+            opr.Text() = p + 1;
+            Operands().clear();
+            opr.ParseText(32);
+            Operands().insert(opr);
+        }
+        Name() = q;
+        CodeInsnType() = CIT_RETURN;
+        return;
+    }
+
+    if (q[0] == 'c' || q[0] == 'l' || q[0] == 'j')
+    {
+        const std::size_t size = sizeof(cr_ccentries) / sizeof(cr_ccentries[0]);
+        for (std::size_t i = 0; i < size; i++)
+        {
+            if (strncmp(q, cr_ccentries[i].name, strlen(cr_ccentries[i].name)) == 0)
+            {
+                char *p = strchr(q, ' ');
+                *p = '\0';
+                Name() = cr_ccentries[i].name;
+                CondCode() = cr_ccentries[i].cc;
+
+                if (strncmp(cr_ccentries[i].name, "loop", 4) == 0)
+                {
+                    CodeInsnType() = CIT_LOOP;
+                }
+                else if (CondCode() == C_NONE)
+                {
+                    if (_stricmp(cr_ccentries[i].name, "call") == 0)
+                        CodeInsnType() = CIT_CALL;
+                    else
+                        CodeInsnType() = CIT_JMP;
+                }
+                else
+                    CodeInsnType() = CIT_JCC;
+
+                p++;
+                CR_Operand opr;
+                opr.Text() = p;
+                opr.ParseText(32);
+                Operands().clear();
+                Operands().insert(opr);
+                return;
+            }
+        }
+    }
+
+    char *p = strchr(q, ' ');
+    if (p == NULL)
+    {
+        Name() = q;
+        return;
+    }
+
+    if (strncmp(q, "lock ", 5) == 0)
+        p = strchr(p + 1, ' ');
+
+    *p = '\0';
+    Name() = q;
+    if (_stricmp(q, "push") == 0 || _stricmp(q, "pop") == 0 ||
+        _stricmp(q, "enter") == 0 || _stricmp(q, "leave") == 0)
+    {
+        CodeInsnType() = CIT_STACKOP;
+    }
+
+    Operands().clear();
+    p = strtok(p + 1, ",");
+    if (p)
+    {
+        CR_Operand opr;
+        opr.Text() = p;
+        Operands().insert(opr);
+        p = strtok(NULL, ",");
+        if (p)
+        {
+            opr.Text() = p;
+            Operands().insert(opr);
+            p = strtok(NULL, ",");
+            if (p)
+            {
+                opr.Text() = p;
+                Operands().insert(opr);
+                Operand(2)->ParseText(32);
+            }
+            Operand(1)->ParseText(32);
+        }
+        Operand(0)->ParseText(32);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -603,44 +826,149 @@ void CR_CodeInsn64::clear()
     CondCode() = C_NONE;
 }
 
-////////////////////////////////////////////////////////////////////////////
-// CR_Block32
-
-void CR_Block32::Copy(const CR_Block32& b)
+void CR_CodeInsn64::ParseText(const char *text)
 {
-    Addr() = b.Addr();
-    AsmCodes() = b.AsmCodes();
-    NextBlock1() = b.NextBlock1();
-    NextBlock2() = b.NextBlock2();
-}
+    char buf[128];
+    strcpy(buf, text);
 
-void CR_Block32::clear()
-{
-    AsmCodes().clear();
-    NextBlock1() = NULL;
-    NextBlock2() = NULL;
-    NextAddr1() = 0;
-    NextAddr2() = 0;
-}
+    char *q = buf;
+    if (strncmp(q, "a16 ", 4) == 0 ||
+        strncmp(q, "o16 ", 4) == 0 ||
+        strncmp(q, "o32 ", 4) == 0 ||
+        strncmp(q, "o64 ", 4) == 0)
+    {
+        q += 4;
+    }
 
-////////////////////////////////////////////////////////////////////////////
-// CR_Block64
+    if (q[0] == 'r' && q[1] == 'e')
+    {
+        const std::size_t size = sizeof(cr_rep_insns) / sizeof(cr_rep_insns[0]);
+        for (std::size_t i = 0; i < size; i++)
+        {
+            if (_stricmp(q, cr_rep_insns[i]) == 0)
+            {
+                Name() = q;
+                char *p = q + strlen(q) - 1;
 
-void CR_Block64::Copy(const CR_Block64& b)
-{
-    Addr() = b.Addr();
-    AsmCodes() = b.AsmCodes();
-    NextBlock1() = b.NextBlock1();
-    NextBlock2() = b.NextBlock2();
-}
+                CR_Operand opr;
+                if (*p == 'b')
+                    opr.Size() = 1;
+                else if (*p == 'w')
+                    opr.Size() = 2;
+                else if (*p == 'd')
+                    opr.Size() = 4;
+                else if (*p == 'q')
+                    opr.Size() = 8;
 
-void CR_Block64::clear()
-{
-    AsmCodes().clear();
-    NextBlock1() = NULL;
-    NextBlock2() = NULL;
-    NextAddr1() = 0;
-    NextAddr2() = 0;
+                if (q[3] == 'e')
+                    CondCode() = C_E;
+                else if (q[3] == 'n')
+                    CondCode() = C_NE;
+                else
+                    CondCode() = C_NONE;
+
+                Operands().clear();
+                Operands().insert(opr);
+                return;
+            }
+        }
+    }
+
+    if (strncmp(q, "ret", 3) == 0 || strncmp(q, "iret", 4) == 0)
+    {
+        char *p = strchr(q, ' ');
+        if (p)
+        {
+            *p = '\0';
+            CR_Operand opr;
+            opr.Text() = p + 1;
+            Operands().clear();
+            opr.ParseText(64);
+            Operands().insert(opr);
+        }
+        Name() = q;
+        CodeInsnType() = CIT_RETURN;
+        return;
+    }
+
+    if (q[0] == 'c' || q[0] == 'l' || q[0] == 'j')
+    {
+        const std::size_t size = sizeof(cr_ccentries) / sizeof(cr_ccentries[0]);
+        for (std::size_t i = 0; i < size; i++)
+        {
+            if (strncmp(q, cr_ccentries[i].name, strlen(cr_ccentries[i].name)) == 0)
+            {
+                char *p = strchr(q, ' ');
+                *p = '\0';
+                Name() = cr_ccentries[i].name;
+                CondCode() = cr_ccentries[i].cc;
+
+                if (strncmp(cr_ccentries[i].name, "loop", 4) == 0)
+                {
+                    CodeInsnType() = CIT_LOOP;
+                }
+                else if (CondCode() == C_NONE)
+                {
+                    if (_stricmp(cr_ccentries[i].name, "call") == 0)
+                        CodeInsnType() = CIT_CALL;
+                    else
+                        CodeInsnType() = CIT_JMP;
+                }
+                else
+                    CodeInsnType() = CIT_JCC;
+
+                p++;
+                CR_Operand opr;
+                opr.Text() = p;
+                opr.ParseText(64);
+                Operands().clear();
+                Operands().insert(opr);
+                return;
+            }
+        }
+    }
+
+    char *p = strchr(q, ' ');
+    if (p == NULL)
+    {
+        Name() = q;
+        return;
+    }
+
+    if (strncmp(q, "lock ", 5) == 0)
+        p = strchr(p + 1, ' ');
+
+    *p = '\0';
+    Name() = q;
+    if (_stricmp(q, "push") == 0 || _stricmp(q, "pop") == 0 ||
+        _stricmp(q, "enter") == 0 || _stricmp(q, "leave") == 0)
+    {
+        CodeInsnType() = CIT_STACKOP;
+    }
+
+    Operands().clear();
+    p = strtok(p + 1, ",");
+    if (p)
+    {
+        CR_Operand opr;
+        opr.Text() = p;
+        Operands().insert(opr);
+        p = strtok(NULL, ",");
+        if (p)
+        {
+            opr.Text() = p;
+            Operands().insert(opr);
+            p = strtok(NULL, ",");
+            if (p)
+            {
+                opr.Text() = p;
+                Operands().insert(opr);
+                Operand(2)->ParseText(64);
+            }
+            Operand(1)->ParseText(64);
+        }
+        Operand(0)->ParseText(64);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -652,9 +980,7 @@ void CR_CodeFunc32::Copy(const CR_CodeFunc32& cf)
     Name() = cf.Name();
     FuncType() = cf.FuncType();
     SizeOfStackArgs() = cf.SizeOfStackArgs();
-    Args() = cf.Args();
     Flags() = cf.Flags();
-    Blocks() = cf.Blocks();
 }
 
 void CR_CodeFunc32::clear()
@@ -663,31 +989,7 @@ void CR_CodeFunc32::clear()
     Name().clear();
     FuncType() = FT_UNKNOWN;
     SizeOfStackArgs() = -1;
-    Args().clear();
     Flags() = 0;
-    Blocks().clear();
-}
-
-CR_Block32* CR_CodeFunc32::BlockOfAddr(CR_Addr32 addr)
-{
-    const std::size_t size = Blocks().size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        if (Blocks()[i].Addr() == addr)
-            return &Blocks()[i];
-    }
-    return NULL;
-}
-
-const CR_Block32* CR_CodeFunc32::BlockOfAddr(CR_Addr32 addr) const
-{
-    const std::size_t size = Blocks().size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        if (Blocks()[i].Addr() == addr)
-            return &Blocks()[i];
-    }
-    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -699,9 +1001,7 @@ void CR_CodeFunc64::Copy(const CR_CodeFunc64& cf)
     Name() = cf.Name();
     FuncType() = cf.FuncType();
     SizeOfStackArgs() = cf.SizeOfStackArgs();
-    Args() = cf.Args();
     Flags() = cf.Flags();
-    Blocks() = cf.Blocks();
 }
 
 void CR_CodeFunc64::clear()
@@ -710,29 +1010,7 @@ void CR_CodeFunc64::clear()
     Name().clear();
     FuncType() = FT_UNKNOWN;
     SizeOfStackArgs() = -1;
-    Args().clear();
     Flags() = 0;
-    Blocks().clear();
-}
-
-CR_Block64* CR_CodeFunc64::BlockOfAddr(CR_Addr64 addr)
-{
-    for (auto& block : Blocks())
-    {
-        if (block.Addr() == addr)
-            return &block;
-    }
-    return NULL;
-}
-
-const CR_Block64* CR_CodeFunc64::BlockOfAddr(CR_Addr64 addr) const
-{
-    for (auto& block : Blocks())
-    {
-        if (block.Addr() == addr)
-            return &block;
-    }
-    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1420,331 +1698,111 @@ BOOL CrGetAsmIO64(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus32
+// CR_DisAsmInfo32
 
-void CR_DecompStatus32::Copy(const CR_DecompStatus32& status)
+void CR_DisAsmInfo32::Copy(const CR_DisAsmInfo32& info)
 {
-    MapAddrToAsmCode() = status.MapAddrToAsmCode();
-    Entrances() = status.Entrances();
-    MapAddrToCodeFunc() = status.MapAddrToCodeFunc();
+    MapAddrToAsmCode() = info.MapAddrToAsmCode();
+    Entrances() = info.Entrances();
+    MapAddrToCodeFunc() = info.MapAddrToCodeFunc();
 }
 
-void CR_DecompStatus32::clear()
+void CR_DisAsmInfo32::clear()
 {
     MapAddrToAsmCode().clear();
     Entrances().clear();
     MapAddrToCodeFunc().clear();
 }
 
-CR_CodeFunc32 *CR_DecompStatus32::MapAddrToCodeFunc(CR_Addr32 addr)
+CR_CodeFunc32 *CR_DisAsmInfo32::MapAddrToCodeFunc(CR_Addr32 addr)
 {
     auto it = MapAddrToCodeFunc().find(addr);
     if (it != MapAddrToCodeFunc().end())
-        return &it->second;
+        return it->second.get();
     else
         return NULL;
 }
 
-const CR_CodeFunc32 *CR_DecompStatus32::MapAddrToCodeFunc(CR_Addr32 addr) const
+const CR_CodeFunc32 *CR_DisAsmInfo32::MapAddrToCodeFunc(CR_Addr32 addr) const
 {
     auto it = MapAddrToCodeFunc().find(addr);
     if (it != MapAddrToCodeFunc().end())
-        return &it->second;
+        return it->second.get();
     else
         return NULL;
 }
 
-CR_CodeInsn32 *CR_DecompStatus32::MapAddrToAsmCode(CR_Addr32 addr)
+CR_CodeInsn32 *CR_DisAsmInfo32::MapAddrToAsmCode(CR_Addr32 addr)
 {
     auto it = MapAddrToAsmCode().find(addr);
     if (it != MapAddrToAsmCode().end())
-        return &it->second;
+        return it->second.get();
     else
         return NULL;
 }
 
-const CR_CodeInsn32 *CR_DecompStatus32::MapAddrToAsmCode(CR_Addr32 addr) const
+const CR_CodeInsn32 *CR_DisAsmInfo32::MapAddrToAsmCode(CR_Addr32 addr) const
 {
     auto it = MapAddrToAsmCode().find(addr);
     if (it != MapAddrToAsmCode().end())
-        return &it->second;
+        return it->second.get();
     else
         return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// analyzing control flow graph (CFG)
 
-BOOL CR_DecompStatus32::AnalyzeCFG()
-{
-    const std::size_t size = Entrances().size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        AnalyzeFuncCFGStage1(Entrances()[i], Entrances()[i]);
-    }
-    for (std::size_t i = 0; i < size; i++)
-    {
-        AnalyzeFuncCFGStage2(Entrances()[i]);
-    }
-    return TRUE;
-}
-
-BOOL CR_DecompStatus32::AnalyzeFuncCFGStage1(CR_Addr32 func, CR_Addr32 addr)
-{
-    CR_CodeFunc32 *cf = MapAddrToCodeFunc(func);
-    if (cf == NULL)
-        return FALSE;
-
-    CR_Addr32 va;
-    CR_Addr32Set vJumpees;
-    BOOL bEnd = FALSE;
-    do
-    {
-        CR_Block32 block;
-
-        if (cf->BlockOfAddr(addr))
-            break;
-
-        block.Addr() = addr;
-        for (;;)
-        {
-            CR_CodeInsn32 *ac = MapAddrToAsmCode(addr);
-            if (ac == NULL)
-            {
-                bEnd = TRUE;
-                break;
-            }
-
-            block.AsmCodes().insert(*ac);
-            addr += ac->Codes().size();
-
-            switch (ac->CodeInsnType())
-            {
-            case CIT_JMP:
-            case CIT_RETURN:
-                bEnd = TRUE;
-                break;
-
-            case CIT_JCC:
-            case CIT_LOOP:
-                va = ac->Operand(0)->Value32();
-                block.NextAddr2() = va;
-                vJumpees.insert(va);
-                break;
-
-            default:
-                break;
-            }
-
-            if (bEnd || cf->Jumpees().Contains(addr))
-                break;
-        }
-
-        if (!bEnd)
-            block.NextAddr1() = addr;
-
-        if (!block.AsmCodes().empty())
-            cf->Blocks().insert(block);
-    } while (!bEnd);
-
-    std::size_t i, size = vJumpees.size();
-    for (i = 0; i < size; i++)
-    {
-        if (cf->BlockOfAddr(vJumpees[i]))
-            continue;
-
-        AnalyzeFuncCFGStage1(func, vJumpees[i]);
-    }
-
-    return TRUE;
-}
-
-BOOL CR_DecompStatus32::AnalyzeFuncCFGStage2(CR_Addr32 func)
-{
-    CR_CodeFunc32 *cf = MapAddrToCodeFunc(func);
-    if (cf == NULL)
-        return FALSE;
-
-    const std::size_t size = cf->Blocks().size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        CR_Block32 *b1 = &cf->Blocks()[i];
-        for (std::size_t j = 0; j < size; j++)
-        {
-            CR_Block32 *b2 = &cf->Blocks()[j];
-            if (b2->Addr() == 0)
-                continue;
-            if (b1->NextAddr1() && b1->NextAddr1() == b2->Addr())
-                b1->NextBlock1() = b2;
-            if (b1->NextAddr2() && b1->NextAddr2() == b2->Addr())
-                b1->NextBlock2() = b2;
-        }
-    }
-    return TRUE;
-}
-
-CR_CodeInsn64 *CR_DecompStatus64::MapAddrToAsmCode(CR_Addr64 addr)
-{
-    auto it = MapAddrToAsmCode().find(addr);
-    if (it != MapAddrToAsmCode().end())
-        return &it->second;
-    else
-        return NULL;
-}
-
-CR_CodeFunc64 *CR_DecompStatus64::MapAddrToCodeFunc(CR_Addr64 addr)
+CR_CodeFunc64 *CR_DisAsmInfo64::MapAddrToCodeFunc(CR_Addr64 addr)
 {
     auto it = MapAddrToCodeFunc().find(addr);
     if (it != MapAddrToCodeFunc().end())
-        return &it->second;
+        return it->second.get();
     else
         return NULL;
 }
 
-const CR_CodeInsn64 *CR_DecompStatus64::MapAddrToAsmCode(CR_Addr64 addr) const
-{
-    auto it = MapAddrToAsmCode().find(addr);
-    if (it != MapAddrToAsmCode().end())
-        return &it->second;
-    else
-        return NULL;
-}
-
-const CR_CodeFunc64 *CR_DecompStatus64::MapAddrToCodeFunc(CR_Addr64 addr) const
+const CR_CodeFunc64 *CR_DisAsmInfo64::MapAddrToCodeFunc(CR_Addr64 addr) const
 {
     auto it = MapAddrToCodeFunc().find(addr);
     if (it != MapAddrToCodeFunc().end())
-        return &it->second;
+        return it->second.get();
+    else
+        return NULL;
+}
+
+CR_CodeInsn64 *CR_DisAsmInfo64::MapAddrToAsmCode(CR_Addr64 addr)
+{
+    auto it = MapAddrToAsmCode().find(addr);
+    if (it != MapAddrToAsmCode().end())
+        return it->second.get();
+    else
+        return NULL;
+}
+
+const CR_CodeInsn64 *CR_DisAsmInfo64::MapAddrToAsmCode(CR_Addr64 addr) const
+{
+    auto it = MapAddrToAsmCode().find(addr);
+    if (it != MapAddrToAsmCode().end())
+        return it->second.get();
     else
         return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus64
+// CR_DisAsmInfo64
 
-void CR_DecompStatus64::Copy(const CR_DecompStatus64& status)
+void CR_DisAsmInfo64::Copy(const CR_DisAsmInfo64& info)
 {
-    m_mAddrToAsmCode = status.m_mAddrToAsmCode;
-    Entrances() = status.Entrances();
-    m_mAddrToCodeFunc = status.m_mAddrToCodeFunc;
+    MapAddrToAsmCode() = info.MapAddrToAsmCode();
+    Entrances() = info.Entrances();
+    m_mAddrToCodeFunc = info.m_mAddrToCodeFunc;
 }
 
-void CR_DecompStatus64::clear()
+void CR_DisAsmInfo64::clear()
 {
-    m_mAddrToAsmCode.clear();
+    MapAddrToAsmCode().clear();
     Entrances().clear();
     m_mAddrToCodeFunc.clear();
-}
-
-////////////////////////////////////////////////////////////////////////////
-// analyzing control flow graph
-
-BOOL CR_DecompStatus64::AnalyzeCFG()
-{
-    const std::size_t size = Entrances().size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        AnalyzeFuncCFGStage1(Entrances()[i], Entrances()[i]);
-    }
-    for (std::size_t i = 0; i < size; i++)
-    {
-        AnalyzeFuncCFGStage2(Entrances()[i]);
-    }
-    return TRUE;
-}
-
-BOOL CR_DecompStatus64::AnalyzeFuncCFGStage1(CR_Addr64 func, CR_Addr64 addr)
-{
-    CR_CodeFunc64 *cf = MapAddrToCodeFunc(func);
-    if (cf == NULL)
-        return FALSE;
-
-    CR_Addr64 va;
-    CR_Addr64Set vJumpees;
-    BOOL bEnd = FALSE;
-    do
-    {
-        CR_Block64 block;
-
-        if (cf->BlockOfAddr(addr))
-            break;
-
-        block.Addr() = addr;
-        for (;;)
-        {
-            CR_CodeInsn64 *ac = MapAddrToAsmCode(addr);
-            if (ac == NULL)
-            {
-                bEnd = TRUE;
-                break;
-            }
-
-            block.AsmCodes().insert(*ac);
-            addr += ac->Codes().size();
-
-            switch (ac->CodeInsnType())
-            {
-            case CIT_JMP:
-            case CIT_RETURN:
-                bEnd = TRUE;
-                break;
-
-            case CIT_JCC:
-            case CIT_LOOP:
-                va = ac->Operand(0)->Value64();
-                block.NextAddr2() = va;
-                vJumpees.insert(va);
-                break;
-
-            default:
-                break;
-            }
-
-            if (bEnd || cf->Jumpees().Contains(addr))
-                break;
-        }
-
-        if (!bEnd)
-            block.NextAddr1() = addr;
-
-        if (!block.AsmCodes().empty())
-            cf->Blocks().insert(block);
-    } while (!bEnd);
-
-    std::size_t i, size = vJumpees.size();
-    for (i = 0; i < size; i++)
-    {
-        if (cf->BlockOfAddr(vJumpees[i]))
-            continue;
-
-        AnalyzeFuncCFGStage1(func, vJumpees[i]);
-    }
-
-    return TRUE;
-}
-
-BOOL CR_DecompStatus64::AnalyzeFuncCFGStage2(CR_Addr64 func)
-{
-    CR_CodeFunc64 *cf = MapAddrToCodeFunc(func);
-    if (cf == NULL)
-        return FALSE;
-
-    const std::size_t size = cf->Blocks().size();
-    for (std::size_t i = 0; i < size; i++)
-    {
-        CR_Block64 *b1 = &cf->Blocks()[i];
-        for (std::size_t j = 0; j < size; j++)
-        {
-            CR_Block64 *b2 = &cf->Blocks()[j];
-            if (b2->Addr() == 0)
-                continue;
-            if (b1->NextAddr1() && b1->NextAddr1() == b2->Addr())
-                b1->NextBlock1() = b2;
-            if (b1->NextAddr2() && b1->NextAddr2() == b2->Addr())
-                b1->NextBlock2() = b2;
-        }
-    }
-    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////

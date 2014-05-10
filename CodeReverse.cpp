@@ -14,15 +14,15 @@ const char * const cr_logo =
     "///////////////////////////////////////////////\n"
 #ifdef _WIN64
 # ifdef __GNUC__
-    "// CodeReverse 0.1.3 (64-bit) for gcc        //\n"
+    "// CodeReverse 0.1.4 (64-bit) for gcc        //\n"
 # elif defined(_MSC_VER)
-    "// CodeReverse 0.1.3 (64-bit) for cl         //\n"
+    "// CodeReverse 0.1.4 (64-bit) for cl         //\n"
 # endif
 #else   // ndef _WIN64
 # ifdef __GNUC__
-    "// CodeReverse 0.1.3 (32-bit) for gcc        //\n"
+    "// CodeReverse 0.1.4 (32-bit) for gcc        //\n"
 # elif defined(_MSC_VER)
-    "// CodeReverse 0.1.3 (32-bit) for cl         //\n"
+    "// CodeReverse 0.1.4 (32-bit) for cl         //\n"
 # endif
 #endif  // ndef _WIN64
     "// https://github.com/katahiromz/CodeReverse //\n"
@@ -1562,7 +1562,7 @@ void CrShowHelp(void)
     fprintf(stderr, " -e    Dump export table\n");
     fprintf(stderr, " -r    Dump resource\n");
     fprintf(stderr, " -d    Dump delayload info\n");
-    fprintf(stderr, " -s    Parse input file and do semantic analysis\n");
+    fprintf(stderr, " -p    Parse input file and do semantic analysis\n");
     fprintf(stderr, " -a    Dump disassembly\n");
 #ifdef _WIN64
     fprintf(stderr, " -32   32-bit mode\n");
@@ -1657,7 +1657,7 @@ int main(int argc, char **argv)
                 modes[MODE_DUMP_RESOURCE] = true;
             if (strchr(*args, 'd') || strchr(*args, 'D'))
                 modes[MODE_DUMP_DELAYLOAD] = true;
-            if (strchr(*args, 's') || strchr(*args, 'S'))
+            if (strchr(*args, 'p') || strchr(*args, 'P'))
                 modes[MODE_DUMP_SEMANTIC] = true;
             if (strchr(*args, 'a') || strchr(*args, 'A'))
                 modes[MODE_DUMP_DISASM] = true;
@@ -1789,15 +1789,14 @@ int main(int argc, char **argv)
             CrDumpSemantic(namescope);
         }
 
-        CR_DecompStatus64 status;
-        module.DisAsm64(status);
-        module.FixUpAsm64(status);
-        //status.AnalyzeCFG();
+        CR_DisAsmInfo64 info;
+        module.DisAsm64(info);
+        module.FixupAsm64(info);
 
         if (modes[MODE_DUMP_DISASM])
         {
             fprintf(stderr, "Dumping disassembly...\n");
-            module.DumpDisAsm64(status);
+            module.DumpDisAsm64(info);
         }
     }
     else
@@ -1816,15 +1815,14 @@ int main(int argc, char **argv)
             CrDumpSemantic(namescope);
         }
 
-        CR_DecompStatus32 status;
-        module.DisAsm32(status);
-        module.FixUpAsm32(status);
-        //status.AnalyzeCFG();
+        CR_DisAsmInfo32 info;
+        module.DisAsm32(info);
+        module.FixupAsm32(info);
 
         if (modes[MODE_DUMP_DISASM])
         {
             fprintf(stderr, "Dumping disassembly...\n");
-            module.DumpDisAsm32(status);
+            module.DumpDisAsm32(info);
         }
     }
 

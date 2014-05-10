@@ -8,7 +8,9 @@
 // This file is part of CodeReverse.
 ////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
 // CR_CondCode - condition code
+
 enum CR_CondCode
 {
     C_A, C_AE, C_B, C_BE, C_C, C_E, C_G, C_GE, C_L, C_LE, C_NA, C_NAE,
@@ -148,7 +150,7 @@ enum CR_OperandType
     OT_MEMIMM,  // memory access by an immediate
     OT_MEMEXPR, // memory access by an expression
     OT_IMM,     // immediate
-    OT_API      // API
+    OT_FUNCNAME // function name
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -168,7 +170,7 @@ public:
 
 public:
     void SetReg(const char *name);
-    void SetAPI(const char *api);
+    void SetFuncName(const char *name);
     void SetLabel(const char *label);
     void SetMemImm(CR_Addr64 addr);
     void SetMemExpr(const char *expr);
@@ -211,7 +213,7 @@ protected:
     CR_TriBool              m_is_integer;
     CR_TriBool              m_is_pointer;
     CR_TriBool              m_is_function;
-};
+}; // class CR_Operand
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_OperandSet - set of operands
@@ -230,6 +232,8 @@ public:
     virtual ~CR_CodeInsn32();
     void clear();
 
+    void ParseText(const char *text);
+
 public:
     // accessors
     CR_Addr32&                  Addr();         // address of assembly
@@ -240,6 +244,7 @@ public:
     CR_CodeInsnType&            CodeInsnType(); // type of instruction
     CR_CondCode&                CondCode();     // condition type
     CR_Addr32Set&               FuncAddrs();
+
     // const accessors
     const CR_Addr32&            Addr() const;
     const CR_String&            Name() const;
@@ -260,7 +265,9 @@ protected:
     CR_Addr32Set                m_funcaddrs;
 
     void Copy(const CR_CodeInsn32& ac);
-};
+}; // class CR_CodeInsn32
+
+typedef shared_ptr<CR_CodeInsn32> CR_SharedCodeInsn32;
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_CodeInsn64 - assembly code of one 64-bit instruction
@@ -274,6 +281,8 @@ public:
     virtual ~CR_CodeInsn64();
     void clear();
 
+    void ParseText(const char *text);
+
 public:
     // accessors
     CR_Addr64&                  Addr();         // address of assembly
@@ -284,6 +293,7 @@ public:
     CR_CodeInsnType&            CodeInsnType(); // type of instruction
     CR_CondCode&                CondCode();     // condition type
     CR_Addr64Set&               FuncAddrs();
+
     // const accessors
     const CR_Addr64&            Addr() const;
     const CR_String&            Name() const;
@@ -304,85 +314,9 @@ protected:
     CR_Addr64Set                m_funcaddrs;
 
     void Copy(const CR_CodeInsn64& ac);
-};
+}; // class CR_CodeInsn64
 
-////////////////////////////////////////////////////////////////////////////
-// CR_Block32 - a node of control flow graph (CFG) for 32-bit mode
-
-class CR_Block32
-{
-public:
-    CR_Block32();
-    CR_Block32(const CR_Block32& b);
-    void operator=(const CR_Block32& b);
-    virtual ~CR_Block32();
-    void clear();
-
-public:
-    // accessors
-    CR_Addr32&                      Addr();
-    CR_DeqSet<CR_CodeInsn32>&       AsmCodes();
-    CR_Block32*&                    NextBlock1();
-    CR_Block32*&                    NextBlock2();
-    CR_Addr32&                      NextAddr1();
-    CR_Addr32&                      NextAddr2();
-    // const accessors
-    const CR_Addr32&                Addr() const;
-    const CR_DeqSet<CR_CodeInsn32>& AsmCodes() const;
-    CR_Block32*&                    NextBlock1() const;
-    CR_Block32*&                    NextBlock2() const;
-    const CR_Addr32&                NextAddr1() const;
-    const CR_Addr32&                NextAddr2() const;
-
-protected:
-    CR_Addr32                       m_addr;
-    CR_DeqSet<CR_CodeInsn32>        m_asmcodes;
-    CR_Block32 *                    m_nextblock1;
-    CR_Block32 *                    m_nextblock2;
-    CR_Addr32                       m_nextaddr1;
-    CR_Addr32                       m_nextaddr2;
-
-    void Copy(const CR_Block32& b);
-};
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Block64 - a node of control flow graph (CFG) for 64-bit mode
-
-class CR_Block64
-{
-public:
-    CR_Block64();
-    CR_Block64(const CR_Block64& b);
-    void operator=(const CR_Block64& b);
-    virtual ~CR_Block64();
-    void clear();
-
-public:
-    // accessors
-    CR_Addr64&                      Addr();
-    CR_DeqSet<CR_CodeInsn64>&       AsmCodes();
-    CR_Block64*&                    NextBlock1();
-    CR_Block64*&                    NextBlock2();
-    CR_Addr64&                      NextAddr1();
-    CR_Addr64&                      NextAddr2();
-    // const accessors
-    const CR_Addr64&                Addr() const;
-    const CR_DeqSet<CR_CodeInsn64>& AsmCodes() const;
-    CR_Block64*&                    NextBlock1() const;
-    CR_Block64*&                    NextBlock2() const;
-    const CR_Addr64&                NextAddr1() const;
-    const CR_Addr64&                NextAddr2() const;
-
-protected:
-    CR_Addr64                       m_addr;
-    CR_DeqSet<CR_CodeInsn64>        m_asmcodes;
-    CR_Block64 *                    m_nextblock1;
-    CR_Block64 *                    m_nextblock2;
-    CR_Addr64                       m_nextaddr1;
-    CR_Addr64                       m_nextaddr2;
-
-    void Copy(const CR_Block64& b);
-};
+typedef shared_ptr<CR_CodeInsn64> CR_SharedCodeInsn64;
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_CodeByte
@@ -508,41 +442,35 @@ public:
     CR_String&                          Name();
     CR_FuncType&                        FuncType();
     int&                                SizeOfStackArgs();
-    CR_OperandSet&                      Args();
     DWORD&                              Flags();
     CR_Addr32Set&                       Jumpees();
     CR_Addr32Set&                       Jumpers();
     CR_Addr32Set&                       Callees();
     CR_Addr32Set&                       Callers();
-    CR_DeqSet<CR_Block32>&              Blocks();
-    CR_Block32*                         BlockOfAddr(CR_Addr32 addr);
     // const accessors
     const CR_Addr32&                    Addr() const;
     const CR_String&                    Name() const;
     const CR_FuncType&                  FuncType() const;
     const int&                          SizeOfStackArgs() const;
-    const CR_OperandSet&                Args() const;
     const DWORD&                        Flags() const;
     const CR_Addr32Set&                 Jumpees() const;
     const CR_Addr32Set&                 Jumpers() const;
     const CR_Addr32Set&                 Callees() const;
     const CR_Addr32Set&                 Callers() const;
-    const CR_DeqSet<CR_Block32>&        Blocks() const;
-    const CR_Block32*                   BlockOfAddr(CR_Addr32 addr) const;
 
 protected:
     CR_Addr32                           m_addr;
     CR_String                           m_name;
     CR_FuncType                         m_ft;
     int                                 m_SizeOfStackArgs;
-    CR_OperandSet                       m_args;
     DWORD                               m_flags;
     CR_Addr32Set                        m_jumpees;
     CR_Addr32Set                        m_jumpers;
     CR_Addr32Set                        m_callees;
     CR_Addr32Set                        m_callers;
-    CR_DeqSet<CR_Block32>               m_blocks;
-};
+}; // class CR_CodeFunc32
+
+typedef shared_ptr<CR_CodeFunc32> CR_SharedCodeFunc32;
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_CodeFunc64 - code function for 64-bit
@@ -563,130 +491,114 @@ public:
     CR_String&                          Name();
     CR_FuncType&                        FuncType();
     int&                                SizeOfStackArgs();
-    CR_OperandSet&                      Args();
     DWORD&                              Flags();
     CR_Addr64Set&                       Jumpees();
     CR_Addr64Set&                       Jumpers();
     CR_Addr64Set&                       Callees();
     CR_Addr64Set&                       Callers();
-    CR_DeqSet<CR_Block64>&              Blocks();
-    CR_Block64*                         BlockOfAddr(CR_Addr64 addr);
     // const accessors
     const CR_Addr64&                    Addr() const;
     const CR_String&                    Name() const;
     const CR_FuncType&                  FuncType() const;
     const int&                          SizeOfStackArgs() const;
-    const CR_OperandSet&                Args() const;
     const DWORD&                        Flags() const;
     const CR_Addr64Set&                 Jumpees() const;
     const CR_Addr64Set&                 Jumpers() const;
     const CR_Addr64Set&                 Callees() const;
     const CR_Addr64Set&                 Callers() const;
-    const CR_DeqSet<CR_Block64>&        Blocks() const;
-    const CR_Block64*                   BlockOfAddr(CR_Addr64 addr) const;
 
 protected:
     CR_Addr64                           m_addr;
     CR_String                           m_name;
     CR_FuncType                         m_ft;
     int                                 m_SizeOfStackArgs;
-    CR_OperandSet                       m_args;
     DWORD                               m_flags;
     CR_Addr64Set                        m_jumpees;
     CR_Addr64Set                        m_jumpers;
     CR_Addr64Set                        m_callees;
     CR_Addr64Set                        m_callers;
-    CR_DeqSet<CR_Block64>               m_blocks;
-};
+}; // class CR_CodeFunc64
+
+typedef shared_ptr<CR_CodeFunc64> CR_SharedCodeFunc64;
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus32 - decompilation status for 32-bit
+// CR_DisAsmInfo32 - disassembly info for 32-bit
 
-class CR_DecompStatus32
+class CR_DisAsmInfo32
 {
 public:
-    CR_DecompStatus32();
-    CR_DecompStatus32(const CR_DecompStatus32& status);
-    void operator=(const CR_DecompStatus32& status);
-    virtual ~CR_DecompStatus32();
-    void Copy(const CR_DecompStatus32& status);
+    CR_DisAsmInfo32();
+    CR_DisAsmInfo32(const CR_DisAsmInfo32& info);
+    void operator=(const CR_DisAsmInfo32& info);
+    virtual ~CR_DisAsmInfo32();
+    void Copy(const CR_DisAsmInfo32& info);
     void clear();
 
 public:
-    void MapAddrToAsmCode(CR_Addr32 addr, const CR_CodeInsn32& ac);
-    void MapAddrToCodeFunc(CR_Addr32 addr, const CR_CodeFunc32& cf);
-    BOOL AnalyzeCFG();
+    void MapAddrToAsmCode(CR_Addr32 addr, CR_CodeInsn32 *ac);
+    void MapAddrToCodeFunc(CR_Addr32 addr, CR_CodeFunc32 *cf);
 
 public:
     // accessors
-    CR_Map<CR_Addr32, CR_CodeInsn32>&           MapAddrToAsmCode();
-    CR_Addr32Set&                               Entrances();
-    CR_Map<CR_Addr32, CR_CodeFunc32>&           MapAddrToCodeFunc();
-    CR_CodeInsn32 *                             MapAddrToAsmCode(CR_Addr32 addr);
-    CR_CodeFunc32 *                             MapAddrToCodeFunc(CR_Addr32 addr);
+    CR_Map<CR_Addr32, CR_SharedCodeInsn32>&         MapAddrToAsmCode();
+    CR_Addr32Set&                                   Entrances();
+    CR_Map<CR_Addr32, CR_SharedCodeFunc32>&         MapAddrToCodeFunc();
+    CR_CodeInsn32 *                                 MapAddrToAsmCode(CR_Addr32 addr);
+    CR_CodeFunc32 *                                 MapAddrToCodeFunc(CR_Addr32 addr);
     // const accessors
-    const CR_Map<CR_Addr32, CR_CodeInsn32>&     MapAddrToAsmCode() const;
-    const CR_Addr32Set&                         Entrances() const;
-    const CR_Map<CR_Addr32, CR_CodeFunc32>&     MapAddrToCodeFunc() const;
-    const CR_CodeInsn32 *                       MapAddrToAsmCode(CR_Addr32 addr) const;
-    const CR_CodeFunc32 *                       MapAddrToCodeFunc(CR_Addr32 addr) const;
-
-protected:
-    BOOL AnalyzeFuncCFGStage1(CR_Addr32 func, CR_Addr32 addr);
-    BOOL AnalyzeFuncCFGStage2(CR_Addr32 func);
+    const CR_Map<CR_Addr32, CR_SharedCodeInsn32>&   MapAddrToAsmCode() const;
+    const CR_Addr32Set&                             Entrances() const;
+    const CR_Map<CR_Addr32, CR_SharedCodeFunc32>&   MapAddrToCodeFunc() const;
+    const CR_CodeInsn32 *                           MapAddrToAsmCode(CR_Addr32 addr) const;
+    const CR_CodeFunc32 *                           MapAddrToCodeFunc(CR_Addr32 addr) const;
 
 protected:
     // map virtual address to asm code
-    CR_Map<CR_Addr32, CR_CodeInsn32>        m_mAddrToAsmCode;
+    CR_Map<CR_Addr32, CR_SharedCodeInsn32>          m_mAddrToAsmCode;
     // entrances
-    CR_Addr32Set                            m_sEntrances;
+    CR_Addr32Set                                    m_sEntrances;
     // map addr to code function
-    CR_Map<CR_Addr32, CR_CodeFunc32>        m_mAddrToCodeFunc;
+    CR_Map<CR_Addr32, CR_SharedCodeFunc32>          m_mAddrToCodeFunc;
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DecompStatus64 - decompilation status for 64-bit
+// CR_DisAsmInfo64 - disassembly info for 64-bit
 
-class CR_DecompStatus64
+class CR_DisAsmInfo64
 {
 public:
-    CR_DecompStatus64();
-    CR_DecompStatus64(const CR_DecompStatus64& status);
-    void operator=(const CR_DecompStatus64& status);
-    virtual ~CR_DecompStatus64();
-    void Copy(const CR_DecompStatus64& status);
+    CR_DisAsmInfo64();
+    CR_DisAsmInfo64(const CR_DisAsmInfo64& info);
+    void operator=(const CR_DisAsmInfo64& info);
+    virtual ~CR_DisAsmInfo64();
+    void Copy(const CR_DisAsmInfo64& info);
     void clear();
 
 public:
-    void MapAddrToAsmCode(CR_Addr64 addr, const CR_CodeInsn64& ac);
-    void MapAddrToCodeFunc(CR_Addr64 addr, const CR_CodeFunc64& cf);
-    BOOL AnalyzeCFG();
+    void MapAddrToAsmCode(CR_Addr64 addr, CR_CodeInsn64 *ac);
+    void MapAddrToCodeFunc(CR_Addr64 addr, CR_CodeFunc64 *cf);
 
 public:
     // accessors
-    CR_Map<CR_Addr64, CR_CodeInsn64>&           MapAddrToAsmCode();
-    CR_Addr64Set&                               Entrances();
-    CR_Map<CR_Addr64, CR_CodeFunc64>&           MapAddrToCodeFunc();
-    CR_CodeInsn64 *                             MapAddrToAsmCode(CR_Addr64 addr);
-    CR_CodeFunc64 *                             MapAddrToCodeFunc(CR_Addr64 addr);
+    CR_Map<CR_Addr64, CR_SharedCodeInsn64>&         MapAddrToAsmCode();
+    CR_Addr64Set&                                   Entrances();
+    CR_Map<CR_Addr64, CR_SharedCodeFunc64>&         MapAddrToCodeFunc();
+    CR_CodeInsn64 *                                 MapAddrToAsmCode(CR_Addr64 addr);
+    CR_CodeFunc64 *                                 MapAddrToCodeFunc(CR_Addr64 addr);
     // const accessors
-    const CR_Map<CR_Addr64, CR_CodeInsn64>&     MapAddrToAsmCode() const;
-    const CR_Addr64Set&                         Entrances() const;
-    const CR_Map<CR_Addr64, CR_CodeFunc64>&     MapAddrToCodeFunc() const;
-    const CR_CodeInsn64 *                       MapAddrToAsmCode(CR_Addr64 addr) const;
-    const CR_CodeFunc64 *                       MapAddrToCodeFunc(CR_Addr64 addr) const;
-
-protected:
-    BOOL AnalyzeFuncCFGStage1(CR_Addr64 func, CR_Addr64 addr);
-    BOOL AnalyzeFuncCFGStage2(CR_Addr64 func);
+    const CR_Map<CR_Addr64, CR_SharedCodeInsn64>&   MapAddrToAsmCode() const;
+    const CR_Addr64Set&                             Entrances() const;
+    const CR_Map<CR_Addr64, CR_SharedCodeFunc64>&   MapAddrToCodeFunc() const;
+    const CR_CodeInsn64 *                           MapAddrToAsmCode(CR_Addr64 addr) const;
+    const CR_CodeFunc64 *                           MapAddrToCodeFunc(CR_Addr64 addr) const;
 
 protected:
     // map virtual address to asm code
-    CR_Map<CR_Addr64, CR_CodeInsn64>        m_mAddrToAsmCode;
+    CR_Map<CR_Addr64, CR_SharedCodeInsn64>          m_mAddrToAsmCode;
     // entrances
-    CR_Addr64Set                            m_sEntrances;
+    CR_Addr64Set                                    m_sEntrances;
     // map addr to code function
-    CR_Map<CR_Addr64, CR_CodeFunc64>        m_mAddrToCodeFunc;
+    CR_Map<CR_Addr64, CR_SharedCodeFunc64>          m_mAddrToCodeFunc;
 };
 
 ////////////////////////////////////////////////////////////////////////////
