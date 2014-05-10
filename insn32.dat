@@ -13,10 +13,10 @@ INSN aaa()
         ah += 1;
         AF = 1;
         CF = 1;
-    END INSN else
+    } else {
         AF = 0;
         CF = 0;
-    END INSN
+    }
     al &= 0x0F;
     OF = undefined;
     SF = undefined;
@@ -57,10 +57,10 @@ INSN aas()
         ah -= 1;
         AF = 1;
         CF = 1;
-    END INSN else
+    } else {
         AF = 0;
         CF = 0;
-    END INSN
+    }
     al &= 0x0F;
     OF = undefined;
     SF = undefined;
@@ -106,7 +106,7 @@ END INSN
 INSN and(XSIGNED $dest, XSIGNED $src)
     if ($dest !== $src) {
         $dest &= $src;
-    END INSN
+    }
     ZF = $dest == 0;
     SF = $dest < 0;
     CF = 0;
@@ -123,14 +123,14 @@ INSN bsf(XSIGNED $dest, XSIGNED $src)
     if (!$src) {
         ZF = 1;
         $dest = undefined;
-    END INSN else
+    } else {
         ZF = 0;
         XSIGNED $temp(0);
         while (($src & (1 << $temp)) == 0) {
             $temp += 1;
-        END INSN
+        }
         $dest = $temp;
-    END INSN
+    }
     CF = undefined;
     OF = undefined;
     SF = undefined;
@@ -143,19 +143,19 @@ INSN bsr(XSIGNED $dest, XSIGNED $src)
     if (!$src) {
         ZF = 1;
         $dest = undefined;
-    END INSN else
+    } else {
         ZF = 0;
         ULONG $temp;
         if (sizeof($dest) == 2) {
             $temp = 15;
-        END INSN else if (sizeof($dest) == 4)
+        } else if (sizeof($dest) == 4) {
             $temp = 31;
-        END INSN
+        }
         while (($src & (1 << $temp)) == 0) {
             $temp -= 1;
-        END INSN
+        }
         $dest = $temp;
-    END INSN
+    }
     CF = undefined;
     OF = undefined;
     SF = undefined;
@@ -186,11 +186,11 @@ INSN btc(XSIGNED $dest, XSIGNED $src)
     if ($dest & $bit) {
         CF = 1;
         $dest &= ~$bit;
-    END INSN else
+    } else {
         CF = 0;
         $dest &= ~$bit;
         $dest |= 1;
-    END INSN
+    }
     OF = undefined;
     SF = undefined;
     AF = undefined;
@@ -202,9 +202,9 @@ INSN btr(XSIGNED $dest, XSIGNED $src)
     ULONG $bit = 1 << $src;
     if ($dest & $bit) {
         CF = 1;
-    END INSN else
+    } else {
         CF = 0;
-    END INSN
+    }
     $dest &= ~$bit;
     OF = undefined;
     SF = undefined;
@@ -217,9 +217,9 @@ INSN bts(XSIGNED $dest, XSIGNED $src)
     ULONG $bit = 1 << $src;
     if ($dest & $bit) {
         CF = 1;
-    END INSN else
+    } else {
         CF = 0;
-    END INSN
+    }
     $dest &= $bit;
     OF = undefined;
     SF = undefined;
@@ -263,181 +263,181 @@ END INSN
 INSN cmova($dest, $src)
     if (!CF && !ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovae($dest, $src)
     if (!CF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovb($dest, $src)
     if (CF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovbe($dest, $src)
     if (CF || ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovc($dest, $src)
     if (CF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmove($dest, $src)
     if (ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovg($dest, $src)
     if (!ZF && SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovge($dest, $src)
     if (SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovl($dest, $src)
     if (!SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovle($dest, $src)
     if (ZF || !SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovna($dest, $src)
     if (CF || ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnae($dest, $src)
     if (CF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnb($dest, $src)
     if (!CF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnbe($dest, $src)
     if (!CF && !ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnc($dest, $src)
     if (!CF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovne($dest, $src)
     if (!ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovng($dest, $src)
     if (ZF || !SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnge($dest, $src)
     if (!SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnl($dest, $src)
     if (SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnle($dest, $src)
     if (!ZF && SFeqOF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovno($dest, $src)
     if (!OF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnp($dest, $src)
     if (!PF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovns($dest, $src)
     if (!SF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovnz($dest, $src)
     if (!ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovo($dest, $src)
     if (OF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovp($dest, $src)
     if (PF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovpe($dest, $src)
     if (PF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovpo($dest, $src)
     if (!PF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovs($dest, $src)
     if (SF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmovz($dest, $src)
     if (ZF) {
         $dest = $src;
-    END INSN
+    }
 END INSN
 
 INSN cmp($dest, $src)
@@ -464,10 +464,10 @@ INSN cmpsb()
     if (DF) {
         esi -= 1;
         edi -= 1;
-    END INSN else
+    } else {
         esi += 1;
         edi += 1;
-    END INSN
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -485,10 +485,10 @@ INSN cmpsw()
     if (DF) {
         esi -= 1;
         edi -= 1;
-    END INSN else
+    } else {
         esi += 1;
         edi += 1;
-    END INSN
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -506,10 +506,10 @@ INSN cmpsd()
     if (DF) {
         esi -= 1;
         edi -= 1;
-    END INSN else
+    } else {
         esi += 1;
         edi += 1;
-    END INSN
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -535,9 +535,9 @@ INSN repe cmpsb()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = $esi < 0;
             OF = $minus && *edi > 0;
@@ -548,9 +548,9 @@ INSN repe cmpsb()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -576,9 +576,9 @@ INSN repe cmpsw()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = $esi < 0;
             OF = $minus && *edi > 0;
@@ -589,9 +589,9 @@ INSN repe cmpsw()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -617,9 +617,9 @@ INSN repe cmpsd()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = $esi < 0;
             OF = $minus && *edi > 0;
@@ -630,9 +630,9 @@ INSN repe cmpsd()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -662,9 +662,9 @@ INSN repne cmpsb()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = $esi < 0;
             OF = $minus && *edi > 0;
@@ -675,9 +675,9 @@ INSN repne cmpsb()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -703,9 +703,9 @@ INSN repne cmpsw()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = $esi < 0;
             OF = $minus && *edi > 0;
@@ -716,9 +716,9 @@ INSN repne cmpsw()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -744,9 +744,9 @@ INSN repne cmpsd()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = $esi < 0;
             OF = $minus && *edi > 0;
@@ -757,9 +757,9 @@ INSN repne cmpsd()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     ZF = $v == 0;
     SF = $v < 0;
     CF = $minus && $v >= 0;
@@ -777,22 +777,22 @@ INSN cmpxchg($dest, $src)
         $dest = $src;
         ZF = $dest == 0;
         SF = $dest < 0;
-    END INSN else
+    } else {
         ZF = 0;
         if (sizeof($dest) == 4) {
             eax = $src;
             ZF = eax == 0;
             SF = eax < 0;
-        END INSN else if (sizeof($dest) == 2)
+        } else if (sizeof($dest) == 2)
             ax = $src;
             ZF = ax == 0;
             SF = ax < 0;
-        END INSN else if (sizeof($dest) == 1)
+        } else if (sizeof($dest) == 1)
             al = $src;
             ZF = al == 0;
             SF = al < 0;
-        END INSN
-    END INSN
+        }
+    }
     CF = undefined;
     PF = undefined;
     AF = undefined;
@@ -822,16 +822,16 @@ INSN daa()
         al += 6;
         CF = undefined;
         AF = 1;
-    END INSN else
+    } else {
         CF = 0;
         AF = 0;
-    END INSN
+    }
     if ($oldal > 0x99 || $oldcf) {
         al += 0x60;
         CF = 1;
-    END INSN else
+    } else {
         CF = 0;
-    END INSN
+    }
     OF = undefined;
     SF = al > 0;
     ZF = al == 0;
@@ -847,14 +847,14 @@ INSN das()
         al -= 6;
         CF = undefined;
         AF = 1;
-    END INSN else
+    } else {
         CF = 0;
         AF = 0;
-    END INSN
+    }
     if ($oldal > 0x99 && $oldcf) {
         al -= 0x60;
         CF = 1;
-    END INSN
+    }
     OF = undefined;
     SF = al < 0;
     ZF = al == 0;
@@ -880,19 +880,19 @@ INSN div(UNSIGNED $src)
         ah = $v % $src;
         register UCHAR al = al;
         register UCHAR ah = ah;
-    END INSN else if (sizeof($src) == 2)
+    } else if (sizeof($src) == 2) {
         ULONG $v(dx:ax);
         ax = $v / $src;
         dx = $v % $src;
         register WORD ax = ax;
         register WORD dx = dx;
-    END INSN else if (sizeof($src) == 4)
+    } else if (sizeof($src) == 4) {
         ULONGLONG $v(edx:eax);
         eax = $v / $src;
         edx = $v % $src;
         register ULONG eax = eax;
         register ULONG edx = edx;
-    END INSN
+    }
     CF = undefined;
     OF = undefined;
     SF = undefined;
@@ -912,19 +912,19 @@ INSN idiv(SIGNED $src)
         ah = $v % $src;
         register CHAR al = al;
         register CHAR ah = ah;
-    END INSN else if (sizeof($src) == 2)
+    } else if (sizeof($src) == 2) {
         LONG $v = dx:ax;
         ax = $v / $src;
         dx = $v % $src;
         register SHORT ax = ax;
         register SHORT dx = dx;
-    END INSN else if (sizeof($src) == 4)
+    } else if (sizeof($src) == 4) {
         LONGLONG $v = edx:eax;
         eax = $v / $src;
         edx = $v % $src;
         register LONG eax = eax;
         register LONG edx = edx;
-    END INSN
+    }
     CF = undefined;
     OF = undefined;
     SF = undefined;
@@ -941,19 +941,19 @@ INSN imul(SIGNED $src)
         register SHORT ax = ax;
         CF = al != ax;
         OF = al != ax;
-    END INSN else if (sizeof($src) == 2)
+    } else if (sizeof($src) == 2) {
         SHORT $v = ax;
         dx:ax = $v / $src;
         register LONG dx:ax = dx:ax;
         CF = ax != dx:ax;
         OF = ax != dx:ax;
-    END INSN else if (sizeof($src) == 4)
+    } else if (sizeof($src) == 4) {
         LONG $v = eax;
         edx:eax = $v / $src;
         register LONGLONG edx:eax = edx:eax;
         CF = eax != edx:eax;
         OF = eax != edx:eax;
-    END INSN
+    }
     SF = undefined;
     ZF = undefined;
     AF = undefined;
@@ -968,19 +968,19 @@ INSN imul($dest, SIGNED $src)
         $dest *= $src;
         CF = $temp != $dest;
         OF = $temp != $dest;
-    END INSN else if (sizeof($dest) == 2)
+    } else if (sizeof($dest) == 2) {
         LONG $temp($dest);
         $temp *= $src;
         $dest *= $src;
         CF = $temp != $dest;
         OF = $temp != $dest;
-    END INSN else if (sizeof($dest) == 4)
+    } else if (sizeof($dest) == 4) {
         LONGLONG $temp($dest);
         $temp *= $src;
         $dest *= $src;
         CF = $temp != $dest;
         OF = $temp != $dest;
-    END INSN
+    }
     SF = undefined;
     ZF = undefined;
     AF = undefined;
@@ -995,19 +995,19 @@ INSN imul($dest, SIGNED $src1, SIGNED $src2)
         $dest = $src1 * $src2;
         CF = $temp != $dest;
         OF = $temp != $dest;
-    END INSN else if (sizeof($src) == 2)
+    } else if (sizeof($src) == 2) {
         LONG $temp($src1);
         $temp *= $src2;
         $dest = $src1 * $src2;
         CF = $temp != $dest;
         OF = $temp != $dest;
-    END INSN else if (sizeof($src) == 4)
+    } else if (sizeof($src) == 4) {
         LONGLONG $temp($src1);
         $temp *= $src2;
         $dest = $src1 * $src2;
         CF = $temp != $dest;
         OF = $temp != $dest;
-    END INSN
+    }
     SF = undefined;
     ZF = undefined;
     AF = undefined;
@@ -1043,75 +1043,75 @@ END INSN
 INSN ja($dest)
     if (!ZF && !CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jae($dest)
     if (!CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jb($dest)
     if (CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jbe($dest)
     if (ZF || CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jc($dest)
     if (CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jcxz($dest)
     register WORD cx(cx);
     if (cx == 0) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jecxz($dest)
     register ULONG ecx = ecx;
     if (ecx == 0) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN je($dest)
     if (ZF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jg($dest)
     if (!ZF && SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jge($dest)
     if (SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jl($dest)
     if (!SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jle($dest)
     if (ZF && !SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jmp($dest)
@@ -1121,121 +1121,121 @@ END INSN
 INSN jna($dest)
     if (ZF || CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnae($dest)
     if (CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnb($dest)
     if (!CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnbe($dest)
     if (!ZF && !CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnc($dest)
     if (!CF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jne($dest)
     if (!ZF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jng($dest)
     if (ZF || !SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnge($dest)
     if (!SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnl($dest)
     if (SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnle($dest)
     if (!ZF && SFeqOF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jno($dest)
     if (!OF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnp($dest)
     if (!PF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jns($dest)
     if (!SF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jnz($dest)
     if (!ZF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jo($dest)
     if (OF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jp($dest)
     if (PF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jpe($dest)
     if (PF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jpo($dest)
     if (!PF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN js($dest)
     if (SF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN jz($dest)
     if (ZF) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 // INSN lahf();
@@ -1263,9 +1263,9 @@ INSN lodsb()
     al = *esi;
     if (DF) {
         esi -= 1;
-    END INSN else
+    } else {
         esi += 1;
-    END INSN
+    }
 END INSN
 
 INSN lodsw()
@@ -1274,9 +1274,9 @@ INSN lodsw()
     ax = *esi;
     if (DF) {
         esi -= 1;
-    END INSN else
+    } else {
         esi += 1;
-    END INSN
+    }
 END INSN
 
 INSN lodsd()
@@ -1285,9 +1285,9 @@ INSN lodsd()
     eax = *esi;
     if (DF) {
         esi -= 1;
-    END INSN else
+    } else {
         esi += 1;
-    END INSN
+    }
 END INSN
 
 INSN rep lodsb()
@@ -1299,14 +1299,14 @@ INSN rep lodsb()
             al = *esi;
             esi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             al = *esi;
             esi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN rep lodsw()
@@ -1318,14 +1318,14 @@ INSN rep lodsw()
             ax = *esi;
             esi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             ax = *esi;
             esi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN rep lodsd()
@@ -1337,14 +1337,14 @@ INSN rep lodsd()
             eax = *esi;
             esi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             eax = *esi;
             esi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN loop($dest)
@@ -1352,7 +1352,7 @@ INSN loop($dest)
     ecx -= 1;
     if (ecx) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN loope($dest)
@@ -1360,7 +1360,7 @@ INSN loope($dest)
     ecx -= 1;
     if (ZF && ecx) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN loopne($dest)
@@ -1368,7 +1368,7 @@ INSN loopne($dest)
     ecx -= 1;
     if (!ZF && ecx) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN loopnz($dest)
@@ -1376,7 +1376,7 @@ INSN loopnz($dest)
     ecx -= 1;
     if (!ZF && ecx) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 INSN loopz($dest)
@@ -1384,7 +1384,7 @@ INSN loopz($dest)
     ecx -= 1;
     if (ZF && ecx) {
         goto $dest;
-    END INSN
+    }
 END INSN
 
 // INSN lsl($dest, $src);
@@ -1406,10 +1406,10 @@ INSN movsb()
     if (DF) {
         edi -= 1;
         esi -= 1;
-    END INSN else
+    } else {
         edi += 1;
         esi += 1;
-    END INSN
+    }
 END INSN
 
 INSN movsw()
@@ -1419,10 +1419,10 @@ INSN movsw()
     if (DF) {
         edi -= 1;
         esi -= 1;
-    END INSN else
+    } else {
         edi += 1;
         esi += 1;
-    END INSN
+    }
 END INSN
 
 INSN movsd()
@@ -1432,10 +1432,10 @@ INSN movsd()
     if (DF) {
         edi -= 1;
         esi -= 1;
-    END INSN else
+    } else {
         edi += 1;
         esi += 1;
-    END INSN
+    }
 END INSN
 
 INSN rep movsb()
@@ -1448,15 +1448,15 @@ INSN rep movsb()
             edi -= 1;
             esi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             *edi = *esi;
             edi += 1;
             esi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN rep movsw()
@@ -1469,15 +1469,15 @@ INSN rep movsw()
             edi -= 1;
             esi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             *edi = *esi;
             edi += 1;
             esi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN rep movsd()
@@ -1490,35 +1490,35 @@ INSN rep movsd()
             edi -= 1;
             esi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             *edi = *esi;
             edi += 1;
             esi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN movsx($dest, SIGNED $src)
     if (sizeof($dest) == 2) {
         SHORT $v = $src;
         $dest = $v;
-    END INSN else if (sizeof($dest) == 4)
+    } else if (sizeof($dest) == 4) {
         LONG $v = $src;
         $dest = $v;
-    END INSN
+    }
 END INSN
 
 INSN movzx($dest, UNSIGNED $src)
     if (sizeof($dest) == 2) {
         WORD $v = $src;
         $dest = $v;
-    END INSN else if (sizeof($dest) == 4)
+    } else if (sizeof($dest) == 4) {
         ULONG $v = $src;
         $dest = $v;
-    END INSN
+    }
 END INSN
 
 INSN mul(UNSIGNED $src)
@@ -1530,7 +1530,7 @@ INSN mul(UNSIGNED $src)
         register WORD ax = ax;
         OF = ax != al;
         CF = ax != al;
-    END INSN else if (sizeof($src) == 2)
+    } else if (sizeof($src) == 2) {
         ULONG $v = ax;
         dx:ax = $v * $src;
         register WORD ax = ax;
@@ -1538,7 +1538,7 @@ INSN mul(UNSIGNED $src)
         register ULONG dx:ax = dx:ax;
         OF = dx:ax != ax;
         CF = dx:ax != ax;
-    END INSN else if (sizeof($src) == 4)
+    } else if (sizeof($src) == 4) {
         ULONGLONG $v = eax;
         edx:eax = $v * $src;
         register ULONG eax = eax;
@@ -1546,7 +1546,7 @@ INSN mul(UNSIGNED $src)
         register ULONGLONG edx:eax = edx:eax;
         OF = edx:eax != eax;
         CF = edx:eax != eax;
-    END INSN
+    }
     SF = undefined;
     ZF = undefined;
     AF = undefined;
@@ -1582,12 +1582,12 @@ INSN or($dest, $src)
         SF = 0;
         PF = undefined;
         SFeqOF = 1;
-    END INSN else
+    } else {
         $dest |= $src;
         SF = $dest < 0;
         PF = undefined;
         SFeqOF = $dest >= 0;
-    END INSN
+    }
     ZF = $dest == 0;
     OF = 0;
     CF = 0;
@@ -1613,18 +1613,18 @@ INSN popcnt($dest, $src)
         while (i < 16) {
             if ($src & (1 << i)) {
                 $count += 1;
-            END INSN
+            }
             i += 1;
-        END INSN
-    END INSN else if (sizeof($dest) == 4)
+        }
+    } else if (sizeof($dest) == 4) {
         ULONG i = 0;
         while (i < 32) {
             if ($src & (1 << i)) {
                 $count += 1;
-            END INSN
+            }
             i += 1;
-        END INSN
-    END INSN
+        }
+    }
     $dest = $count;
 END INSN
 
@@ -1736,9 +1736,9 @@ INSN scasb()
 
     if (DF) {
         edi -= 1;
-    END INSN else
+    } else {
         edi += 1;
-    END INSN
+    }
 END INSN
 
 INSN scasw()
@@ -1756,9 +1756,9 @@ INSN scasw()
 
     if (DF) {
         edi -= 1;
-    END INSN else
+    } else {
         edi += 1;
-    END INSN
+    }
 END INSN
 
 INSN scasd()
@@ -1776,9 +1776,9 @@ INSN scasd()
 
     if (DF) {
         edi -= 1;
-    END INSN else
+    } else {
         edi += 1;
-    END INSN
+    }
 END INSN
 
 INSN repe scasb()
@@ -1796,9 +1796,9 @@ INSN repe scasb()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = al < 0;
             OF = $minus && *edi > 0;
@@ -1808,9 +1808,9 @@ INSN repe scasb()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     SF = $v < 0;
     AF = undefined;
     PF = undefined;
@@ -1833,9 +1833,9 @@ INSN repe scasw()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = ax < 0;
             OF = $minus && *edi > 0;
@@ -1845,9 +1845,9 @@ INSN repe scasw()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     SF = $v < 0;
     AF = undefined;
     PF = undefined;
@@ -1870,9 +1870,9 @@ INSN repe scasd()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = eax < 0;
             OF = $minus && *edi > 0;
@@ -1882,9 +1882,9 @@ INSN repe scasd()
             ecx -= 1;
             if (!ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     SF = $v < 0;
     AF = undefined;
     PF = undefined;
@@ -1911,9 +1911,9 @@ INSN repne scasb()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = al < 0;
             OF = $minus && *edi > 0;
@@ -1923,9 +1923,9 @@ INSN repne scasb()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     SF = $v < 0;
     AF = undefined;
     PF = undefined;
@@ -1948,9 +1948,9 @@ INSN repne scasw()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = ax < 0;
             OF = $minus && *edi > 0;
@@ -1960,9 +1960,9 @@ INSN repne scasw()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     SF = $v < 0;
     AF = undefined;
     PF = undefined;
@@ -1985,9 +1985,9 @@ INSN repne scasd()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN else
+            }
+        }
+    } else {
         while (ecx) {
             $minus = eax < 0;
             OF = $minus && *edi > 0;
@@ -1997,9 +1997,9 @@ INSN repne scasd()
             ecx -= 1;
             if (ZF) {
                 break;
-            END INSN
-        END INSN
-    END INSN
+            }
+        }
+    }
     SF = $v < 0;
     AF = undefined;
     PF = undefined;
@@ -2157,9 +2157,9 @@ INSN stosb()
     *edi = al;
     if (DF) {
         edi -= 1;
-    END INSN else
+    } else {
         edi += 1;
-    END INSN
+    }
 END INSN
 
 INSN stosw()
@@ -2168,9 +2168,9 @@ INSN stosw()
     *edi = ax;
     if (DF) {
         edi -= 1;
-    END INSN else
+    } else {
         edi += 1;
-    END INSN
+    }
 END INSN
 
 INSN stosd()
@@ -2179,9 +2179,9 @@ INSN stosd()
     *edi = eax;
     if (DF) {
         edi -= 1;
-    END INSN else
+    } else {
         edi += 1;
-    END INSN
+    }
 END INSN
 
 INSN rep stosb()
@@ -2193,14 +2193,14 @@ INSN rep stosb()
             *edi = al;
             edi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             *edi = al;
             edi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN rep stosw()
@@ -2212,14 +2212,14 @@ INSN rep stosw()
             *edi = ax;
             edi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             *edi = ax;
             edi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 INSN rep stosd()
@@ -2231,14 +2231,14 @@ INSN rep stosd()
             *edi = eax;
             edi -= 1;
             ecx -= 1;
-        END INSN
-    END INSN else
+        }
+    } else {
         while (ecx) {
             *edi = eax;
             edi += 1;
             ecx -= 1;
-        END INSN
-    END INSN
+        }
+    }
 END INSN
 
 // INSN str($rm16);
@@ -2268,12 +2268,12 @@ INSN test(XSIGNED $dest, XSIGNED $src)
         ZF = $dest == 0;
         SF = $dest < 0;
         SFeqOF = $dest >= 0;
-    END INSN else
+    } else {
         XSIGNED $v($dest & $src);
         ZF = $v == 0;
         SF = $v < 0;
         SFeqOF = $v >= 0;
-    END INSN
+    }
     PF = undefined;
     CF = 0;
     OF = 0;
@@ -2332,11 +2332,11 @@ INSN xor(XSIGNED $dest, XSIGNED $src)
         $dest = 0;
         SF = 0;
         ZF = 1;
-    END INSN else
+    } else {
         $dest ^= $src;
         SF = $dest < 0;
         ZF = $dest == 0;
-    END INSN
+    }
     OF = 0;
     CF = 0;
     PF = undefined;

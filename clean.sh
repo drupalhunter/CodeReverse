@@ -6,3 +6,4 @@ rm -f *.user
 rm -f *.filters
 rm -fR Debug/
 rm -fR Release/
+rm -f CParser.h

@@ -119,6 +119,7 @@
 %token T_W64<shared_ptr<TokenValue> >;
 %token T_XOR_ASSIGN<shared_ptr<TokenValue> >;
 %token T_XOR<shared_ptr<TokenValue> >;
+%token T_XSIGNED<shared_ptr<TokenValue> >;
 
 %namespace cparser;
 
@@ -203,6 +204,7 @@ type_specifier<shared_ptr<TypeSpec> >
     | [DoTypeSpec18] atomic_type_specifier(0)
     | [DoTypeSpec19] T_COMPLEX
     | [DoTypeSpec20] T_IMAGINARY
+    | [DoTypeSpec21] T_XSIGNED    // CodeReverse extension
     ;
 
 atomic_type_specifier<shared_ptr<AtomicTypeSpec> >
@@ -217,7 +219,7 @@ type_qualifier<shared_ptr<TypeQual> >
 
 struct_specifier<shared_ptr<TypeSpec> >
     : [DoStructSpec1] T_STRUCT T_TAGNAME(0) T_L_BRACE struct_declaration_list(1) T_R_BRACE
-    | [DoStructSpec2] T_STRUCT T_L_BRACE struct_declaration_list(0) T_R_BRACE
+    | [DoStructSpec2] T_STRUCT(0) T_L_BRACE struct_declaration_list(1) T_R_BRACE
     | [DoStructSpec3] T_STRUCT T_TAGNAME(0)
     ;
 

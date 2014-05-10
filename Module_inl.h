@@ -1,4 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////
+// Module_inl.h
+// Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
 // CR_Symbol accessors
 
 inline DWORD& CR_Symbol::RVA()
@@ -6,7 +13,7 @@ inline DWORD& CR_Symbol::RVA()
     return m_rva;
 }
 
-inline string& CR_Symbol::Name()
+inline CR_String& CR_Symbol::Name()
 {
     return m_name;
 }
@@ -16,7 +23,7 @@ inline const DWORD& CR_Symbol::RVA() const
     return m_rva;
 }
 
-inline const string& CR_Symbol::Name() const
+inline const CR_String& CR_Symbol::Name() const
 {
     return m_name;
 }
@@ -24,47 +31,47 @@ inline const string& CR_Symbol::Name() const
 ////////////////////////////////////////////////////////////////////////////
 // CR_SymbolInfo accessors
 
-inline CR_VecSet<string>& CR_SymbolInfo::GetImportDllNames()
+inline CR_StringSet& CR_SymbolInfo::GetImportDllNames()
 {
     return m_vImportDllNames;
 }
 
-inline CR_VecSet<CR_ImportSymbol>& CR_SymbolInfo::GetImportSymbols()
+inline CR_DeqSet<CR_ImportSymbol>& CR_SymbolInfo::GetImportSymbols()
 {
     return m_vImportSymbols;
 }
 
-inline CR_VecSet<CR_ExportSymbol>& CR_SymbolInfo::GetExportSymbols()
+inline CR_DeqSet<CR_ExportSymbol>& CR_SymbolInfo::GetExportSymbols()
 {
     return m_vExportSymbols;
 }
 
-inline map<DWORD, CR_ImportSymbol>& CR_SymbolInfo::MapRVAToImportSymbol()
+inline CR_Map<DWORD, CR_ImportSymbol>& CR_SymbolInfo::MapRVAToImportSymbol()
 {
     return m_mRVAToImportSymbol;
 }
 
-inline map<string, CR_ImportSymbol>& CR_SymbolInfo::MapNameToImportSymbol()
+inline CR_Map<CR_String, CR_ImportSymbol>& CR_SymbolInfo::MapNameToImportSymbol()
 {
     return m_mNameToImportSymbol;
 }
 
-inline map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol()
+inline CR_Map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol()
 {
     return m_mRVAToExportSymbol;
 }
 
-inline map<string, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol()
+inline CR_Map<CR_String, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol()
 {
     return m_mNameToExportSymbol;
 }
 
-inline map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol()
+inline CR_Map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol()
 {
     return m_mRVAToSymbol;
 }
 
-inline map<string, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol()
+inline CR_Map<CR_String, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol()
 {
     return m_mNameToSymbol;
 }
@@ -72,47 +79,47 @@ inline map<string, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol()
 ////////////////////////////////////////////////////////////////////////////
 // CR_SymbolInfo const accessors
 
-inline const CR_VecSet<string>& CR_SymbolInfo::GetImportDllNames() const
+inline const CR_StringSet& CR_SymbolInfo::GetImportDllNames() const
 {
     return m_vImportDllNames;
 }
 
-inline const CR_VecSet<CR_ImportSymbol>& CR_SymbolInfo::GetImportSymbols() const
+inline const CR_DeqSet<CR_ImportSymbol>& CR_SymbolInfo::GetImportSymbols() const
 {
     return m_vImportSymbols;
 }
 
-inline const CR_VecSet<CR_ExportSymbol>& CR_SymbolInfo::GetExportSymbols() const
+inline const CR_DeqSet<CR_ExportSymbol>& CR_SymbolInfo::GetExportSymbols() const
 {
     return m_vExportSymbols;
 }
 
-inline const map<DWORD, CR_ImportSymbol>& CR_SymbolInfo::MapRVAToImportSymbol() const
+inline const CR_Map<DWORD, CR_ImportSymbol>& CR_SymbolInfo::MapRVAToImportSymbol() const
 {
     return m_mRVAToImportSymbol;
 }
 
-inline const map<string, CR_ImportSymbol>& CR_SymbolInfo::MapNameToImportSymbol() const
+inline const CR_Map<CR_String, CR_ImportSymbol>& CR_SymbolInfo::MapNameToImportSymbol() const
 {
     return m_mNameToImportSymbol;
 }
 
-inline const map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol() const
+inline const CR_Map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol() const
 {
     return m_mRVAToExportSymbol;
 }
 
-inline const map<string, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol() const
+inline const CR_Map<CR_String, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol() const
 {
     return m_mNameToExportSymbol;
 }
 
-inline const map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol() const
+inline const CR_Map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol() const
 {
     return m_mRVAToSymbol;
 }
 
-inline const map<string, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol() const
+inline const CR_Map<CR_String, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol() const
 {
     return m_mNameToSymbol;
 }
@@ -411,22 +418,22 @@ inline PREAL_IMAGE_SECTION_HEADER CR_Module::SectionHeader(DWORD index)
     return NULL;
 }
 
-inline vector<ImgDelayDescr>& CR_Module::DelayLoadDescriptors()
+inline CR_DeqSet<ImgDelayDescr>& CR_Module::DelayLoadDescriptors()
 {
     return m_vImgDelayDescrs;
 }
 
-inline CR_VecSet<string>& CR_Module::ImportDllNames()
+inline CR_StringSet& CR_Module::ImportDllNames()
 {
     return SymbolInfo().GetImportDllNames();
 }
 
-inline CR_VecSet<CR_ImportSymbol>& CR_Module::ImportSymbols()
+inline CR_DeqSet<CR_ImportSymbol>& CR_Module::ImportSymbols()
 {
     return SymbolInfo().GetImportSymbols();
 }
 
-inline CR_VecSet<CR_ExportSymbol>& CR_Module::ExportSymbols()
+inline CR_DeqSet<CR_ExportSymbol>& CR_Module::ExportSymbols()
 {
     return SymbolInfo().GetExportSymbols();
 }
@@ -534,22 +541,22 @@ inline const PREAL_IMAGE_SECTION_HEADER CR_Module::SectionHeader(DWORD index) co
     return NULL;
 }
 
-inline const vector<ImgDelayDescr>& CR_Module::DelayLoadDescriptors() const
+inline const CR_DeqSet<ImgDelayDescr>& CR_Module::DelayLoadDescriptors() const
 {
     return m_vImgDelayDescrs;
 }
 
-inline const CR_VecSet<string>& CR_Module::ImportDllNames() const
+inline const CR_StringSet& CR_Module::ImportDllNames() const
 {
     return SymbolInfo().GetImportDllNames();
 }
 
-inline const CR_VecSet<CR_ImportSymbol>& CR_Module::ImportSymbols() const
+inline const CR_DeqSet<CR_ImportSymbol>& CR_Module::ImportSymbols() const
 {
     return SymbolInfo().GetImportSymbols();
 }
 
-inline const CR_VecSet<CR_ExportSymbol>& CR_Module::ExportSymbols() const
+inline const CR_DeqSet<CR_ExportSymbol>& CR_Module::ExportSymbols() const
 {
     return SymbolInfo().GetExportSymbols();
 }

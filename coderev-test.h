@@ -5,5 +5,4 @@
 // This file is part of CodeReverse.
 ////////////////////////////////////////////////////////////////////////////
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <windows.h>

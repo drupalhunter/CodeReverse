@@ -21,6 +21,7 @@ CCFLAGS = -std=c99
 CXXFLAGS = -std=c++0x
 
 OBJS = \
+	Coding.o \
 	CodeReverse.o \
 	Dumping.o \
 	Module.o \
@@ -37,6 +38,8 @@ OBJS = \
 
 CR_HEADERS = \
 	stdafx.h \
+	Coding.h \
+	Coding_inl.h \
 	CodeReverse.h \
 	CodeReverse_inl.h \
 	Module.h \
@@ -45,11 +48,11 @@ CR_HEADERS = \
 
 CPARSER_HEADER = \
 	CParseHeader.h \
-	CScanner.hpp \
-	CParserAST.hpp \
-	CParserSite.hpp \
-	CParser.hpp \
-	Type.h
+	CScanner.h \
+	CParserAST.h \
+	CParserSite.h \
+	CParser.h \
+	TypeSystem.h
 
 H_NDISASM_HEADERS = \
 	h-ndisasm\compiler.h \
@@ -69,6 +72,8 @@ coderev.exe: $(OBJS)
 
 CodeReverse.o: $(CR_HEADERS) $(CPARSER_HEADER) CodeReverse.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o CodeReverse.o CodeReverse.cpp
+Coding.o: $(CR_HEADERS) Coding.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Coding.o Coding.cpp
 Dumping.o: $(CR_HEADERS) Dumping.cpp
 	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o Dumping.o Dumping.cpp
 Module.o: $(CR_HEADERS) Module.cpp

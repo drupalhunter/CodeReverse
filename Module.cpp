@@ -19,10 +19,9 @@ CR_Symbol::CR_Symbol(const CR_Symbol& s)
     Copy(s);
 }
 
-CR_Symbol& CR_Symbol::operator=(const CR_Symbol& s)
+void CR_Symbol::operator=(const CR_Symbol& s)
 {
     Copy(s);
-    return *this;
 }
 
 /*virtual*/ CR_Symbol::~CR_Symbol()
@@ -174,10 +173,9 @@ CR_SymbolInfo::CR_SymbolInfo(const CR_SymbolInfo& info)
     Copy(info);
 }
 
-CR_SymbolInfo& CR_SymbolInfo::operator=(const CR_SymbolInfo& info)
+void CR_SymbolInfo::operator=(const CR_SymbolInfo& info)
 {
     Copy(info);
-    return *this;
 }
 
 /*virtual*/ CR_SymbolInfo::~CR_SymbolInfo()
@@ -221,9 +219,9 @@ void CR_SymbolInfo::AddSymbol(DWORD rva, const char *name)
     s.RVA() = rva;
     if (name)
         s.Name() = name;
-    MapRVAToSymbol().insert(make_pair(rva, s));
+    MapRVAToSymbol().insert(std::make_pair(rva, s));
     if (name)
-        MapNameToSymbol().insert(make_pair(name, s));
+        MapNameToSymbol().insert(std::make_pair(name, s));
 }
 
 void CR_SymbolInfo::AddSymbol(const CR_Symbol& s)
@@ -234,10 +232,10 @@ void CR_SymbolInfo::AddSymbol(const CR_Symbol& s)
 void CR_SymbolInfo::AddImportSymbol(const CR_ImportSymbol& is)
 {
     GetImportSymbols().insert(is);
-    MapRVAToImportSymbol().insert(make_pair(is.dwRVA, is));
+    MapRVAToImportSymbol().insert(std::make_pair(is.dwRVA, is));
     if (is.Name.wImportByName)
     {
-        MapNameToImportSymbol().insert(make_pair(is.pszName, is));
+        MapNameToImportSymbol().insert(std::make_pair(is.pszName, is));
         AddSymbol(is.dwRVA, is.pszName);
     }
 }
@@ -245,10 +243,10 @@ void CR_SymbolInfo::AddImportSymbol(const CR_ImportSymbol& is)
 void CR_SymbolInfo::AddExportSymbol(const CR_ExportSymbol& es)
 {
     GetExportSymbols().insert(es);
-    MapRVAToExportSymbol().insert(make_pair(es.dwRVA, es));
+    MapRVAToExportSymbol().insert(std::make_pair(es.dwRVA, es));
     if (es.pszName)
     {
-        MapNameToExportSymbol().insert(make_pair(es.pszName, es));
+        MapNameToExportSymbol().insert(std::make_pair(es.pszName, es));
         AddSymbol(es.dwRVA, es.pszName);
     }
 }
@@ -473,6 +471,7 @@ BOOL CR_Module::_LoadImage(LPVOID Data)
             LoadedImage() = reinterpret_cast<LPBYTE>(
                 VirtualAlloc(NULL, GetSizeOfImage() + 16,
                              MEM_COMMIT, PAGE_READWRITE));
+            assert(LoadedImage());
             if (LoadedImage() != NULL)
             {
                 CopyMemory(LoadedImage(), FileImage(), GetSizeOfHeaders());
@@ -615,7 +614,7 @@ BOOL CR_Module::LoadImportTables()
     const DWORD size = (DWORD)ImportDllNames().size();
     for (DWORD i = 0; i < size; i++)
     {
-        CR_VecSet<CR_ImportSymbol> symbols;
+        CR_DeqSet<CR_ImportSymbol> symbols;
         if (_GetImportSymbols(i, symbols))
         {
             for (DWORD j = 0; j < symbols.size(); j++)
@@ -629,7 +628,7 @@ BOOL CR_Module::LoadImportTables()
 
 BOOL CR_Module::LoadExportTable()
 {
-    CR_VecSet<CR_ExportSymbol> symbols;
+    CR_DeqSet<CR_ExportSymbol> symbols;
     CR_Symbol symbol;
 
     if (!_GetExportSymbols(SymbolInfo().GetExportSymbols()))
@@ -655,7 +654,7 @@ BOOL CR_Module::LoadDelayLoad()
     PREAL_IMAGE_DATA_DIRECTORY pDir =
         DataDirectory(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
 
-    vector<ImgDelayDescr> Descrs;
+    CR_DeqSet<ImgDelayDescr> Descrs;
     ImgDelayDescr *pDescrs =
         reinterpret_cast<ImgDelayDescr *>(LoadedImage() + pDir->RVA);
 
@@ -675,7 +674,7 @@ BOOL CR_Module::LoadDelayLoad()
 
 ////////////////////////////////////////////////////////////////////////////
 
-BOOL CR_Module::_GetImportDllNames(CR_VecSet<string>& names)
+BOOL CR_Module::_GetImportDllNames(CR_StringSet& names)
 {
     PIMAGE_IMPORT_DESCRIPTOR descs = ImportDescriptors();
     names.clear();
@@ -689,7 +688,7 @@ BOOL CR_Module::_GetImportDllNames(CR_VecSet<string>& names)
     return TRUE;
 }
 
-BOOL CR_Module::_GetImportSymbols(DWORD dll_index, CR_VecSet<CR_ImportSymbol>& symbols)
+BOOL CR_Module::_GetImportSymbols(DWORD dll_index, CR_DeqSet<CR_ImportSymbol>& symbols)
 {
     DWORD i, j;
     CR_ImportSymbol symbol;
@@ -776,7 +775,7 @@ BOOL CR_Module::_GetImportSymbols(DWORD dll_index, CR_VecSet<CR_ImportSymbol>& s
     return TRUE;
 }
 
-BOOL CR_Module::_GetExportSymbols(CR_VecSet<CR_ExportSymbol>& symbols)
+BOOL CR_Module::_GetExportSymbols(CR_DeqSet<CR_ExportSymbol>& symbols)
 {
     CR_ExportSymbol symbol;
     PIMAGE_EXPORT_DIRECTORY pDir = ExportDirectory();
@@ -918,7 +917,7 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
 
     DWORD rva = RVAFromVA32(va);
     LPBYTE input = LoadedImage() + rva;
-    INT lendis;
+    int lendis;
     CHAR outbuf[256];
     CR_Addr32 addr;
 
@@ -962,7 +961,7 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
         // add asm codes
         if (ac.Codes().empty())
         {
-            for (INT i = 0; i < lendis; i++)
+            for (int i = 0; i < lendis; i++)
                 ac.Codes().push_back(input[i]);
         }
 
@@ -990,7 +989,7 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
                 if (func == va)
                 {
                     // func is jumper
-                    cf.FuncType() = FT_JUMPER;
+                    cf.FuncType() = FT_JUMPERFUNC;
 
                     addr = ac.Operand(0)->Value32();
                     status.Entrances().Insert(addr);
@@ -1010,7 +1009,7 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
                 if (func == va)
                 {
                     // func is jumper
-                    cf.FuncType() = FT_JUMPER;
+                    cf.FuncType() = FT_JUMPERFUNC;
                     bBreak = TRUE;
                 }
                 break;
@@ -1043,7 +1042,7 @@ BOOL CR_Module::DisAsmAddr32(CR_DecompStatus32& status, CR_Addr32 func, CR_Addr3
             {
                 // func is __stdcall
                 cf.FuncType() = FT_STDCALL;
-                cf.SizeOfStackArgs() = (INT)ac.Operand(0)->Value32();
+                cf.SizeOfStackArgs() = (int)ac.Operand(0)->Value32();
             }
             else
             {
@@ -1076,7 +1075,7 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
     // calculate
     DWORD rva = RVAFromVA64(va);
     LPBYTE input = LoadedImage() + rva;
-    INT lendis;
+    int lendis;
     CHAR outbuf[256];
     CR_Addr64 addr;
 
@@ -1120,7 +1119,7 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
         // add asm codes
         if (ac.Codes().empty())
         {
-            for (INT i = 0; i < lendis; i++)
+            for (int i = 0; i < lendis; i++)
                 ac.Codes().push_back(input[i]);
         }
 
@@ -1149,7 +1148,7 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
                 if (func == va)
                 {
                     // func is jumper
-                    cf.FuncType() = FT_JUMPER;
+                    cf.FuncType() = FT_JUMPERFUNC;
 
                     addr = ac.Operand(0)->Value64();
                     status.Entrances().Insert(addr);
@@ -1169,7 +1168,7 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
                 if (func == va)
                 {
                     // func is jumper
-                    cf.FuncType() = FT_JUMPER;
+                    cf.FuncType() = FT_JUMPERFUNC;
                 }
                 break;
 
@@ -1201,7 +1200,7 @@ BOOL CR_Module::DisAsmAddr64(CR_DecompStatus64& status, CR_Addr64 func, CR_Addr6
             {
                 // func is __stdcall
                 cf.FuncType() = FT_STDCALL;
-                cf.SizeOfStackArgs() = (INT)ac.Operand(0)->Value64();
+                cf.SizeOfStackArgs() = (int)ac.Operand(0)->Value64();
             }
             else
             {
@@ -1231,13 +1230,7 @@ BOOL CR_Module::DisAsm32(CR_DecompStatus32& status)
     if (!IsModuleLoaded() || !Is32Bit())
         return FALSE;
 
-    // void WINAPI WinMainCRTStartup(void);
-    // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
-    const char *pszEntryPointName;
-    if (IsDLL())
-        pszEntryPointName = "_DllMainCRTStartup";
-    else
-        pszEntryPointName = "WinMainCRTStartup";
+    const char *pszEntryPointName = "EntryPoint";
 
     {
         CR_Symbol symbol;
@@ -1251,47 +1244,30 @@ BOOL CR_Module::DisAsm32(CR_DecompStatus32& status)
     va = VA32FromRVA(RVAOfEntryPoint());
     status.Entrances().Insert(va);
 
-    status.MapAddrToCodeFunc()[va].Addr() = va;
-    status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
-    if (IsDLL())
+    auto& codefunc = status.MapAddrToCodeFunc()[va];
+    codefunc.Addr() = va;
+    codefunc.Name() = pszEntryPointName;
+    codefunc.SizeOfStackArgs() = 0;
+    codefunc.Flags() = FF_NOTSTDCALL;
+    codefunc.FuncType() = FT_CDECL;
+
+    for (auto& e_symbol : ExportSymbols())
     {
-        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 3 * sizeof(CR_Addr32);
+        va = VA32FromRVA(e_symbol.dwRVA);
 
-        status.MapAddrToCodeFunc()[va].Args().clear();
-
-        OPERAND opr;
-        opr.DataType() = "HANDLE";
-        opr.Size() = 4;
-        status.MapAddrToCodeFunc()[va].Args().insert(opr);
-        opr.DataType() = "DWORD";
-        opr.Size() = 4;
-        status.MapAddrToCodeFunc()[va].Args().insert(opr);
-        opr.DataType() = "LPVOID";
-        opr.Size() = 4;
-        status.MapAddrToCodeFunc()[va].Args().insert(opr);
-        status.MapAddrToCodeFunc()[va].ReturnDataType() = "BOOL";
-    }
-    else
-        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 0;
-
-    {
-        for (std::size_t i = 0; i < ExportSymbols().size(); i++)
+        if (AddressInCode32(va))
         {
-            va = VA32FromRVA(ExportSymbols()[i].dwRVA);
-
-            if (AddressInCode32(va))
-            {
-                CR_Symbol symbol;
-                symbol.RVA() = ExportSymbols()[i].dwRVA;
-                symbol.Name() = ExportSymbols()[i].pszName;
-                SymbolInfo().AddSymbol(symbol);
-            }
-
-            status.Entrances().Insert(va);
-
-            status.MapAddrToCodeFunc()[va].Addr() = va;
-            status.MapAddrToCodeFunc()[va].Name() = ExportSymbols()[i].pszName;
+            CR_Symbol symbol;
+            symbol.RVA() = e_symbol.dwRVA;
+            symbol.Name() = e_symbol.pszName;
+            SymbolInfo().AddSymbol(symbol);
         }
+
+        status.Entrances().Insert(va);
+
+        auto& func = status.MapAddrToCodeFunc()[va];
+        func.Addr() = va;
+        func.Name() = e_symbol.pszName;
     }
 
     // disasm entrances
@@ -1326,13 +1302,7 @@ BOOL CR_Module::DisAsm64(CR_DecompStatus64& status)
     if (!IsModuleLoaded() || !Is64Bit())
         return FALSE;
 
-    // void WINAPI WinMainCRTStartup(void);
-    // BOOL WINAPI _DllMainCRTStartup(HANDLE, DWORD, LPVOID);
-    const char *pszEntryPointName;
-    if (IsDLL())
-        pszEntryPointName = "_DllMainCRTStartup";
-    else
-        pszEntryPointName = "WinMainCRTStartup";
+    const char *pszEntryPointName = "EntryPoint";
 
     // register entrypoint
     {
@@ -1347,44 +1317,29 @@ BOOL CR_Module::DisAsm64(CR_DecompStatus64& status)
     va = VA64FromRVA(RVAOfEntryPoint());
     status.Entrances().Insert(va);
 
-    status.MapAddrToCodeFunc()[va].Addr() = va;
-    status.MapAddrToCodeFunc()[va].Name() = pszEntryPointName;
-    if (IsDLL())
-    {
-        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 3 * sizeof(CR_Addr64);
+    auto& codefunc = status.MapAddrToCodeFunc()[va];
+    codefunc.Addr() = va;
+    codefunc.Name() = pszEntryPointName;
+    codefunc.SizeOfStackArgs() = 0;
+    codefunc.Flags() = FF_NOTSTDCALL;
+    codefunc.FuncType() = FT_CDECL;
 
-        OPERAND opr;
-        opr.DataType() = "HANDLE";
-        opr.Size() = 8;
-        status.MapAddrToCodeFunc()[va].Args().insert(opr);
-        opr.DataType() = "DWORD";
-        opr.Size() = 4;
-        status.MapAddrToCodeFunc()[va].Args().insert(opr);
-        opr.DataType() = "LPVOID";
-        opr.Size() = 8;
-        status.MapAddrToCodeFunc()[va].Args().insert(opr);
-        status.MapAddrToCodeFunc()[va].ReturnDataType() = "BOOL";
-    }
-    else
-        status.MapAddrToCodeFunc()[va].SizeOfStackArgs() = 0;
-
+    for (auto& e_symbol : ExportSymbols())
     {
-        for (std::size_t i = 0; i < ExportSymbols().size(); i++)
+        va = VA64FromRVA(e_symbol.dwRVA);
+
+        if (AddressInCode64(va))
         {
-            va = VA64FromRVA(ExportSymbols()[i].dwRVA);
-
-            if (AddressInCode64(va))
-            {
-                CR_Symbol symbol;
-                symbol.RVA() = ExportSymbols()[i].dwRVA;
-                symbol.Name() = ExportSymbols()[i].pszName;
-                SymbolInfo().AddSymbol(symbol);
-            }
-
-            status.Entrances().Insert(va);
-            status.MapAddrToCodeFunc()[va].Addr() = va;
-            status.MapAddrToCodeFunc()[va].Name() = ExportSymbols()[i].pszName;
+            CR_Symbol symbol;
+            symbol.RVA() = e_symbol.dwRVA;
+            symbol.Name() = e_symbol.pszName;
+            SymbolInfo().AddSymbol(symbol);
         }
+
+        status.Entrances().Insert(va);
+        auto& func = status.MapAddrToCodeFunc()[va];
+        func.Addr() = va;
+        func.Name() = e_symbol.pszName;
     }
 
     // disasm entrances
@@ -1420,13 +1375,13 @@ BOOL CR_Module::FixUpAsm32(CR_DecompStatus32& status)
     auto end = status.MapAddrToAsmCode().end();
     for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
-        OPERANDSET& operands =  it->second.Operands();
+        CR_OperandSet& operands =  it->second.Operands();
         std::size_t i, size = operands.size();
         for (i = 0; i < size; i++)
         {
             if (operands[i].OperandType() == OT_MEMIMM)
             {
-                OPERAND& opr = operands[i];
+                CR_Operand& opr = operands[i];
                 CR_Addr32 addr = opr.Value32();
                 if (AddressInData32(addr))
                 {
@@ -1510,13 +1465,13 @@ BOOL CR_Module::FixUpAsm64(CR_DecompStatus64& status)
     auto end = status.MapAddrToAsmCode().end();
     for (auto it = status.MapAddrToAsmCode().begin(); it != end; it++)
     {
-        OPERANDSET& operands =  it->second.Operands();
+        CR_OperandSet& operands =  it->second.Operands();
         std::size_t i, size = operands.size();
         for (i = 0; i < size; i++)
         {
             if (operands[i].OperandType() == OT_MEMIMM)
             {
-                OPERAND& opr = operands[i];
+                CR_Operand& opr = operands[i];
                 CR_Addr64 addr = opr.Value64();
                 if (AddressInData64(addr))
                 {
@@ -1815,7 +1770,7 @@ void CR_Module::_ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *in
                 ac.Name() = q;
                 char *p = q + strlen(q) - 1;
 
-                OPERAND opr;
+                CR_Operand opr;
                 if (*p == 'b')
                     opr.Size() = 1;
                 else if (*p == 'w')
@@ -1848,10 +1803,10 @@ void CR_Module::_ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *in
         if (p)
         {
             *p = '\0';
-            OPERAND opr;
+            CR_Operand opr;
             opr.Text() = p + 1;
             ac.Operands().clear();
-            ParseOperand(opr, 32);
+            opr.ParseText(32);
             ac.Operands().insert(opr);
         }
         ac.Name() = q;
@@ -1886,9 +1841,9 @@ void CR_Module::_ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *in
                     ac.CodeInsnType() = CIT_JCC;
 
                 p++;
-                OPERAND opr;
+                CR_Operand opr;
                 opr.Text() = p;
-                ParseOperand(opr, 32);
+                opr.ParseText(32);
                 ac.Operands().clear();
                 ac.Operands().insert(opr);
                 return;
@@ -1918,7 +1873,7 @@ void CR_Module::_ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *in
     p = strtok(p + 1, ",");
     if (p)
     {
-        OPERAND opr;
+        CR_Operand opr;
         opr.Text() = p;
         ac.Operands().insert(opr);
         p = strtok(NULL, ",");
@@ -1931,11 +1886,11 @@ void CR_Module::_ParseInsn32(CR_CodeInsn32& ac, CR_Addr32 offset, const char *in
             {
                 opr.Text() = p;
                 ac.Operands().insert(opr);
-                ParseOperand(*ac.Operand(2), 32);
+                ac.Operand(2)->ParseText(32);
             }
-            ParseOperand(*ac.Operand(1), 32);
+            ac.Operand(1)->ParseText(32);
         }
-        ParseOperand(*ac.Operand(0), 32);
+        ac.Operand(0)->ParseText(32);
     }
 }
 
@@ -1962,7 +1917,7 @@ void CR_Module::_ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *in
                 ac.Name() = q;
                 char *p = q + strlen(q) - 1;
 
-                OPERAND opr;
+                CR_Operand opr;
                 if (*p == 'b')
                     opr.Size() = 1;
                 else if (*p == 'w')
@@ -1992,10 +1947,10 @@ void CR_Module::_ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *in
         if (p)
         {
             *p = '\0';
-            OPERAND opr;
+            CR_Operand opr;
             opr.Text() = p + 1;
             ac.Operands().clear();
-            ParseOperand(opr, 64);
+            opr.ParseText(64);
             ac.Operands().insert(opr);
         }
         ac.Name() = q;
@@ -2030,9 +1985,9 @@ void CR_Module::_ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *in
                     ac.CodeInsnType() = CIT_JCC;
 
                 p++;
-                OPERAND opr;
+                CR_Operand opr;
                 opr.Text() = p;
-                ParseOperand(opr, 64);
+                opr.ParseText(64);
                 ac.Operands().clear();
                 ac.Operands().insert(opr);
                 return;
@@ -2062,7 +2017,7 @@ void CR_Module::_ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *in
     p = strtok(p + 1, ",");
     if (p)
     {
-        OPERAND opr;
+        CR_Operand opr;
         opr.Text() = p;
         ac.Operands().insert(opr);
         p = strtok(NULL, ",");
@@ -2075,137 +2030,11 @@ void CR_Module::_ParseInsn64(CR_CodeInsn64& ac, CR_Addr64 offset, const char *in
             {
                 opr.Text() = p;
                 ac.Operands().insert(opr);
-                ParseOperand(*ac.Operand(2), 64);
+                ac.Operand(2)->ParseText(64);
             }
-            ParseOperand(*ac.Operand(1), 64);
+            ac.Operand(1)->ParseText(64);
         }
-        ParseOperand(*ac.Operand(0), 64);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Module::ParseOperand
-
-void CR_Module::ParseOperand(OPERAND& opr, INT bits)
-{
-    char buf[64];
-    strcpy(buf, opr.Text().c_str());
-    char *p = buf;
-
-    DWORD size = cr_reg_get_size(p, bits);
-    if (size != 0)
-    {
-        opr.OperandType() = OT_REG;
-        opr.Size() = size;
-        return;
-    }
-
-    if (strncmp(p, "byte ", 5) == 0)
-    {
-        p += 5;
-        opr.Size() = 1;
-    }
-    else if (strncmp(p, "word ", 5) == 0)
-    {
-        p += 5;
-        opr.Size() = 2;
-    }
-    else if (strncmp(p, "dword ", 6) == 0)
-    {
-        p += 6;
-        opr.Size() = 4;
-    }
-    else if (strncmp(p, "qword ", 6) == 0)
-    {
-        p += 6;
-        opr.Size() = 8;
-    }
-    else if (strncmp(p, "tword ", 6) == 0)
-    {
-        p += 6;
-        opr.Size() = 10;
-    }
-    else if (strncmp(p, "oword ", 6) == 0)
-    {
-        p += 6;
-        opr.Size() = 16;
-    }
-    else if (strncmp(p, "yword ", 6) == 0)
-    {
-        p += 6;
-        opr.Size() = 32;
-    }
-    else if (strncmp(p, "short ", 6) == 0)
-    {
-        p += 6;
-        opr.Size() = 1;
-    }
-    else if (strncmp(p, "near ", 5) == 0)
-    {
-        p += 5;
-        opr.Size() = 2;
-    }
-
-    // near or far
-    if (strncmp(p, "near ", 5) == 0)
-        p += 5;
-    else if (strncmp(p, "far ", 4) == 0)
-        p += 4;
-
-    if (p[0] == '+' || p[0] == '-')
-    {
-        char *endptr;
-        LONGLONG value = _strtoi64(p, &endptr, 16);
-        opr.SetImm64(value, true);
-    }
-    else if (p[0] == '0' && p[1] == 'x')
-    {
-        char *endptr;
-        ULONGLONG value = _strtoui64(p, &endptr, 16);
-        opr.Value64() = value;
-        opr.SetImm64(value, false);
-    }
-    else if (p[0] == '[')
-    {
-        p++;
-        *strchr(p, ']') = '\0';
-
-        if (strncmp(p, "word ", 5) == 0)
-        {
-            p += 5;
-        }
-        else if (strncmp(p, "dword ", 6) == 0)
-        {
-            p += 6;
-        }
-        else if (strncmp(p, "qword ", 6) == 0)
-        {
-            p += 6;
-        }
-
-        if (strncmp(p, "rel ", 4) == 0)
-        {
-            p += 4;
-        }
-
-        DWORD size;
-        if ((size = cr_reg_get_size(p, bits)) != 0)
-        {
-            opr.OperandType() = OT_MEMREG;
-            return;
-        }
-
-        CR_Addr64 addr;
-        char *endptr;
-        if (isdigit(*p))
-        {
-            addr = _strtoui64(p, &endptr, 16);
-            opr.SetMemImm(addr);
-        }
-        else
-        {
-            opr.SetMemExp(p);
-        }
+        ac.Operand(0)->ParseText(64);
     }
 }
 

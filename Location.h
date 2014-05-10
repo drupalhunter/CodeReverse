@@ -8,8 +8,6 @@
 #ifndef LOCATION_H_
 #define LOCATION_H_
 
-#include <string>       // std::string
-
 //
 // CR_Location
 //
@@ -37,11 +35,10 @@ struct CR_Location
         m_line = line;
     }
 
-    CR_Location& operator=(const CR_Location& loc)
+    void operator=(const CR_Location& loc)
     {
         m_file = loc.m_file;
         m_line = loc.m_line;
-        return *this;
     }
 
     CR_Location& operator++()
@@ -55,6 +52,15 @@ struct CR_Location
         CR_Location loc(*this);
         m_line++;
         return loc;
+    }
+
+    std::string to_string() const
+    {
+        std::string str = m_file;
+        char buf[32];
+        std::sprintf(buf, " (%d)", m_line);
+        str += buf;
+        return str;
     }
 };
 

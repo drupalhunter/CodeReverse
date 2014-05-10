@@ -175,9 +175,9 @@ public:
     BOOL FindFirstFile(LPCTSTR pszWildcard = NULL);
     BOOL FindNextFile();
     ULONGLONG GetFileSize() const;
-    BOOL GetFileName(LPTSTR pszFileName, INT cchLength) const;
-    BOOL GetFilePath(LPTSTR pszFilePath, INT cchLength) const;
-    BOOL GetRoot(LPTSTR pszRoot, INT cchLength) const;
+    BOOL GetFileName(LPTSTR pszFileName, int cchLength) const;
+    BOOL GetFilePath(LPTSTR pszFilePath, int cchLength) const;
+    BOOL GetRoot(LPTSTR pszRoot, int cchLength) const;
     LPCTSTR GetFileName() const;
     tstring GetFilePath() const;
     LPCTSTR GetRoot() const;
@@ -218,7 +218,7 @@ public:
     HANDLE GetHandle() const;
     DWORD GetExitCode() const;
 
-    void SetShowWindow(INT nCmdShow = SW_HIDE);
+    void SetShowWindow(int nCmdShow = SW_HIDE);
     void SetCreationFlags(DWORD dwFlags = CREATE_NEW_CONSOLE);
     void SetCurrentDirectory(LPCTSTR pszCurDir);
 

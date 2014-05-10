@@ -8,25 +8,25 @@
 #ifndef CPARSEHEADER_H_
 #define CPARSEHEADER_H_
 
-#include "CScanner.hpp"      // cparser::Scanner
-#include "CParserSite.hpp"   // cparser::ParserSite
-#include "CParserAST.hpp"    // cparser::Node, cparser::TokenInfo
-#include "CParser.hpp"       // cparser::Parser
+#include <istream>          // for std::ifstream
+#include <fstream>          // for std::ifstream
+#include <iterator>         // for std::istreambuf_iterator
+#include <iostream>         // for std::cerr
 
-#include <cstring>      // std::strlen
-#include <vector>       // std::vector
-#include <istream>      // std::ifstream
-#include <fstream>      // std::ifstream
-#include <iterator>     // std::istreambuf_iterator
+#include "CParserAST.h"     // for cparser::Node, cparser::TokenInfo
+#include "CParser.h"        // for cparser::Parser
+#include "CScanner.h"       // for cparser::Scanner
+#include "CParserSite.h"    // for cparser::ParserSite
 
 namespace cparser
 {
     template <class Iterator>
-    bool parse(shared_ptr<TransUnit>& tu, Iterator begin, Iterator end)
+    bool parse(shared_ptr<TransUnit>& tu, Iterator begin, Iterator end,
+               bool is_64bit = false)
     {
         using namespace cparser;
         ParserSite ps;
-        Scanner<Iterator, ParserSite> scanner(ps);
+        Scanner<Iterator, ParserSite> scanner(ps, is_64bit);
 
         std::vector<TokenValue > infos;
         scanner.scan(infos, begin, end);
@@ -67,23 +67,26 @@ namespace cparser
         return false;
     }
 
-    inline bool parse_string(shared_ptr<TransUnit>& ts, const char *s)
+    inline bool parse_string(shared_ptr<TransUnit>& ts, const char *s,
+                             bool is_64bit = false)
     {
-        return parse(ts, s, s + std::strlen(s));
+        return parse(ts, s, s + std::strlen(s), is_64bit);
     }
 
-    inline bool parse_string(shared_ptr<TransUnit>& ts, const std::string& str)
+    inline bool parse_string(shared_ptr<TransUnit>& ts, const std::string& str,
+                             bool is_64bit = false)
     {
-        return parse(ts, str.begin(), str.end());
+        return parse(ts, str.begin(), str.end(), is_64bit);
     }
 
-    inline bool parse_file(shared_ptr<TransUnit>& ts, const char *filename)
+    inline bool parse_file(shared_ptr<TransUnit>& ts, const char *filename,
+                           bool is_64bit = false)
     {
         std::ifstream file(filename);
         if (file.is_open())
         {
             std::istreambuf_iterator<char> begin(file), end;
-            bool ok = parse(ts, begin, end);
+            bool ok = parse(ts, begin, end, is_64bit);
             file.close();
             return ok;
         }

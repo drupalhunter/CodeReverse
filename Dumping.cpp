@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// dumpfn.cpp
+// Dumping.cpp
 // Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////
 // This file is part of CodeReverse.
@@ -18,7 +18,7 @@ const char *CrGetTimeStampString(DWORD TimeStamp)
         return "NULL";
 
     t = static_cast<time_t>(TimeStamp);
-    p = std::asctime(gmtime(&t));
+    p = std::asctime(std::gmtime(&t));
     len = std::strlen(p);
     if (len > 0 && p[len - 1] == '\n')
         p[len - 1] = '\0';
@@ -662,7 +662,7 @@ void CrDumpSectionHeader(LPVOID Data)
     printf("  Characteristics: 0x%08lX (%s)\n", SectionHeader->Characteristics, CrGetSectionFlagsString(SectionHeader->Characteristics));
 }
 
-void CrDumpCodes(const vector<BYTE>& codes, INT bits)
+void CrDumpCodes(const CR_Binary& codes, INT bits)
 {
     std::size_t codesperline;
 
@@ -683,6 +683,7 @@ void CrDumpCodes(const vector<BYTE>& codes, INT bits)
         else
             printf("   ");
     }
+
     for (; i < codes.size(); i++)
     {
         printf("%02X ", codes[i]);
@@ -735,8 +736,8 @@ void CR_Module::DumpHeaders()
 void CR_Module::DumpImportSymbols()
 {
     PIMAGE_IMPORT_DESCRIPTOR descs;
-    CR_VecSet<string> dll_names;
-    CR_VecSet<CR_ImportSymbol> symbols;
+    CR_StringSet dll_names;
+    CR_DeqSet<CR_ImportSymbol> symbols;
 
     descs = ImportDescriptors();
     if (descs == NULL)
@@ -917,7 +918,7 @@ void CR_Module::DumpDelayLoad()
         CR_Addr32 addr;
         for (std::size_t i = 0; i < size; i++)
         {
-            printf("  ### Descr #%u ###\n", static_cast<INT>(i));
+            printf("  ### Descr #%u ###\n", static_cast<int>(i));
             printf("    NAME       %-8s %-8s\n", "RVA", "VA");
 
             rva = DelayLoadDescriptors()[i].grAttrs;
@@ -979,18 +980,15 @@ BOOL CR_Module::DumpDisAsm32(CR_DecompStatus32& status)
             printf(";; Function %s @ L%08lX\n", pszName, cf.Addr());
         else
             printf(";; Function L%08lX\n", cf.Addr());
+
         switch (cf.FuncType())
         {
-        case FT_JUMPER:
-            printf("ft = FT_JUMPER, ");
+        case FT_JUMPERFUNC:
+            printf("ft = FT_JUMPERFUNC, ");
             break;
 
         case FT_CDECL:
             printf("ft = FT_CDECL, ");
-            break;
-
-        case FT_CDECLVA:
-            printf("ft = FT_CDECLVA, ");
             break;
 
         case FT_STDCALL:
@@ -1002,7 +1000,7 @@ BOOL CR_Module::DumpDisAsm32(CR_DecompStatus32& status)
             break;
 
         default:
-            printf("ft = unknown, ");
+            printf("ft = FT_UNKNOWN, ");
             break;
         }
         printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
@@ -1079,13 +1077,13 @@ BOOL CR_Module::DumpDisAsm64(CR_DecompStatus64& status)
                 HILONG(cf.Addr()), LOLONG(cf.Addr()));
         else
             printf(";; Function L%08lX%08lX\n", HILONG(cf.Addr()), LOLONG(cf.Addr()));
-        if (cf.FuncType() == FT_JUMPER)
+        if (cf.FuncType() == FT_JUMPERFUNC)
         {
-            printf("ft = FT_JUMPER, ");
+            printf("ft = FT_JUMPERFUNC, ");
         }
         else
         {
-            printf("ft = normal, ");
+            printf("ft = FT_64BITFUNC, ");
         }
         printf("SizeOfStackArgs == %d\n", cf.SizeOfStackArgs());
         DumpDisAsmFunc64(status, status.Entrances()[i]);

@@ -96,7 +96,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>caper CParser.cpg CParser.hpp</Command>
+      <Command>caper CParser.cpg CParser.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -113,7 +113,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>caper CParser.cpg CParser.hpp</Command>
+      <Command>caper CParser.cpg CParser.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,7 +134,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>caper CParser.cpg CParser.hpp</Command>
+      <Command>caper CParser.cpg CParser.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,11 +155,12 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>caper CParser.cpg CParser.hpp</Command>
+      <Command>caper CParser.cpg CParser.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CodeReverse.cpp" />
+    <ClCompile Include="Coding.cpp" />
     <ClCompile Include="Dumping.cpp" />
     <ClCompile Include="h-ndisasm\disasm.c" />
     <ClCompile Include="h-ndisasm\insnsb.c" />
@@ -177,11 +178,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeReverse.h" />
+    <ClInclude Include="Coding.h" />
+    <ClInclude Include="Coding_inl.h" />
     <ClInclude Include="CParseHeader.h" />
-    <ClInclude Include="CParser.hpp" />
-    <ClInclude Include="CParserAST.hpp" />
-    <ClInclude Include="CParserSite.hpp" />
-    <ClInclude Include="CScanner.hpp" />
+    <ClInclude Include="CParser.h" />
+    <ClInclude Include="CParserAST.h" />
+    <ClInclude Include="CParserSite.h" />
+    <ClInclude Include="CScanner.h" />
     <ClInclude Include="h-ndisasm\compiler.h" />
     <ClInclude Include="h-ndisasm\disasm.h" />
     <ClInclude Include="h-ndisasm\insns.h" />
@@ -198,7 +201,7 @@
     <ClInclude Include="Module.h" />
     <ClInclude Include="mzc2mini.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Type.h" />
+    <ClInclude Include="TypeSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CodeReverse.rc" />

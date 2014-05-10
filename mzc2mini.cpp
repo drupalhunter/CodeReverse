@@ -444,19 +444,19 @@ BOOL MFile::FlushFileBuffers()
 
 BOOL MFile::WriteSzA(LPCSTR psz)
 {
-    INT cb = (INT) strlen(psz);
+    int cb = (int) strlen(psz);
     return WriteBinary(psz, (DWORD) cb);
 }
 
 BOOL MFile::WriteSzW(LPCWSTR psz)
 {
-    INT cb = (INT) (wcslen(psz) * sizeof(WCHAR));
+    int cb = (int) (wcslen(psz) * sizeof(WCHAR));
     return WriteBinary(psz, (DWORD) cb);
 }
 
 BOOL MFile::WriteSz(LPCTSTR psz)
 {
-    INT cb = (INT) (_tcslen(psz) * sizeof(TCHAR));
+    int cb = (int) (_tcslen(psz) * sizeof(TCHAR));
     return WriteBinary(psz, (DWORD) cb);
 }
 
@@ -598,24 +598,24 @@ ULONGLONG MFindFile::GetFileSize() const
     return nFileSize.QuadPart;
 }
 
-BOOL MFindFile::GetFileName(LPTSTR pszFileName, INT cchLength) const
+BOOL MFindFile::GetFileName(LPTSTR pszFileName, int cchLength) const
 {
     MzcAssert(m_hFind != INVALID_HANDLE_VALUE);
     MzcAssert(m_bFound);
 
-    if ((INT) _tcslen(m_find.cFileName) >= cchLength)
+    if ((int) _tcslen(m_find.cFileName) >= cchLength)
         return FALSE;
 
     ::lstrcpyn(pszFileName, m_find.cFileName, cchLength);
     return TRUE;
 }
 
-BOOL MFindFile::GetFilePath(LPTSTR pszFilePath, INT cchLength) const
+BOOL MFindFile::GetFilePath(LPTSTR pszFilePath, int cchLength) const
 {
     MzcAssert(m_hFind != INVALID_HANDLE_VALUE);
     MzcAssert(m_bFound);
 
-    if ((INT) (_tcslen(m_szRoot) + 1 + _tcslen(m_find.cFileName)) >= cchLength)
+    if ((int) (_tcslen(m_szRoot) + 1 + _tcslen(m_find.cFileName)) >= cchLength)
         return FALSE;
 
     ::lstrcpyn(pszFilePath, m_szRoot, cchLength);
@@ -625,10 +625,10 @@ BOOL MFindFile::GetFilePath(LPTSTR pszFilePath, INT cchLength) const
     return TRUE;
 }
 
-BOOL MFindFile::GetRoot(LPTSTR pszRoot, INT cchLength) const
+BOOL MFindFile::GetRoot(LPTSTR pszRoot, int cchLength) const
 {
     MzcAssert(m_bFound);
-    if ((INT) _tcslen(m_szRoot) >= cchLength)
+    if ((int) _tcslen(m_szRoot) >= cchLength)
         return FALSE;
 
     ::lstrcpyn(pszRoot, m_szRoot, cchLength);
@@ -820,7 +820,7 @@ void MProcessMaker::SetStdError(HANDLE hStdErr)
     }
 }
 
-void MProcessMaker::SetShowWindow(INT nCmdShow/* = SW_HIDE*/)
+void MProcessMaker::SetShowWindow(int nCmdShow/* = SW_HIDE*/)
 {
     m_si.wShowWindow = (WORD) nCmdShow;
     m_si.dwFlags |= STARTF_USESHOWWINDOW;

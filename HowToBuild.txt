@@ -3,3 +3,6 @@ Building CodeReverse requires Visual C++ 2013 or MinGW g++.
 To build by Visual C++ 2013, open file "CodeReverse.sln".
 To build by 32-bit g++, run "make -f Makefile.g++32".
 To build by 64-bit g++, run "make -f Makefile.g++64".
+
+Building CodeReverse requires parser generator Caper by
+Naoyuki HIRAYAMA.
