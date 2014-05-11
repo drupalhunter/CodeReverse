@@ -35,13 +35,6 @@
     #include <jctype.h>
 #endif
 
-#if DOS  // 16-bit
-    #include <dos.h>
-    #include <stdrom.h>
-    #include <machine.h>
-    #include <fcntl.h>
-#endif
-
 // Windows-related
 #include <windows.h>
 #include <commdlg.h>

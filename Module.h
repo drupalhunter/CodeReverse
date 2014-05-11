@@ -65,32 +65,6 @@ struct CR_ExportSymbol
     const char * pszName;
     const char * pszForwarded;
 };
-typedef CR_ExportSymbol *LPEXPORT_SYMBOL;
-
-////////////////////////////////////////////////////////////////////////////
-// CR_Symbol
-
-class CR_Symbol
-{
-public:
-    CR_Symbol();
-    CR_Symbol(const CR_Symbol& s);
-    void operator=(const CR_Symbol& s);
-    virtual ~CR_Symbol();
-    void Copy(const CR_Symbol& s);
-    void clear();
-
-public: // accessors
-    DWORD&              RVA();
-    CR_String&          Name();
-    const DWORD&        RVA() const;
-    const CR_String&    Name() const;
-
-protected:
-    DWORD               m_rva;
-    CR_String           m_name;
-};
-typedef CR_Symbol *LPSYMBOL;
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_SymbolInfo
@@ -107,8 +81,6 @@ public:
 
 public:
     void AddImportDllName(const char *name);
-    void AddSymbol(DWORD rva, const char *name);
-    void AddSymbol(const CR_Symbol& s);
     void AddImportSymbol(const CR_ImportSymbol& is);
     void AddExportSymbol(const CR_ExportSymbol& es);
 
@@ -120,14 +92,10 @@ public: // accessors
     CR_ImportSymbol *                           GetImportSymbolFromName(const char *name);
     CR_ExportSymbol *                           GetExportSymbolFromRVA(DWORD RVA);
     CR_ExportSymbol *                           GetExportSymbolFromName(const char *name);
-    CR_Symbol *                                 GetSymbolFromRVA(DWORD RVA);
-    CR_Symbol *                                 GetSymbolFromName(const char *name);
     CR_Map<DWORD, CR_ImportSymbol>&             MapRVAToImportSymbol();
     CR_Map<CR_String, CR_ImportSymbol>&         MapNameToImportSymbol();
     CR_Map<DWORD, CR_ExportSymbol>&             MapRVAToExportSymbol();
     CR_Map<CR_String, CR_ExportSymbol>&         MapNameToExportSymbol();
-    CR_Map<DWORD, CR_Symbol>&                   MapRVAToSymbol();
-    CR_Map<CR_String, CR_Symbol>&               MapNameToSymbol();
 
 public: // const accessors
     const CR_StringSet&                         GetImportDllNames() const;
@@ -137,14 +105,10 @@ public: // const accessors
     const CR_ImportSymbol *                     GetImportSymbolFromName(const char *name) const;
     const CR_ExportSymbol *                     GetExportSymbolFromRVA(DWORD RVA) const;
     const CR_ExportSymbol *                     GetExportSymbolFromName(const char *name) const;
-    const CR_Symbol *                           GetSymbolFromRVA(DWORD RVA) const;
-    const CR_Symbol *                           GetSymbolFromName(const char *name) const;
     const CR_Map<DWORD, CR_ImportSymbol>&       MapRVAToImportSymbol() const;
     const CR_Map<CR_String, CR_ImportSymbol>&   MapNameToImportSymbol() const;
     const CR_Map<DWORD, CR_ExportSymbol>&       MapRVAToExportSymbol() const;
     const CR_Map<CR_String, CR_ExportSymbol>&   MapNameToExportSymbol() const;
-    const CR_Map<DWORD, CR_Symbol>&             MapRVAToSymbol() const;
-    const CR_Map<CR_String, CR_Symbol>&         MapNameToSymbol() const;
 
 protected:
     // import symbols
@@ -157,10 +121,6 @@ protected:
     CR_DeqSet<CR_ExportSymbol>                  m_vExportSymbols;
     CR_Map<DWORD, CR_ExportSymbol>              m_mRVAToExportSymbol;
     CR_Map<CR_String, CR_ExportSymbol>          m_mNameToExportSymbol;
-
-    // symbols
-    CR_Map<DWORD, CR_Symbol>                    m_mRVAToSymbol;
-    CR_Map<CR_String, CR_Symbol>                m_mNameToSymbol;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -246,6 +206,8 @@ public:
     DWORD&                              FileSize();
     HANDLE&                             FileMapping();
     BOOL&                               ModuleLoaded();
+    CR_Map<CR_String, DWORD>&           MapFuncNameToRVA();
+    CR_Map<DWORD, CR_String>&           MapRVAToFuncName();
     // const accessors
     const WORD&                         NumberOfSections() const;
     const DWORD&                        LastError() const;
@@ -276,6 +238,8 @@ public:
     const DWORD&                        FileSize() const;
     HANDLE&                             FileMapping() const;
     const BOOL&                         ModuleLoaded() const;
+    const CR_Map<CR_String, DWORD>&     MapFuncNameToRVA() const;
+    const CR_Map<DWORD, CR_String>&     MapRVAToFuncName() const;
 
 public:
     // loading
@@ -284,18 +248,12 @@ public:
     BOOL LoadDelayLoad();
 
 public:
-    // finding
-    const CR_ImportSymbol *FindImportSymbolByRVA(DWORD rva) const;
-    const CR_ImportSymbol *FindImportSymbolByName(const char *Name) const;
-    const CR_ExportSymbol *FindExportSymbolByRVA(DWORD rva) const;
-    const CR_ExportSymbol *FindExportSymbolByName(const char *Name) const;
-    const CR_Symbol *FindSymbolByRVA(DWORD rva) const;
-    const CR_Symbol *FindSymbolByName(const char *Name) const;
-    const CR_Symbol *FindSymbolByAddr32(CR_Addr32 addr) const;
-    const CR_Symbol *FindSymbolByAddr64(CR_Addr64 addr) const;
-    const char *GetSymbolNameFromRVA(DWORD rva) const;
-    const char *GetSymbolNameFromAddr32(CR_Addr32 addr) const;
-    const char *GetSymbolNameFromAddr64(CR_Addr64 addr) const;
+    const char *FuncNameFromRVA(DWORD RVA) const;
+    const char *FuncNameFromVA32(CR_Addr32 addr) const;
+    const char *FuncNameFromVA64(CR_Addr64 addr) const;
+    DWORD RVAFromFuncName(const CR_String& name) const;
+    DWORD VA32FromFuncName(const CR_String& name) const;
+    DWORD VA64FromFuncName(const CR_String& name) const;
 
 public:
     BOOL DisAsmAddr32(CR_DisAsmInfo32& info, CR_Addr32 func, CR_Addr32 va);
@@ -327,44 +285,47 @@ protected:
     BOOL _GetExportSymbols(CR_DeqSet<CR_ExportSymbol>& symbols);
 
 protected:
-    LPCTSTR                     m_pszFileName;
-    HANDLE                      m_hFile;
-    HANDLE                      m_hFileMapping;
-    LPBYTE                      m_pFileImage;
-    DWORD                       m_dwFileSize;
-    DWORD                       m_dwLastError;
-    BOOL                        m_bModuleLoaded;
-    BOOL                        m_bDisAsmed;
-    BOOL                        m_bDecompiled;
+    LPCTSTR                         m_pszFileName;
+    HANDLE                          m_hFile;
+    HANDLE                          m_hFileMapping;
+    LPBYTE                          m_pFileImage;
+    DWORD                           m_dwFileSize;
+    DWORD                           m_dwLastError;
+    BOOL                            m_bModuleLoaded;
+    BOOL                            m_bDisAsmed;
+    BOOL                            m_bDecompiled;
 
-    PIMAGE_DOS_HEADER           m_pDOSHeader;
+    PIMAGE_DOS_HEADER               m_pDOSHeader;
     union
     {
-        PIMAGE_NT_HEADERS       m_pNTHeaders;
-        PIMAGE_NT_HEADERS32     m_pNTHeaders32;
-        PIMAGE_NT_HEADERS64     m_pNTHeaders64;
+        PIMAGE_NT_HEADERS           m_pNTHeaders;
+        PIMAGE_NT_HEADERS32         m_pNTHeaders32;
+        PIMAGE_NT_HEADERS64         m_pNTHeaders64;
     };
-    PIMAGE_FILE_HEADER          m_pFileHeader;
-    PIMAGE_OPTIONAL_HEADER32    m_pOptional32;
-    PIMAGE_OPTIONAL_HEADER64    m_pOptional64;
+    PIMAGE_FILE_HEADER              m_pFileHeader;
+    PIMAGE_OPTIONAL_HEADER32        m_pOptional32;
+    PIMAGE_OPTIONAL_HEADER64        m_pOptional64;
 
-    LPBYTE                      m_pLoadedImage;
-    DWORD                       m_dwHeaderSum;
-    DWORD                       m_dwCheckSum;
-    DWORD                       m_dwSizeOfOptionalHeader;
-    DWORD                       m_dwAddressOfEntryPoint;
-    DWORD                       m_dwBaseOfCode;
-    DWORD                       m_dwSizeOfHeaders;
+    LPBYTE                          m_pLoadedImage;
+    DWORD                           m_dwHeaderSum;
+    DWORD                           m_dwCheckSum;
+    DWORD                           m_dwSizeOfOptionalHeader;
+    DWORD                           m_dwAddressOfEntryPoint;
+    DWORD                           m_dwBaseOfCode;
+    DWORD                           m_dwSizeOfHeaders;
 
-    PREAL_IMAGE_SECTION_HEADER  m_pSectionHeaders;
+    PREAL_IMAGE_SECTION_HEADER      m_pSectionHeaders;
     mutable
-    PREAL_IMAGE_SECTION_HEADER  m_pCodeSectionHeader;
-    PREAL_IMAGE_DATA_DIRECTORY  m_pDataDirectories;
+    PREAL_IMAGE_SECTION_HEADER      m_pCodeSectionHeader;
+    PREAL_IMAGE_DATA_DIRECTORY      m_pDataDirectories;
 
-    CR_SymbolInfo               m_SymbolInfo;
+    CR_SymbolInfo                   m_syminfo;
 
     // delay loading
-    CR_DeqSet<ImgDelayDescr>    m_vImgDelayDescrs;
+    CR_DeqSet<ImgDelayDescr>        m_vImgDelayDescrs;
+
+    CR_Map<CR_String, DWORD>        m_mFuncNameToRVA;
+    CR_Map<DWORD, CR_String>        m_mRVAToFuncName;
 
 private:
     // Don't copy it

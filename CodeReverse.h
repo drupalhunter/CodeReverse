@@ -37,34 +37,47 @@ typedef unsigned long long  CR_Addr64;
 typedef unsigned char CR_DataByte;
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_TriBool - tri-state logical value
+// CR_TriBool - logical value of three states
 
 class CR_TriBool
 {
 public:
     CR_TriBool();
-    CR_TriBool(BOOL b);
+    CR_TriBool(bool b);
     CR_TriBool(const CR_TriBool& tb);
     virtual ~CR_TriBool();
-    void operator=(BOOL b);
+
+    void operator=(bool b);
     void operator=(const CR_TriBool& tb);
     bool operator==(const CR_TriBool& tb) const;
     bool operator!=(const CR_TriBool& tb) const;
     void clear();
 
-    BOOL CanBeTrue() const;
-    BOOL CanBeFalse() const;
-    BOOL IsUnknown() const;
+    bool CanBeTrue() const;
+    bool CanBeFalse() const;
+    bool CanBeUnknown() const;
 
-    CR_TriBool& IsFalse(const CR_TriBool& tb);
-    CR_TriBool& IsTrue(const CR_TriBool& tb);
-    CR_TriBool& LogicalAnd(const CR_TriBool& tb1, const CR_TriBool& tb2);
-    CR_TriBool& LogicalOr(const CR_TriBool& tb1, const CR_TriBool& tb2);
-    CR_TriBool& LogicalNot(const CR_TriBool& tb1);
-    CR_TriBool& Equal(const CR_TriBool& tb1, const CR_TriBool& tb2);
-    CR_TriBool& NotEqual(const CR_TriBool& tb1, const CR_TriBool& tb2);
+    bool IsFalse() const;
+    bool IsTrue() const;
+    bool IsUnknown() const;
 
-public:
+    void SetFalse();
+    void SetTrue();
+    void SetUnknown();
+    void AssertEqual(const CR_TriBool& tb);
+
+    void LogicalNot();
+    void LogicalAnd(const CR_TriBool& tb);
+    void LogicalOr(const CR_TriBool& tb);
+    void LogicalAnd(const CR_TriBool& tb1, const CR_TriBool& tb2);
+    void LogicalOr(const CR_TriBool& tb1, const CR_TriBool& tb2);
+
+    void Equal(const CR_TriBool& tb);
+    void NotEqual(const CR_TriBool& tb);
+    void Equal(const CR_TriBool& tb1, const CR_TriBool& tb2);
+    void NotEqual(const CR_TriBool& tb1, const CR_TriBool& tb2);
+
+protected:
     enum {
         TB_UNKNOWN, TB_FALSE, TB_TRUE
     } m_value;
@@ -131,6 +144,18 @@ public:
         }
         this->push_back(item);
         return this->size() - 1;
+    }
+
+    void AddHead(const CR_DeqSet<ITEM_T>& items)
+    {
+        std::deque<ITEM_T>::insert(
+            std::deque<ITEM_T>::begin(), items.begin(), items.end());
+    }
+
+    void AddTail(const CR_DeqSet<ITEM_T>& items)
+    {
+        std::deque<ITEM_T>::insert(
+            std::deque<ITEM_T>::end(), items.begin(), items.end());
     }
 
     std::size_t count(const ITEM_T& item) const

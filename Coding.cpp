@@ -972,6 +972,96 @@ void CR_CodeInsn64::ParseText(const char *text)
 }
 
 ////////////////////////////////////////////////////////////////////////////
+// CR_LogByte
+
+CR_LogByte::CR_LogByte(const CR_LogByte& cb) :
+    m_types(cb.m_types),
+    m_names(cb.m_names),
+    m_is_const(cb.m_is_const),
+    m_is_input(cb.m_is_input),
+    m_is_output(cb.m_is_output),
+    m_is_integer(cb.m_is_integer),
+    m_is_floating(cb.m_is_floating),
+    m_is_pointer(cb.m_is_pointer),
+    m_is_function(cb.m_is_function),
+    m_is_continuous(cb.m_is_continuous)
+{
+}
+
+void CR_LogByte::operator=(const CR_LogByte& cb)
+{
+    m_types = cb.m_types;
+    m_names = cb.m_names;
+    m_is_const = cb.m_is_const;
+    m_is_input = cb.m_is_input;
+    m_is_output = cb.m_is_output;
+    m_is_integer = cb.m_is_integer;
+    m_is_floating = cb.m_is_floating;
+    m_is_pointer = cb.m_is_pointer;
+    m_is_function = cb.m_is_function;
+    m_is_continuous = cb.m_is_continuous;
+}
+
+void CR_LogByte::Merge(const CR_LogByte& lb)
+{
+    Types().AddTail(lb.Types());
+    Names().AddTail(lb.Names());
+    IsConst().AssertEqual(lb.IsConst());
+    IsInput().AssertEqual(lb.IsInput());
+    IsOutput().AssertEqual(lb.IsOutput());
+    IsInteger().AssertEqual(lb.IsInteger());
+    IsPointer().AssertEqual(lb.IsPointer());
+    IsFunction().AssertEqual(lb.IsFunction());
+    IsContinuous().AssertEqual(lb.IsContinuous());
+}
+
+////////////////////////////////////////////////////////////////////////////
+// CR_LogBinary
+
+void CR_LogBinary::MergeAt(std::size_t index, const CR_LogBinary& cs)
+{
+    std::size_t index2 = index + cs.size();
+    if (size() < index2)
+    {
+        LogBytes().resize(index2);
+        DataBytes().resize(index2);
+    }
+    for (std::size_t i = index; i < index2; ++i)
+    {
+        LogByteAt(i).Merge(cs.LogByteAt(i - index));
+        DataByteAt(i) = cs.DataByteAt(i - index);
+    }
+}
+
+void CR_LogBinary::AddNamePrefix(const CR_String& prefix)
+{
+    for (auto& lb : m_logbytes)
+    {
+        for (auto& name : lb.Names())
+        {
+            if (name.empty())
+                ;
+            else
+                name = prefix + name;
+        }
+    }
+}
+
+void CR_LogBinary::SetContinuousArea(std::size_t index, std::size_t count)
+{
+    const std::size_t index2 = index + count - 1;
+    for (std::size_t i = index; i < index2; ++i)
+    {
+        LogByteAt(i).IsContinuous().SetTrue();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////
+// CrLogBinaryFromType
+
+// TODO:
+
+////////////////////////////////////////////////////////////////////////////
 // CR_CodeFunc32
 
 void CR_CodeFunc32::Copy(const CR_CodeFunc32& cf)

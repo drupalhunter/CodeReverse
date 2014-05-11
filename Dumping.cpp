@@ -977,7 +977,7 @@ BOOL CR_Module::DumpDisAsm32(CR_DisAsmInfo32& info)
         if (cf->Flags() & FF_IGNORE)
             continue;
 
-        const char *pszName = GetSymbolNameFromAddr32(cf->Addr());
+        const char *pszName = FuncNameFromVA32(cf->Addr());
         if (pszName)
             printf(";; Function %s @ L%08lX\n", pszName, cf->Addr());
         else
@@ -999,6 +999,10 @@ BOOL CR_Module::DumpDisAsm32(CR_DisAsmInfo32& info)
 
         case FT_FASTCALL:
             printf("ft = FT_FASTCALL, ");
+            break;
+
+        case FT_RETURNONLY:
+            printf("ft = FT_RETURNONLY, ");
             break;
 
         default:
@@ -1076,20 +1080,21 @@ BOOL CR_Module::DumpDisAsm64(CR_DisAsmInfo64& info)
         if (cf->Flags() & FF_IGNORE)
             continue;
 
-        const char *pszName = GetSymbolNameFromAddr64(cf->Addr());
+        const char *pszName = FuncNameFromVA64(cf->Addr());
+
         if (pszName)
             printf(";; Function %s @ L%08lX%08lX\n", pszName,
                 HILONG(cf->Addr()), LOLONG(cf->Addr()));
         else
             printf(";; Function L%08lX%08lX\n", HILONG(cf->Addr()), LOLONG(cf->Addr()));
+
         if (cf->FuncType() == FT_JUMPERFUNC)
-        {
             printf("ft = FT_JUMPERFUNC, ");
-        }
+        else if (cf->FuncType() == FT_RETURNONLY)
+            printf("ft = FT_RETURNONLY, ");
         else
-        {
             printf("ft = FT_64BITFUNC, ");
-        }
+
         printf("SizeOfStackArgs == %d\n", cf->SizeOfStackArgs());
         DumpDisAsmFunc64(info, info.Entrances()[i]);
 

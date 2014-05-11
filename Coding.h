@@ -45,7 +45,8 @@ enum CR_FuncType
 
     FT_64BITFUNC,           // 64-bit function
 
-    FT_JUMPERFUNC           // jumper function
+    FT_JUMPERFUNC,          // jumper function
+    FT_RETURNONLY           // return-only function
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -319,18 +320,20 @@ protected:
 typedef shared_ptr<CR_CodeInsn64> CR_SharedCodeInsn64;
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeByte
+// CR_LogByte -- logical byte
 
-class CR_CodeByte
+class CR_LogByte
 {
 public:
-    CR_CodeByte();
-    CR_CodeByte(const CR_CodeByte& cb);
-    void operator=(const CR_CodeByte& cb);
-    virtual ~CR_CodeByte();
+    CR_LogByte();
+    CR_LogByte(const CR_LogByte& cb);
+    void operator=(const CR_LogByte& cb);
+    virtual ~CR_LogByte();
 
-          CR_String&        Expr();
-    const CR_String&        Expr() const;
+          CR_TypeSet&       Types();
+    const CR_TypeSet&       Types() const;
+          CR_StringSet&     Names();
+    const CR_StringSet&     Names() const;
           CR_TriBool&       IsConst();
     const CR_TriBool&       IsConst() const;
           CR_TriBool&       IsInput();
@@ -339,53 +342,59 @@ public:
     const CR_TriBool&       IsOutput() const;
           CR_TriBool&       IsInteger();
     const CR_TriBool&       IsInteger() const;
+          CR_TriBool&       IsFloating();
+    const CR_TriBool&       IsFloating() const;
           CR_TriBool&       IsPointer();
     const CR_TriBool&       IsPointer() const;
           CR_TriBool&       IsFunction();
     const CR_TriBool&       IsFunction() const;
+          CR_TriBool&       IsContinuous();
+    const CR_TriBool&       IsContinuous() const;
+
+    void Merge(const CR_LogByte& lb);
 
 protected:
     CR_TypeSet              m_types;
     CR_StringSet            m_names;
-    CR_DataByte             m_data;
-    CR_String               m_expr;
 
     CR_TriBool              m_is_const;
     CR_TriBool              m_is_input;
     CR_TriBool              m_is_output;
     CR_TriBool              m_is_integer;
+    CR_TriBool              m_is_floating;
     CR_TriBool              m_is_pointer;
     CR_TriBool              m_is_function;
+    CR_TriBool              m_is_continuous;
 };
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeBinary
+// CR_LogBinary -- logical binary
 
-class CR_CodeBinary
+class CR_LogBinary
 {
 public:
-    CR_CodeBinary();
-    CR_CodeBinary(const CR_CodeBinary& bin);
-    void operator=(const CR_CodeBinary& bin);
-    virtual ~CR_CodeBinary();
+    CR_LogBinary();
+    CR_LogBinary(const CR_LogBinary& bin);
+    void operator=(const CR_LogBinary& bin);
+    virtual ~CR_LogBinary();
 
     bool empty() const;
     std::size_t size() const;
-    void resize(std::size_t siz);
 
-          CR_DeqSet<CR_CodeByte>& CodeBytes();
-    const CR_DeqSet<CR_CodeByte>& CodeBytes() const;
+          CR_DeqSet<CR_LogByte>& LogBytes();
+    const CR_DeqSet<CR_LogByte>& LogBytes() const;
           CR_DeqSet<CR_DataByte>& DataBytes();
     const CR_DeqSet<CR_DataByte>& DataBytes() const;
 
           CR_DataByte *Data();
     const CR_DataByte *Data() const;
 
-    void Append(const CR_CodeBinary& cs);
-    void MergeAt(std::size_t index, const CR_CodeBinary& cs);
+    void AddHead(const CR_LogBinary& cs);
+    void AddTail(const CR_LogBinary& cs);
+    void MergeAt(std::size_t index, const CR_LogBinary& cs);
 
-          CR_CodeByte& CodeByteAt(std::size_t index);
-    const CR_CodeByte& CodeByteAt(std::size_t index) const;
+          CR_LogByte& LogByteAt(std::size_t index);
+    const CR_LogByte& LogByteAt(std::size_t index) const;
 
           CR_DataByte& DataByteAt(std::size_t index);
     const CR_DataByte& DataByteAt(std::size_t index) const;
@@ -396,14 +405,33 @@ public:
           CR_StringSet& NamesAt(std::size_t index);
     const CR_StringSet& NamesAt(std::size_t index) const;
 
+          char& CharAt(std::size_t index);
+    const char& CharAt(std::size_t index) const;
+          short& ShortAt(std::size_t index);
+    const short& ShortAt(std::size_t index) const;
+          long& LongAt(std::size_t index);
+    const long& LongAt(std::size_t index) const;
+          long long& LongLongAt(std::size_t index);
+    const long long& LongLongAt(std::size_t index) const;
+
+    void AddNamePrefix(const CR_String& prefix);
+    void SetContinuousArea(std::size_t index, std::size_t count);
+
 protected:
-    CR_DeqSet<CR_CodeByte>   m_codebytes;
-    CR_DeqSet<CR_DataByte>   m_databytes;
+    CR_DeqSet<CR_LogByte>   m_logbytes;
+    CR_DeqSet<CR_DataByte>  m_databytes;
 };
 
 ////////////////////////////////////////////////////////////////////////////
+// CrLogBinaryFromType
 
-class CR_CodeStack : public CR_CodeBinary
+// TODO:
+void CrLogBinaryFromType(CR_NameScope& ns, CR_LogBinary& bin, CR_TypeID tid);
+
+////////////////////////////////////////////////////////////////////////////
+// CR_CodeStack
+
+class CR_CodeStack : public CR_LogBinary
 {
     CR_CodeStack();
     CR_CodeStack(const CR_CodeStack& cs);

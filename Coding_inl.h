@@ -387,6 +387,281 @@ inline const CR_CondCode& CR_CodeInsn64::CondCode() const
 }
 
 ////////////////////////////////////////////////////////////////////////////
+// CR_LogByte
+
+inline CR_LogByte::CR_LogByte()
+{
+}
+
+inline /*virtual*/ CR_LogByte::~CR_LogByte()
+{
+}
+
+inline CR_TypeSet& CR_LogByte::Types()
+{
+    return m_types;
+}
+
+inline const CR_TypeSet& CR_LogByte::Types() const
+{
+    return m_types;
+}
+
+inline CR_StringSet& CR_LogByte::Names()
+{
+    return m_names;
+}
+
+inline const CR_StringSet& CR_LogByte::Names() const
+{
+    return m_names;
+}
+
+inline CR_TriBool& CR_LogByte::IsConst()
+{
+    return m_is_const;
+}
+
+inline const CR_TriBool& CR_LogByte::IsConst() const
+{
+    return m_is_const;
+}
+
+inline CR_TriBool& CR_LogByte::IsInput()
+{
+    return m_is_input;
+}
+
+inline const CR_TriBool& CR_LogByte::IsInput() const
+{
+    return m_is_input;
+}
+
+inline CR_TriBool& CR_LogByte::IsOutput()
+{
+    return m_is_output;
+}
+
+inline const CR_TriBool& CR_LogByte::IsOutput() const
+{
+    return m_is_output;
+}
+
+inline CR_TriBool& CR_LogByte::IsInteger()
+{
+    return m_is_pointer;
+}
+
+inline const CR_TriBool& CR_LogByte::IsInteger() const
+{
+    return m_is_pointer;
+}
+
+inline CR_TriBool& CR_LogByte::IsFloating()
+{
+    return m_is_floating;
+}
+
+inline const CR_TriBool& CR_LogByte::IsFloating() const
+{
+    return m_is_floating;
+}
+
+inline CR_TriBool& CR_LogByte::IsPointer()
+{
+    return m_is_pointer;
+}
+
+inline const CR_TriBool& CR_LogByte::IsPointer() const
+{
+    return m_is_pointer;
+}
+
+inline CR_TriBool& CR_LogByte::IsFunction()
+{
+    return m_is_function;
+}
+
+inline const CR_TriBool& CR_LogByte::IsFunction() const
+{
+    return m_is_function;
+}
+
+inline CR_TriBool& CR_LogByte::IsContinuous()
+{
+    return m_is_continuous;
+}
+
+inline const CR_TriBool& CR_LogByte::IsContinuous() const
+{
+    return m_is_continuous;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// CR_LogBinary
+
+inline CR_LogBinary::CR_LogBinary()
+{
+}
+
+inline CR_LogBinary::CR_LogBinary(const CR_LogBinary& bin) :
+    m_logbytes(bin.m_logbytes), m_databytes(bin.m_databytes)
+{
+}
+
+inline void CR_LogBinary::operator=(const CR_LogBinary& bin)
+{
+    LogBytes() = bin.LogBytes();
+    DataBytes() = bin.DataBytes();
+}
+
+inline /*virtual*/ CR_LogBinary::~CR_LogBinary()
+{
+}
+
+inline bool CR_LogBinary::empty() const
+{
+    assert(LogBytes().size() == DataBytes().size());
+    return LogBytes().empty();
+}
+
+inline std::size_t CR_LogBinary::size() const
+{
+    assert(LogBytes().size() == DataBytes().size());
+    return LogBytes().size();
+}
+
+inline CR_DeqSet<CR_LogByte>& CR_LogBinary::LogBytes()
+{
+    return m_logbytes;
+}
+
+inline const CR_DeqSet<CR_LogByte>& CR_LogBinary::LogBytes() const
+{
+    return m_logbytes;
+}
+
+inline CR_DeqSet<CR_DataByte>& CR_LogBinary::DataBytes()
+{
+    return m_databytes;
+}
+
+inline const CR_DeqSet<CR_DataByte>& CR_LogBinary::DataBytes() const
+{
+    return m_databytes;
+}
+
+inline CR_DataByte *CR_LogBinary::Data()
+{
+    return const_cast<CR_DataByte *>(&DataBytes()[0]);
+}
+
+inline const CR_DataByte *CR_LogBinary::Data() const
+{
+    return const_cast<CR_DataByte *>(&DataBytes()[0]);
+}
+
+inline CR_LogByte& CR_LogBinary::LogByteAt(std::size_t index)
+{
+    return LogBytes()[index];
+}
+
+inline const CR_LogByte& CR_LogBinary::LogByteAt(std::size_t index) const
+{
+    return LogBytes()[index];
+}
+
+inline CR_DataByte& CR_LogBinary::DataByteAt(std::size_t index)
+{
+    return DataBytes()[index];
+}
+
+inline const CR_DataByte& CR_LogBinary::DataByteAt(std::size_t index) const
+{
+    return DataBytes()[index];
+}
+
+inline CR_TypeSet& CR_LogBinary::TypesAt(std::size_t index)
+{
+    return LogBytes()[index].Types();
+}
+
+inline const CR_TypeSet& CR_LogBinary::TypesAt(std::size_t index) const
+{
+    return LogBytes()[index].Types();
+}
+
+inline CR_StringSet& CR_LogBinary::NamesAt(std::size_t index)
+{
+    return LogBytes()[index].Names();
+}
+
+inline const CR_StringSet& CR_LogBinary::NamesAt(std::size_t index) const
+{
+    return LogBytes()[index].Names();
+}
+
+inline void CR_LogBinary::AddHead(const CR_LogBinary& cs)
+{
+    LogBytes().AddHead(cs.LogBytes());
+    DataBytes().AddHead(cs.DataBytes());
+}
+
+inline void CR_LogBinary::AddTail(const CR_LogBinary& cs)
+{
+    LogBytes().AddTail(cs.LogBytes());
+    DataBytes().AddTail(cs.DataBytes());
+}
+
+inline char& CR_LogBinary::CharAt(std::size_t index)
+{
+    assert(index + 1 <= size());
+    return reinterpret_cast<char&>(DataByteAt(index));
+}
+
+inline const char& CR_LogBinary::CharAt(std::size_t index) const
+{
+    assert(index + 1 <= size());
+    return reinterpret_cast<const char&>(DataByteAt(index));
+}
+
+inline short& CR_LogBinary::ShortAt(std::size_t index)
+{
+    assert(index + 2 <= size());
+    return reinterpret_cast<short&>(DataByteAt(index));
+}
+
+inline const short& CR_LogBinary::ShortAt(std::size_t index) const
+{
+    assert(index + 2 <= size());
+    return reinterpret_cast<const short&>(DataByteAt(index));
+}
+
+inline long& CR_LogBinary::LongAt(std::size_t index)
+{
+    assert(index + 4 <= size());
+    return reinterpret_cast<long&>(DataByteAt(index));
+}
+
+inline const long& CR_LogBinary::LongAt(std::size_t index) const
+{
+    assert(index + 4 <= size());
+    return reinterpret_cast<const long&>(DataByteAt(index));
+}
+
+inline long long& CR_LogBinary::LongLongAt(std::size_t index)
+{
+    assert(index + 8 <= size());
+    return reinterpret_cast<long long&>(DataByteAt(index));
+}
+
+inline const long long& CR_LogBinary::LongLongAt(std::size_t index) const
+{
+    assert(index + 8 <= size());
+    return reinterpret_cast<const long long&>(DataByteAt(index));
+}
+
+////////////////////////////////////////////////////////////////////////////
 // CR_CodeFunc32 accessors
 
 inline CR_Addr32& CR_CodeFunc32::Addr()

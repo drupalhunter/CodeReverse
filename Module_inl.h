@@ -6,29 +6,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_Symbol accessors
-
-inline DWORD& CR_Symbol::RVA()
-{
-    return m_rva;
-}
-
-inline CR_String& CR_Symbol::Name()
-{
-    return m_name;
-}
-
-inline const DWORD& CR_Symbol::RVA() const
-{
-    return m_rva;
-}
-
-inline const CR_String& CR_Symbol::Name() const
-{
-    return m_name;
-}
-
-////////////////////////////////////////////////////////////////////////////
 // CR_SymbolInfo accessors
 
 inline CR_StringSet& CR_SymbolInfo::GetImportDllNames()
@@ -64,16 +41,6 @@ inline CR_Map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol()
 inline CR_Map<CR_String, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol()
 {
     return m_mNameToExportSymbol;
-}
-
-inline CR_Map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol()
-{
-    return m_mRVAToSymbol;
-}
-
-inline CR_Map<CR_String, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol()
-{
-    return m_mNameToSymbol;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -112,16 +79,6 @@ inline const CR_Map<DWORD, CR_ExportSymbol>& CR_SymbolInfo::MapRVAToExportSymbol
 inline const CR_Map<CR_String, CR_ExportSymbol>& CR_SymbolInfo::MapNameToExportSymbol() const
 {
     return m_mNameToExportSymbol;
-}
-
-inline const CR_Map<DWORD, CR_Symbol>& CR_SymbolInfo::MapRVAToSymbol() const
-{
-    return m_mRVAToSymbol;
-}
-
-inline const CR_Map<CR_String, CR_Symbol>& CR_SymbolInfo::MapNameToSymbol() const
-{
-    return m_mNameToSymbol;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -440,7 +397,7 @@ inline CR_DeqSet<CR_ExportSymbol>& CR_Module::ExportSymbols()
 
 inline CR_SymbolInfo& CR_Module::SymbolInfo()
 {
-    return m_SymbolInfo;
+    return m_syminfo;
 }
 
 inline HANDLE& CR_Module::File()
@@ -466,6 +423,16 @@ inline HANDLE& CR_Module::FileMapping()
 inline BOOL& CR_Module::ModuleLoaded()
 {
     return m_bModuleLoaded;
+}
+
+inline CR_Map<CR_String, DWORD>& CR_Module::MapFuncNameToRVA()
+{
+    return m_mFuncNameToRVA;
+}
+
+inline CR_Map<DWORD, CR_String>& CR_Module::MapRVAToFuncName()
+{
+    return m_mRVAToFuncName;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -563,7 +530,7 @@ inline const CR_DeqSet<CR_ExportSymbol>& CR_Module::ExportSymbols() const
 
 inline const CR_SymbolInfo& CR_Module::SymbolInfo() const
 {
-    return m_SymbolInfo;
+    return m_syminfo;
 }
 
 inline HANDLE& CR_Module::File() const
@@ -590,3 +557,53 @@ inline const BOOL& CR_Module::ModuleLoaded() const
 {
     return m_bModuleLoaded;
 }
+
+inline const CR_Map<CR_String, DWORD>& CR_Module::MapFuncNameToRVA() const
+{
+    return m_mFuncNameToRVA;
+}
+
+inline const CR_Map<DWORD, CR_String>& CR_Module::MapRVAToFuncName() const
+{
+    return m_mRVAToFuncName;
+}
+
+inline const char *CR_Module::FuncNameFromRVA(DWORD RVA) const
+{
+    auto it = MapRVAToFuncName().find(RVA);
+    if (it == MapRVAToFuncName().end())
+        return NULL;
+    else
+        return it->second.c_str();
+}
+
+inline DWORD CR_Module::RVAFromFuncName(const CR_String& name) const
+{
+    auto it = MapFuncNameToRVA().find(name);
+    if (it == MapFuncNameToRVA().end())
+        return 0;
+    else
+        return it->second;
+}
+
+inline const char *CR_Module::FuncNameFromVA32(CR_Addr32 addr) const
+{
+    return FuncNameFromRVA(RVAFromVA32(addr));
+}
+
+inline DWORD CR_Module::VA32FromFuncName(const CR_String& name) const
+{
+    return VA32FromRVA(RVAFromFuncName(name));
+}
+
+inline const char *CR_Module::FuncNameFromVA64(CR_Addr64 addr) const
+{
+    return FuncNameFromRVA(RVAFromVA64(addr));
+}
+
+inline DWORD CR_Module::VA64FromFuncName(const CR_String& name) const
+{
+    return VA64FromRVA(RVAFromFuncName(name));
+}
+
+////////////////////////////////////////////////////////////////////////////

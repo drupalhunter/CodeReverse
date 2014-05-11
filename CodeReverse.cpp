@@ -31,20 +31,9 @@ const char * const cr_logo =
 
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_TriBool - tri-state logical value
+// CR_TriBool - logical value of three states
 
-CR_TriBool& CR_TriBool::IsFalse(const CR_TriBool& tb)
-{
-    switch (tb.m_value)
-    {
-    case TB_FALSE:      m_value = TB_TRUE; break;
-    case TB_TRUE:       m_value = TB_FALSE; break;
-    case TB_UNKNOWN:    m_value = TB_UNKNOWN; break;
-    }
-    return *this;
-}
-
-CR_TriBool& CR_TriBool::LogicalAnd(const CR_TriBool& tb1, const CR_TriBool& tb2)
+void CR_TriBool::LogicalAnd(const CR_TriBool& tb1, const CR_TriBool& tb2)
 {
     if (tb1.m_value == TB_FALSE || tb2.m_value == TB_FALSE)
         m_value = TB_FALSE;
@@ -54,10 +43,9 @@ CR_TriBool& CR_TriBool::LogicalAnd(const CR_TriBool& tb1, const CR_TriBool& tb2)
         m_value = tb1.m_value;
     else
         m_value = TB_UNKNOWN;
-    return *this;
 }
 
-CR_TriBool& CR_TriBool::LogicalOr(const CR_TriBool& tb1, const CR_TriBool& tb2)
+void CR_TriBool::LogicalOr(const CR_TriBool& tb1, const CR_TriBool& tb2)
 {
     if (tb1.m_value == TB_TRUE || tb2.m_value == TB_TRUE)
         m_value = TB_TRUE;
@@ -67,18 +55,16 @@ CR_TriBool& CR_TriBool::LogicalOr(const CR_TriBool& tb1, const CR_TriBool& tb2)
         m_value = tb1.m_value;
     else
         m_value = TB_UNKNOWN;
-    return *this;
 }
 
-CR_TriBool& CR_TriBool::Equal(const CR_TriBool& tb1, const CR_TriBool& tb2)
+void CR_TriBool::Equal(const CR_TriBool& tb1, const CR_TriBool& tb2)
 {
     if (tb1.m_value == TB_UNKNOWN || tb2.m_value == TB_UNKNOWN)
     {
         m_value = TB_UNKNOWN;
-        return *this;
+        return;
     }
     m_value = (tb1.m_value == tb2.m_value ? TB_TRUE : TB_FALSE);
-    return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1319,7 +1305,7 @@ int CrInputCSrc(shared_ptr<TransUnit>& tu, int argc, char **args, bool is_64bit)
         BOOL bOK = FALSE;
         // create temporary file
         MFile hTmpFile;
-        char *cr_tmpfile = _tempnam(".", "coderev_temp");
+        cr_tmpfile = _tempnam(".", "coderev_temp");
         if (hTmpFile.OpenFileForOutput(cr_tmpfile))
         {
             atexit(CrDeleteTempFileAtExit);
@@ -1775,7 +1761,7 @@ int main(int argc, char **argv)
     if (modes[MODE_64BIT])
     {
         CR_NameScope namescope;
-        namescope.Set64Bit();
+        namescope.Set64Bit(true);
 
         if (modes[MODE_DUMP_SEMANTIC])
         {
@@ -1802,6 +1788,7 @@ int main(int argc, char **argv)
     else
     {
         CR_NameScope namescope;
+        namescope.Set64Bit(false);
 
         if (modes[MODE_DUMP_SEMANTIC])
         {

@@ -8,37 +8,7 @@
 #include "stdafx.h"
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_Symbol
-
-CR_Symbol::CR_Symbol()
-{
-}
-
-CR_Symbol::CR_Symbol(const CR_Symbol& s)
-{
-    Copy(s);
-}
-
-void CR_Symbol::operator=(const CR_Symbol& s)
-{
-    Copy(s);
-}
-
-/*virtual*/ CR_Symbol::~CR_Symbol()
-{
-}
-
-void CR_Symbol::Copy(const CR_Symbol& s)
-{
-    Name() = s.Name();
-    RVA() = s.RVA();
-}
-
-void CR_Symbol::clear()
-{
-    Name().clear();
-    RVA() = 0;
-}
+// CR_SymbolInfo
 
 CR_ImportSymbol *CR_SymbolInfo::GetImportSymbolFromRVA(DWORD RVA)
 {
@@ -76,27 +46,6 @@ CR_ExportSymbol *CR_SymbolInfo::GetExportSymbolFromName(const char *name)
     {
         if (p.first == name)
             return &p.second;
-    }
-    return NULL;
-}
-
-CR_Symbol *CR_SymbolInfo::GetSymbolFromRVA(DWORD RVA)
-{
-    for (auto& p : MapRVAToSymbol())
-    {
-        if (p.first == RVA)
-            return &p.second;
-    }
-    return NULL;
-}
-
-CR_Symbol *CR_SymbolInfo::GetSymbolFromName(const char *name)
-{
-    for (auto& p : MapNameToSymbol())
-    {
-        if (p.first == name)
-            return &p.second;
-
     }
     return NULL;
 }
@@ -141,26 +90,6 @@ const CR_ExportSymbol *CR_SymbolInfo::GetExportSymbolFromName(const char *name) 
     return NULL;
 }
 
-const CR_Symbol *CR_SymbolInfo::GetSymbolFromRVA(DWORD RVA) const
-{
-    for (auto& p : MapRVAToSymbol())
-    {
-        if (p.first == RVA)
-            return &p.second;
-    }
-    return NULL;
-}
-
-const CR_Symbol *CR_SymbolInfo::GetSymbolFromName(const char *name) const
-{
-    for (auto& p : MapNameToSymbol())
-    {
-        if (p.first == name)
-            return &p.second;
-    }
-    return NULL;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 // CR_SymbolInfo
 
@@ -191,8 +120,6 @@ void CR_SymbolInfo::Copy(const CR_SymbolInfo& info)
     GetExportSymbols() = info.GetExportSymbols();
     MapRVAToExportSymbol() = info.MapRVAToExportSymbol();
     MapNameToExportSymbol() = info.MapNameToExportSymbol();
-    MapRVAToSymbol() = info.MapRVAToSymbol();
-    MapNameToSymbol() = info.MapNameToSymbol();
 }
 
 void CR_SymbolInfo::clear()
@@ -204,29 +131,11 @@ void CR_SymbolInfo::clear()
     GetExportSymbols().clear();
     MapRVAToExportSymbol().clear();
     MapNameToExportSymbol().clear();
-    MapRVAToSymbol().clear();
-    MapNameToSymbol().clear();
 }
 
 void CR_SymbolInfo::AddImportDllName(const char *name)
 {
     GetImportDllNames().insert(name);
-}
-
-void CR_SymbolInfo::AddSymbol(DWORD rva, const char *name)
-{
-    CR_Symbol s;
-    s.RVA() = rva;
-    if (name)
-        s.Name() = name;
-    MapRVAToSymbol().insert(std::make_pair(rva, s));
-    if (name)
-        MapNameToSymbol().insert(std::make_pair(name, s));
-}
-
-void CR_SymbolInfo::AddSymbol(const CR_Symbol& s)
-{
-    AddSymbol(s.RVA(), s.Name().c_str());
 }
 
 void CR_SymbolInfo::AddImportSymbol(const CR_ImportSymbol& is)
@@ -236,7 +145,6 @@ void CR_SymbolInfo::AddImportSymbol(const CR_ImportSymbol& is)
     if (is.Name.wImportByName)
     {
         MapNameToImportSymbol().insert(std::make_pair(is.pszName, is));
-        AddSymbol(is.dwRVA, is.pszName);
     }
 }
 
@@ -247,7 +155,6 @@ void CR_SymbolInfo::AddExportSymbol(const CR_ExportSymbol& es)
     if (es.pszName)
     {
         MapNameToExportSymbol().insert(std::make_pair(es.pszName, es));
-        AddSymbol(es.dwRVA, es.pszName);
     }
 }
 
@@ -357,13 +264,16 @@ void CR_Module::UnloadModule()
     m_pCodeSectionHeader = NULL;
     m_pDataDirectories = NULL;
 
-    m_SymbolInfo.clear();
+    m_syminfo.clear();
 
     m_bDisAsmed = FALSE;
     m_bDecompiled = FALSE;
 
     m_vImgDelayDescrs.clear();
-}
+
+    m_mFuncNameToRVA.clear();
+    m_mRVAToFuncName.clear();
+} // CR_Module::UnloadModule
 
 LPBYTE CR_Module::DirEntryData(DWORD index)
 {
@@ -491,7 +401,7 @@ BOOL CR_Module::_LoadImage(LPVOID Data)
     }
 
     return FALSE;
-}
+} // CR_Module::_LoadImage
 
 BOOL CR_Module::_LoadNTHeaders(LPVOID Data)
 {
@@ -544,7 +454,7 @@ BOOL CR_Module::_LoadNTHeaders(LPVOID Data)
     }
 
     return TRUE;
-}
+} // CR_Module::_LoadNTHeaders
 
 BOOL CR_Module::LoadModule(LPCTSTR pszFileName)
 {
@@ -604,22 +514,24 @@ BOOL CR_Module::LoadModule(LPCTSTR pszFileName)
     File() = INVALID_HANDLE_VALUE;
 
     return FALSE;
-}
+} // CR_Module::LoadModule
 
 BOOL CR_Module::LoadImportTables()
 {
     if (!_GetImportDllNames(ImportDllNames()))
         return FALSE;
 
-    const DWORD size = (DWORD)ImportDllNames().size();
+    const DWORD size = static_cast<DWORD>(ImportDllNames().size());
     for (DWORD i = 0; i < size; i++)
     {
         CR_DeqSet<CR_ImportSymbol> symbols;
         if (_GetImportSymbols(i, symbols))
         {
-            for (DWORD j = 0; j < symbols.size(); j++)
+            for (auto& symbol : symbols)
             {
-                SymbolInfo().AddImportSymbol(symbols[j]);
+                SymbolInfo().AddImportSymbol(symbol);
+                MapFuncNameToRVA()[symbol.pszName] = symbol.dwRVA;
+                MapRVAToFuncName()[symbol.dwRVA] = symbol.pszName;
             }
         }
     }
@@ -629,18 +541,18 @@ BOOL CR_Module::LoadImportTables()
 BOOL CR_Module::LoadExportTable()
 {
     CR_DeqSet<CR_ExportSymbol> symbols;
-    CR_Symbol symbol;
 
     if (!_GetExportSymbols(SymbolInfo().GetExportSymbols()))
         return FALSE;
 
-    DWORD siz = static_cast<DWORD>(symbols.size());
-    for (DWORD i = 0; i < siz; i++)
+    for (auto& symbol : symbols)
     {
-        if (symbols[i].dwRVA == 0 || symbols[i].pszForwarded)
+        if (symbol.dwRVA == 0 || symbol.pszForwarded)
             continue;
 
-        SymbolInfo().AddExportSymbol(symbols[i]);
+        SymbolInfo().AddExportSymbol(symbol);
+        MapFuncNameToRVA()[symbol.pszName] = symbol.dwRVA;
+        MapRVAToFuncName()[symbol.dwRVA] = symbol.pszName;
     }
 
     return TRUE;
@@ -773,7 +685,7 @@ BOOL CR_Module::_GetImportSymbols(DWORD dll_index, CR_DeqSet<CR_ImportSymbol>& s
     }
 
     return TRUE;
-}
+} // CR_Module::_GetImportSymbols
 
 BOOL CR_Module::_GetExportSymbols(CR_DeqSet<CR_ExportSymbol>& symbols)
 {
@@ -834,74 +746,7 @@ BOOL CR_Module::_GetExportSymbols(CR_DeqSet<CR_ExportSymbol>& symbols)
     }
 
     return TRUE;
-}
-
-////////////////////////////////////////////////////////////////////////////
-// finding
-
-const CR_ImportSymbol *CR_Module::FindImportSymbolByRVA(DWORD rva) const
-{
-    return SymbolInfo().GetImportSymbolFromRVA(rva);
-}
-
-const CR_ImportSymbol *CR_Module::FindImportSymbolByName(const char *Name) const
-{
-    return SymbolInfo().GetImportSymbolFromName(Name);
-}
-
-const CR_ExportSymbol *CR_Module::FindExportSymbolByRVA(DWORD rva) const
-{
-    return SymbolInfo().GetExportSymbolFromRVA(rva);
-}
-
-const CR_ExportSymbol *CR_Module::FindExportSymbolByName(const char *Name) const
-{
-    return SymbolInfo().GetExportSymbolFromName(Name);
-}
-
-const CR_Symbol *CR_Module::FindSymbolByRVA(DWORD rva) const
-{
-    return SymbolInfo().GetSymbolFromRVA(rva);
-}
-
-const CR_Symbol *CR_Module::FindSymbolByName(const char *Name) const
-{
-    return SymbolInfo().GetSymbolFromName(Name);
-}
-
-const CR_Symbol *CR_Module::FindSymbolByAddr32(CR_Addr32 addr) const
-{
-    if (OptionalHeader32())
-        return FindSymbolByRVA(RVAFromVA32(addr));
-    else
-        return NULL;
-}
-
-const CR_Symbol *CR_Module::FindSymbolByAddr64(CR_Addr64 addr) const
-{
-    if (OptionalHeader64())
-        return FindSymbolByRVA(RVAFromVA64(addr));
-    else
-        return NULL;
-}
-
-const char *CR_Module::GetSymbolNameFromRVA(DWORD rva) const
-{
-    const CR_Symbol *symbol = FindSymbolByRVA(rva);
-    return symbol ? symbol->Name().c_str() : NULL;
-}
-
-const char *CR_Module::GetSymbolNameFromAddr32(CR_Addr32 addr) const
-{
-    const CR_Symbol *symbol = FindSymbolByAddr32(addr);
-    return symbol ? symbol->Name().c_str() : NULL;
-}
-
-const char *CR_Module::GetSymbolNameFromAddr64(CR_Addr64 addr) const
-{
-    const CR_Symbol *symbol = FindSymbolByAddr64(addr);
-    return symbol ? symbol->Name().c_str() : NULL;
-}
+} // CR_Module::_GetExportSymbols
 
 ////////////////////////////////////////////////////////////////////////////
 // disasm
@@ -1087,6 +932,11 @@ BOOL CR_Module::DisAsmAddr32(CR_DisAsmInfo32& info, CR_Addr32 func, CR_Addr32 va
             {
                 // func is not __stdcall
                 cf->Flags() |= FF_NOTSTDCALL;
+                if (func == va)
+                {
+                    cf->FuncType() = FT_RETURNONLY;
+                    cf->SizeOfStackArgs() = 0;
+                }
             }
             bBreak = TRUE;
             break;
@@ -1284,6 +1134,11 @@ BOOL CR_Module::DisAsmAddr64(CR_DisAsmInfo64& info, CR_Addr64 func, CR_Addr64 va
             {
                 // func is not __stdcall
                 cf->Flags() |= FF_NOTSTDCALL;
+                if (func == va)
+                {
+                    cf->FuncType() = FT_RETURNONLY;
+                    cf->SizeOfStackArgs() = 0;
+                }
             }
             bBreak = TRUE;
             break;
@@ -1313,13 +1168,6 @@ BOOL CR_Module::DisAsm32(CR_DisAsmInfo32& info)
     va = VA32FromRVA(RVAOfEntryPoint());
     info.Entrances().Insert(va);
     {
-        CR_Symbol symbol;
-        symbol.RVA() = RVAOfEntryPoint();
-        symbol.Name() = "EntryPoint";
-        SymbolInfo().AddSymbol(symbol);
-    }
-
-    {
         CR_CodeFunc32 *codefunc = new CR_CodeFunc32;
         codefunc->Addr() = va;
         codefunc->Name() = "EntryPoint";
@@ -1327,19 +1175,14 @@ BOOL CR_Module::DisAsm32(CR_DisAsmInfo32& info)
         codefunc->Flags() = FF_NOTSTDCALL;
         codefunc->FuncType() = FT_CDECL;
         info.MapAddrToCodeFunc()[va] = CR_SharedCodeFunc32(codefunc);
+        MapRVAToFuncName()[RVAOfEntryPoint()] = codefunc->Name();
+        MapFuncNameToRVA()[codefunc->Name()] = RVAOfEntryPoint();
     }
 
+    // exporting functions are entrances
     for (auto& e_symbol : ExportSymbols())
     {
         va = VA32FromRVA(e_symbol.dwRVA);
-
-        if (AddressInCode32(va))
-        {
-            CR_Symbol symbol;
-            symbol.RVA() = e_symbol.dwRVA;
-            symbol.Name() = e_symbol.pszName;
-            SymbolInfo().AddSymbol(symbol);
-        }
 
         info.Entrances().Insert(va);
 
@@ -1388,7 +1231,7 @@ BOOL CR_Module::DisAsm32(CR_DisAsmInfo32& info)
     }
 
     return TRUE;
-}
+} // CR_Module::DisAsm32
 
 BOOL CR_Module::DisAsm64(CR_DisAsmInfo64& info)
 {
@@ -1400,13 +1243,6 @@ BOOL CR_Module::DisAsm64(CR_DisAsmInfo64& info)
     va = VA64FromRVA(RVAOfEntryPoint());
     info.Entrances().Insert(va);
     {
-        CR_Symbol symbol;
-        symbol.RVA() = RVAOfEntryPoint();
-        symbol.Name() = "EntryPoint";
-        SymbolInfo().AddSymbol(symbol);
-    }
-
-    {
         CR_CodeFunc64 *codefunc = new CR_CodeFunc64;
         codefunc->Addr() = va;
         codefunc->Name() = "EntryPoint";
@@ -1414,19 +1250,14 @@ BOOL CR_Module::DisAsm64(CR_DisAsmInfo64& info)
         codefunc->Flags() = FF_NOTSTDCALL;
         codefunc->FuncType() = FT_CDECL;
         info.MapAddrToCodeFunc()[va] = CR_SharedCodeFunc64(codefunc);
+        MapRVAToFuncName()[RVAOfEntryPoint()] = codefunc->Name();
+        MapFuncNameToRVA()[codefunc->Name()] = RVAOfEntryPoint();
     }
 
+    // exporting functions are entrances
     for (auto& e_symbol : ExportSymbols())
     {
         va = VA64FromRVA(e_symbol.dwRVA);
-
-        if (AddressInCode64(va))
-        {
-            CR_Symbol symbol;
-            symbol.RVA() = e_symbol.dwRVA;
-            symbol.Name() = e_symbol.pszName;
-            SymbolInfo().AddSymbol(symbol);
-        }
 
         info.Entrances().Insert(va);
         CR_CodeFunc64 *func = info.MapAddrToCodeFunc()[va].get();
@@ -1435,6 +1266,7 @@ BOOL CR_Module::DisAsm64(CR_DisAsmInfo64& info)
             func = new CR_CodeFunc64;
             info.MapAddrToCodeFunc()[va] = CR_SharedCodeFunc64(func);
         }
+
         func->Addr() = va;
         func->Name() = e_symbol.pszName;
     }
@@ -1474,11 +1306,16 @@ BOOL CR_Module::DisAsm64(CR_DisAsmInfo64& info)
     }
 
     return TRUE;
-}
+} // CR_Module::DisAsm64
 
 BOOL CR_Module::FixupAsm32(CR_DisAsmInfo32& info)
 {
+    bool must_retry;
     CHAR buf[64];
+
+retry:;
+    must_retry = false;
+
     for (auto it : info.MapAddrToAsmCode())
     {
         auto& operands = it.second.get()->Operands();
@@ -1494,10 +1331,11 @@ BOOL CR_Module::FixupAsm32(CR_DisAsmInfo32& info)
                 }
                 else if (AddressInCode32(addr))
                 {
-                    auto symbol = SymbolInfo().GetSymbolFromRVA(RVAFromVA32(addr));
-                    if (symbol)
+                    auto name = FuncNameFromRVA(addr);
+                    if (name)
                     {
-                        opr.SetFuncName(symbol->Name().c_str());
+                        opr.SetFuncName(name);
+                        must_retry = true;
                     }
                     else
                     {
@@ -1517,17 +1355,24 @@ BOOL CR_Module::FixupAsm32(CR_DisAsmInfo32& info)
             if (operands[0].OperandType() == OT_MEMIMM)
             {
                 CR_Addr32 addr = operands[0].Value32();
-                const char *pName = GetSymbolNameFromAddr32(addr);
+                const char *pName = FuncNameFromVA32(addr);
                 if (pName)
+                {
                     operands[0].SetFuncName(pName);
+                    must_retry = true;
+                }
             }
             else if (operands[0].OperandType() == OT_IMM)
             {
                 CR_Addr32 addr = operands[0].Value32();
-                const char *pName = GetSymbolNameFromAddr32(addr);
+                const char *pName = FuncNameFromVA32(addr);
                 if (pName)
                 {
-                    operands[0].SetFuncName(pName);
+                    if (operands[0].OperandType() != OT_FUNCNAME)
+                    {
+                        operands[0].SetFuncName(pName);
+                        must_retry = true;
+                    }
                 }
                 else if (AddressInCode32(addr))
                 {
@@ -1570,12 +1415,41 @@ BOOL CR_Module::FixupAsm32(CR_DisAsmInfo32& info)
             break;
         }
     }
+
+    for (auto it : info.MapAddrToCodeFunc())
+    {
+        CR_CodeFunc32 *cf = it.second.get();
+        assert(cf);
+
+        if (cf->FuncType() == FT_JUMPERFUNC && cf->Name().empty())
+        {
+            CR_Addr32 addr = cf->Addr();
+            CR_CodeInsn32 *ac = info.MapAddrToAsmCode(addr);
+            assert(ac);
+            auto& operands = ac->Operands();
+            cf->Name() = CR_String("__imp") + operands[0].Text();
+
+            DWORD RVA = RVAFromVA32(addr);
+            MapRVAToFuncName()[RVA] = cf->Name();
+            MapFuncNameToRVA()[cf->Name()] = RVA;
+            must_retry = true;
+        }
+    }
+
+    if (must_retry)
+        goto retry;
+
     return TRUE;
-}
+} // CR_Module::FixupAsm32
 
 BOOL CR_Module::FixupAsm64(CR_DisAsmInfo64& info)
 {
+    bool must_retry;
     CHAR buf[64];
+
+retry:;
+    must_retry = false;
+
     for (auto it : info.MapAddrToAsmCode())
     {
         auto& operands = it.second.get()->Operands();
@@ -1591,10 +1465,11 @@ BOOL CR_Module::FixupAsm64(CR_DisAsmInfo64& info)
                 }
                 else if (AddressInCode64(addr))
                 {
-                    auto symbol = SymbolInfo().GetSymbolFromRVA(RVAFromVA64(addr));
-                    if (symbol)
+                    auto name = FuncNameFromVA64(addr);
+                    if (name)
                     {
-                        opr.SetFuncName(symbol->Name().c_str());
+                        opr.SetFuncName(name);
+                        must_retry = true;
                     }
                     else
                     {
@@ -1614,17 +1489,24 @@ BOOL CR_Module::FixupAsm64(CR_DisAsmInfo64& info)
             if (operands[0].OperandType() == OT_MEMIMM)
             {
                 CR_Addr64 addr = operands[0].Value64();
-                const char *pName = GetSymbolNameFromAddr64(addr);
+                const char *pName = FuncNameFromVA64(addr);
                 if (pName)
-                    operands[0].SetFuncName(pName);
+                {
+                    if (operands[0].OperandType() != OT_FUNCNAME)
+                    {
+                        operands[0].SetFuncName(pName);
+                        must_retry = true;
+                    }
+                }
             }
             else if (operands[0].OperandType() == OT_IMM)
             {
                 CR_Addr64 addr = operands[0].Value64();
-                const char *pName = GetSymbolNameFromAddr64(addr);
+                const char *pName = FuncNameFromVA64(addr);
                 if (pName)
                 {
                     operands[0].SetFuncName(pName);
+                    must_retry = true;
                 }
                 else if (AddressInCode64(addr))
                 {
@@ -1667,8 +1549,32 @@ BOOL CR_Module::FixupAsm64(CR_DisAsmInfo64& info)
             break;
         }
     }
+
+    for (auto it : info.MapAddrToCodeFunc())
+    {
+        CR_CodeFunc64 *cf = it.second.get();
+        assert(cf);
+
+        if (cf->FuncType() == FT_JUMPERFUNC && cf->Name().empty())
+        {
+            CR_Addr64 addr = cf->Addr();
+            CR_CodeInsn64 *ac = info.MapAddrToAsmCode(addr);
+            assert(ac);
+            auto& operands = ac->Operands();
+            cf->Name() = CR_String("__imp") + operands[0].Text();
+
+            DWORD RVA = RVAFromVA64(addr);
+            MapRVAToFuncName()[RVA] = cf->Name();
+            MapFuncNameToRVA()[cf->Name()] = RVA;
+            must_retry = true;
+        }
+    }
+
+    if (must_retry)
+        goto retry;
+
     return TRUE;
-}
+} // CR_Module::FixupAsm64
 
 ////////////////////////////////////////////////////////////////////////////
 // resource
@@ -1775,7 +1681,7 @@ EnumResTypeProc(
 
     EnumResourceNames(hModule, lpszType, EnumResNameProc, 0);
     return TRUE;
-}
+} // EnumResTypeProc
 
 void CR_Module::DumpResource()
 {

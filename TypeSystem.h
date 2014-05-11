@@ -348,9 +348,9 @@ public:
         return m_is_64bit;
     }
 
-    void Set64Bit()
+    void Set64Bit(bool is_64bit)
     {
-        m_is_64bit = true;
+        m_is_64bit = is_64bit;
     }
 
     void Init()
@@ -1034,6 +1034,18 @@ public:
     const CR_DeqSet<CR_LogVar>& Vars() const
     {
         return m_vars;
+    }
+
+    CR_LogStruct& LogStruct(CR_StructID sid)
+    {
+        assert(sid < m_structs.size());
+        return m_structs[sid];
+    }
+
+    const CR_LogStruct& LogStruct(CR_StructID sid) const
+    {
+        assert(sid < m_structs.size());
+        return m_structs[sid];
     }
 
 protected:
