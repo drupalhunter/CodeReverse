@@ -574,7 +574,7 @@ void CrDumpOptionalHeader32(LPVOID Data, DWORD CheckSum)
 
     printf("\n  ### Directory Entries ###\n");
     DataDirectories = Optional32->DataDirectory;
-    for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; i++)
+    for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; ++i)
     {
         DataDirectory = &DataDirectories[i];
         if (DataDirectory->VirtualAddress != 0 || DataDirectory->Size != 0)
@@ -630,7 +630,7 @@ void CrDumpOptionalHeader64(LPVOID Data, DWORD CheckSum)
 
     printf("\n  ### Directory Entries ###\n");
     DataDirectories = Optional64->DataDirectory;
-    for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; i++)
+    for (i = 0; i < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; ++i)
     {
         DataDirectory = &DataDirectories[i];
         if (DataDirectory->VirtualAddress != 0 || DataDirectory->Size != 0)
@@ -647,7 +647,7 @@ void CrDumpSectionHeader(LPVOID Data)
 
     SectionHeader = (PREAL_IMAGE_SECTION_HEADER)Data;
     printf("  Name: ");
-    for (i = 0; i < 8 && SectionHeader->Name[i] != 0; i++)
+    for (i = 0; i < 8 && SectionHeader->Name[i] != 0; ++i)
         printf("%c", SectionHeader->Name[i]);
     printf("\n");
 
@@ -662,7 +662,7 @@ void CrDumpSectionHeader(LPVOID Data)
     printf("  Characteristics: 0x%08lX (%s)\n", SectionHeader->Characteristics, CrGetSectionFlagsString(SectionHeader->Characteristics));
 }
 
-void CrDumpCodes(const CR_Binary& codes, INT bits)
+void CrDumpCodes(const CR_DataBytes& codes, INT bits)
 {
     std::size_t codesperline;
 
@@ -674,7 +674,7 @@ void CrDumpCodes(const CR_Binary& codes, INT bits)
         codesperline = 9;
 
     std::size_t i;
-    for (i = 0; i < codesperline; i++)
+    for (i = 0; i < codesperline; ++i)
     {
         if (i < codes.size())
         {
@@ -684,7 +684,7 @@ void CrDumpCodes(const CR_Binary& codes, INT bits)
             printf("   ");
     }
 
-    for (; i < codes.size(); i++)
+    for (; i < codes.size(); ++i)
     {
         printf("%02X ", codes[i]);
     }
@@ -725,7 +725,7 @@ void CR_Module::DumpHeaders()
     if (SectionHeaders())
     {
         DWORD size = NumberOfSections();
-        for (DWORD i = 0; i < size; i++)
+        for (DWORD i = 0; i < size; ++i)
         {
             printf("\n### Section #%lu ###\n", i);
             CrDumpSectionHeader(SectionHeader(i));
@@ -754,7 +754,7 @@ void CR_Module::DumpImportSymbols()
     if (!_GetImportDllNames(dll_names))
         return;
 
-    for (DWORD i = 0; i < dll_names.size(); i++)
+    for (DWORD i = 0; i < dll_names.size(); ++i)
     {
         printf("  %s\n", dll_names[i].c_str());
         if (Is64Bit())
@@ -817,7 +817,7 @@ void CR_Module::DumpExportSymbols()
 
     printf("  %-50s %-5s ; %-8s %-8s\n", "FUNCTION NAME", "ORDI.", "RVA", "VA");
 
-    for (DWORD i = 0; i < ExportSymbols().size(); i++)
+    for (DWORD i = 0; i < ExportSymbols().size(); ++i)
     {
         CR_ExportSymbol& symbol = ExportSymbols()[i];
         if (symbol.dwRVA)
@@ -874,7 +874,7 @@ void CR_Module::DumpDelayLoad()
     if (Is64Bit())
     {
         CR_Addr64 addr;
-        for (std::size_t i = 0; i < size; i++)
+        for (std::size_t i = 0; i < size; ++i)
         {
             printf("  ### Descr #%u ###\n", static_cast<int>(i));
             printf("    NAME       %-8s %-8s\n", "RVA", "VA");
@@ -916,7 +916,7 @@ void CR_Module::DumpDelayLoad()
     else if (Is32Bit())
     {
         CR_Addr32 addr;
-        for (std::size_t i = 0; i < size; i++)
+        for (std::size_t i = 0; i < size; ++i)
         {
             printf("  ### Descr #%u ###\n", static_cast<int>(i));
             printf("    NAME       %-8s %-8s\n", "RVA", "VA");
@@ -969,7 +969,7 @@ BOOL CR_Module::DumpDisAsm32(CR_DisAsmInfo32& info)
     info.Entrances().sort();
     info.Entrances().unique();
     const std::size_t size = info.Entrances().size();
-    for (std::size_t i = 0; i < size; i++)
+    for (std::size_t i = 0; i < size; ++i)
     {
         CR_CodeFunc32 *cf =
             info.MapAddrToCodeFunc()[info.Entrances()[i]].get();
@@ -1022,39 +1022,39 @@ BOOL CR_Module::DumpDisAsm32(CR_DisAsmInfo32& info)
 
 BOOL CR_Module::DumpDisAsmFunc32(CR_DisAsmInfo32& info, CR_Addr32 func)
 {
-    auto end = info.MapAddrToAsmCode().end();
-    for (auto it = info.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = info.MapAddrToOpCode().end();
+    for (auto it = info.MapAddrToOpCode().begin(); it != end; it++)
     {
-        CR_CodeInsn32 *ac = it->second.get();
-        assert(ac);
+        CR_OpCode32 *oc = it->second.get();
+        assert(oc);
 
-        if (func != 0 && !ac->FuncAddrs().Contains(func))
+        if (func != 0 && !oc->FuncAddrs().Contains(func))
             continue;
 
-        printf("L%08lX: ", ac->Addr());
+        printf("L%08lX: ", oc->Addr());
 
-        CrDumpCodes(ac->Codes(), 32);
+        CrDumpCodes(oc->Codes(), 32);
 
-        switch (ac->Operands().size())
+        switch (oc->Operands().size())
         {
         case 3:
-            printf("%s %s,%s,%s\n", ac->Name().c_str(),
-                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str(),
-                ac->Operand(2)->Text().c_str());
+            printf("%s %s,%s,%s\n", oc->Name().c_str(),
+                oc->Operand(0)->Text().c_str(), oc->Operand(1)->Text().c_str(),
+                oc->Operand(2)->Text().c_str());
             break;
 
         case 2:
-            printf("%s %s,%s\n", ac->Name().c_str(),
-                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str());
+            printf("%s %s,%s\n", oc->Name().c_str(),
+                oc->Operand(0)->Text().c_str(), oc->Operand(1)->Text().c_str());
             break;
 
         case 1:
-            printf("%s %s\n", ac->Name().c_str(),
-                ac->Operand(0)->Text().c_str());
+            printf("%s %s\n", oc->Name().c_str(),
+                oc->Operand(0)->Text().c_str());
             break;
 
         case 0:
-            printf("%s\n", ac->Name().c_str());
+            printf("%s\n", oc->Name().c_str());
             break;
         }
     }
@@ -1072,7 +1072,7 @@ BOOL CR_Module::DumpDisAsm64(CR_DisAsmInfo64& info)
     info.Entrances().sort();
     info.Entrances().unique();
     const std::size_t size = info.Entrances().size();
-    for (std::size_t i = 0; i < size; i++)
+    for (std::size_t i = 0; i < size; ++i)
     {
         CR_CodeFunc64 *cf =
             info.MapAddrToCodeFunc()[info.Entrances()[i]].get();
@@ -1110,39 +1110,39 @@ BOOL CR_Module::DumpDisAsm64(CR_DisAsmInfo64& info)
 
 BOOL CR_Module::DumpDisAsmFunc64(CR_DisAsmInfo64& info, CR_Addr64 func)
 {
-    auto end = info.MapAddrToAsmCode().end();
-    for (auto it = info.MapAddrToAsmCode().begin(); it != end; it++)
+    auto end = info.MapAddrToOpCode().end();
+    for (auto it = info.MapAddrToOpCode().begin(); it != end; it++)
     {
-        CR_CodeInsn64 *ac = it->second.get();
-        assert(ac);
+        CR_OpCode64 *oc = it->second.get();
+        assert(oc);
 
-        if (func != 0 && !ac->FuncAddrs().Contains(func))
+        if (func != 0 && !oc->FuncAddrs().Contains(func))
             continue;
 
-        printf("L%08lX%08lX: ", HILONG(ac->Addr()), LOLONG(ac->Addr()));
+        printf("L%08lX%08lX: ", HILONG(oc->Addr()), LOLONG(oc->Addr()));
 
-        CrDumpCodes(ac->Codes(), 64);
+        CrDumpCodes(oc->Codes(), 64);
 
-        switch (ac->Operands().size())
+        switch (oc->Operands().size())
         {
         case 3:
-            printf("%s %s,%s,%s\n", ac->Name().c_str(),
-                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str(),
-                ac->Operand(2)->Text().c_str());
+            printf("%s %s,%s,%s\n", oc->Name().c_str(),
+                oc->Operand(0)->Text().c_str(), oc->Operand(1)->Text().c_str(),
+                oc->Operand(2)->Text().c_str());
             break;
 
         case 2:
-            printf("%s %s,%s\n", ac->Name().c_str(),
-                ac->Operand(0)->Text().c_str(), ac->Operand(1)->Text().c_str());
+            printf("%s %s,%s\n", oc->Name().c_str(),
+                oc->Operand(0)->Text().c_str(), oc->Operand(1)->Text().c_str());
             break;
 
         case 1:
-            printf("%s %s\n", ac->Name().c_str(),
-                ac->Operand(0)->Text().c_str());
+            printf("%s %s\n", oc->Name().c_str(),
+                oc->Operand(0)->Text().c_str());
             break;
 
         case 0:
-            printf("%s\n", ac->Name().c_str());
+            printf("%s\n", oc->Name().c_str());
             break;
         }
     }

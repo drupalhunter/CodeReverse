@@ -106,8 +106,8 @@ typedef CR_DeqSet<CR_TypeID> CR_TypeSet;
 struct CR_LogFunc
 {
     bool                    m_ellipsis;
-    CR_TypeSet              m_type_list;
-    CR_StringSet            m_name_list;
+    CR_TypeSet              m_types;
+    CR_StringSet            m_names;
     CR_TypeID               m_return_type;
     enum {
         FT_CDECL, FT_STDCALL, FT_FASTCALL
@@ -122,8 +122,8 @@ struct CR_LogFunc
 
     CR_LogFunc(const CR_LogFunc& lf) :
         m_ellipsis(lf.m_ellipsis),
-        m_type_list(lf.m_type_list),
-        m_name_list(lf.m_name_list),
+        m_types(lf.m_types),
+        m_names(lf.m_names),
         m_return_type(lf.m_return_type),
         m_func_type(lf.m_func_type)
     {
@@ -132,8 +132,8 @@ struct CR_LogFunc
     void operator=(const CR_LogFunc& lf)
     {
         m_ellipsis = lf.m_ellipsis;
-        m_type_list = lf.m_type_list;
-        m_name_list = lf.m_name_list;
+        m_types = lf.m_types;
+        m_names = lf.m_names;
         m_return_type = lf.m_return_type;
         m_func_type = lf.m_func_type;
     }
@@ -184,8 +184,8 @@ struct CR_LogType
 struct CR_LogStruct
 {
     bool                    m_struct_or_union;
-    CR_TypeSet              m_type_list;
-    CR_StringSet            m_name_list;
+    CR_TypeSet              m_types;
+    CR_StringSet            m_names;
     CR_DeqSet<int>          m_bitfield;
     int                     m_pack;
 
@@ -196,8 +196,8 @@ struct CR_LogStruct
 
     CR_LogStruct(const CR_LogStruct& ls) :
         m_struct_or_union(ls.m_struct_or_union),
-        m_type_list(ls.m_type_list),
-        m_name_list(ls.m_name_list),
+        m_types(ls.m_types),
+        m_names(ls.m_names),
         m_bitfield(ls.m_bitfield),
         m_pack(ls.m_pack)
     {
@@ -206,17 +206,17 @@ struct CR_LogStruct
     void operator=(const CR_LogStruct& ls)
     {
         m_struct_or_union = ls.m_struct_or_union;
-        m_type_list = ls.m_type_list;
-        m_name_list = ls.m_name_list;
+        m_types = ls.m_types;
+        m_names = ls.m_names;
         m_bitfield = ls.m_bitfield;
         m_pack = ls.m_pack;
     }
 
     int FindName(const CR_String& name) const
     {
-        for (size_t i = 0; i < m_name_list.size(); i++)
+        for (size_t i = 0; i < m_names.size(); ++i)
         {
-            if (m_name_list[i] == name)
+            if (m_names[i] == name)
                 return i;
         }
         return -1;
@@ -225,8 +225,8 @@ struct CR_LogStruct
     bool operator==(const CR_LogStruct& ls) const
     {
         return m_struct_or_union == ls.m_struct_or_union &&
-               m_type_list == ls.m_type_list &&
-               m_name_list == ls.m_name_list &&
+               m_types == ls.m_types &&
+               m_names == ls.m_names &&
                m_bitfield == ls.m_bitfield &&
                m_pack == ls.m_pack;
     }
@@ -234,8 +234,8 @@ struct CR_LogStruct
     bool operator!=(const CR_LogStruct& ls) const
     {
         return m_struct_or_union != ls.m_struct_or_union ||
-               m_type_list != ls.m_type_list ||
-               m_name_list != ls.m_name_list ||
+               m_types != ls.m_types ||
+               m_names != ls.m_names ||
                m_bitfield != ls.m_bitfield ||
                m_pack != ls.m_pack;
     }
@@ -553,7 +553,7 @@ public:
                 tid = m_types[tid].m_id;
             assert(m_types[tid].m_flags & (TF_STRUCT | TF_UNION));
             CR_StructID sid = m_types[tid].m_id;
-            if (ls.m_type_list.size())
+            if (ls.m_types.size())
                 m_structs[sid] = ls;
             return tid;
         }
@@ -605,10 +605,10 @@ public:
         const CR_LogStruct& ls = m_structs[sid];
         int size = 0, align = 0, bitremain = 0, oldtypesize = 0;
         CR_TypeID oldtid = cr_invalid_id;
-        const std::size_t count = ls.m_type_list.size();
-        for (std::size_t i = 0; i < count; i++)
+        const std::size_t count = ls.m_types.size();
+        for (std::size_t i = 0; i < count; ++i)
         {
-            auto tid = ls.m_type_list[i];
+            auto tid = ls.m_types[i];
             int typesize = GetSizeofType(tid);
             int bits = ls.m_bitfield[i];
             if (bits)
@@ -668,7 +668,7 @@ public:
 
         const CR_LogStruct& ls = m_structs[sid];
         int maxsize = 0, size;
-        for (auto tid : ls.m_type_list)
+        for (auto tid : ls.m_types)
         {
             size = GetSizeofType(tid);
             if (maxsize < size)
@@ -759,13 +759,13 @@ public:
         str += name;
         str += " ";
         auto& s = m_structs[sid];
-        if (s.m_type_list.size())
+        if (s.m_types.size())
         {
             str += "{ ";
-            const std::size_t siz = s.m_type_list.size();
-            for (std::size_t i = 0; i < siz; i++)
+            const std::size_t siz = s.m_types.size();
+            for (std::size_t i = 0; i < siz; ++i)
             {
-                str += StringOfType(s.m_type_list[i], s.m_name_list[i]);
+                str += StringOfType(s.m_types[i], s.m_names[i]);
                 if (s.m_bitfield[i])
                 {
                     char buf[64];
@@ -845,7 +845,7 @@ public:
             const CR_LogFunc& lf = m_funcs[type.m_id];
             CR_String rettype = StringOfType(lf.m_return_type, "");
             CR_String paramlist =
-                StringOfParamList(lf.m_type_list, lf.m_name_list);
+                StringOfParamList(lf.m_types, lf.m_names);
             CR_String convension;
             if (type.m_flags & TF_CDECL)
                 convension = "__cdecl";
@@ -871,7 +871,7 @@ public:
         {
             assert(type_list[0] != cr_invalid_id);
             str += StringOfType(type_list[0], name_list[0]);
-            for (i = 1; i < size; i++)
+            for (i = 1; i < size; ++i)
             {
                 str += ", ";
                 assert(type_list[i] != cr_invalid_id);

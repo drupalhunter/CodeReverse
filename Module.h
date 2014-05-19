@@ -348,7 +348,7 @@ void CrDumpFileHeader(LPVOID Data);
 void CrDumpOptionalHeader32(LPVOID Data, DWORD CheckSum);
 void CrDumpOptionalHeader64(LPVOID Data, DWORD CheckSum);
 void CrDumpSectionHeader(LPVOID Data);
-void CrDumpCodes(const CR_Binary& codes, int bits);
+void CrDumpCodes(const CR_DataBytes& codes, int bits);
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -830,8 +830,8 @@ void CrAnalyseStructDeclorList(CR_NameScope& namescope, CR_TypeID tid,
                 break;
             }
         }
-        ls.m_type_list.push_back(tid2);
-        ls.m_name_list.push_back(name);
+        ls.m_types.push_back(tid2);
+        ls.m_names.push_back(name);
         ls.m_bitfield.push_back(bits);
     }
 }
@@ -941,8 +941,8 @@ void CrAnalyseParamList(CR_NameScope& namescope, CR_LogFunc& func,
                 d = NULL;
             }
         }
-        func.m_type_list.push_back(tid2);
-        func.m_name_list.push_back(name);
+        func.m_types.push_back(tid2);
+        func.m_names.push_back(name);
     }
 }
 
@@ -1004,8 +1004,8 @@ CR_TypeID CrAnalyseStructDeclList(CR_NameScope& namescope,
             tid = CrAnalyseDeclSpecs(namescope, decl->m_decl_specs.get());
             if (tid != cr_invalid_id)
             {
-                ls.m_type_list.push_back(tid);
-                ls.m_name_list.push_back("");
+                ls.m_types.push_back(tid);
+                ls.m_names.push_back("");
             }
             break;
 
@@ -1053,8 +1053,8 @@ CR_TypeID CrAnalyseUnionDeclList(CR_NameScope& namescope,
                 CR_TypeID tid = CrAnalyseDeclSpecs(namescope, decl->m_decl_specs.get());
                 if (tid != cr_invalid_id)
                 {
-                    ls.m_type_list.push_back(tid);
-                    ls.m_name_list.push_back("");
+                    ls.m_types.push_back(tid);
+                    ls.m_names.push_back("");
                 }
             }
             break;
@@ -1326,7 +1326,7 @@ int CrInputCSrc(shared_ptr<TransUnit>& tu, int argc, char **args, bool is_64bit)
                     CR_String cmdline("cl /nologo /E");
                 #endif
 
-                for (int i = 1; i < argc; i++)
+                for (int i = 1; i < argc; ++i)
                 {
                     cmdline += " ";
                     cmdline += args[i];
@@ -1536,10 +1536,10 @@ void CrShowHelp(void)
 {
 #ifdef _WIN64
     fprintf(stderr,
-        " Usage: coderev64 [options] exefile.exe [input-file.h] [compiler_options]\n");
+        " Usage: coderev64 [options] exefile.exe [input-file.h [compiler_options]]\n");
 #else
     fprintf(stderr,
-        " Usage: coderev [options] exefile.exe [input-file.h] [compiler_options]\n");
+        " Usage: coderev [options] exefile.exe [input-file.h [compiler_options]]\n");
 #endif
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");

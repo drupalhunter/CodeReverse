@@ -251,7 +251,6 @@ namespace cparser
                         if (isdigit(c))
                         {
                             std::string str2;
-                            str2 += c;
                             for (;;)
                             {
                                 c = getch();
@@ -266,11 +265,11 @@ namespace cparser
                             if (c == '"')
                             {
                                 // #line lineno "file"
-                                std::string str;
-                                c = nonescaped_string_guts(str);   // open
+                                std::string file;
+                                c = nonescaped_string_guts(file);   // open
                                 #if 1
                                     int lineno = std::atoi(str2.c_str());
-                                    location().set(str.c_str(), lineno - 1);
+                                    location().set(file.c_str(), lineno - 1);
                                 #endif
                             }
                             else
@@ -651,6 +650,7 @@ namespace cparser
                             else if (d == 'p' && str == "__pragma") return commit_token(T_PRAGMA);
                             else if (d == 'p' && str == "__ptr32") return commit_token(T_PTR32);
                             else if (d == 'p' && str == "__ptr64") return commit_token(T_PTR64);
+                            else if (d == 'r' && str == "__restrict") return commit_token(T_RESTRICT);
                             else if (d == 'r' && str == "__restrict__") return commit_token(T_RESTRICT);
                             else if (d == 's' && str == "__signed__") return commit_token(T_SIGNED);
                             else if (d == 's' && str == "__stdcall") return commit_token(T_STDCALL);

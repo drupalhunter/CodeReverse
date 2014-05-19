@@ -404,7 +404,7 @@ static int matches(const struct itemplate *t, uint8_t *data,
     int regmask = (segsize == 64) ? 15 : 7;
     enum ea_type eat = EA_SCALAR;
 
-    for (i = 0; i < MAX_OPERANDS; i++) {
+    for (i = 0; i < MAX_OPERANDS; ++i) {
         ins->oprs[i].segment = ins->oprs[i].disp_size =
             (segsize == 64 ? SEG_64BIT : segsize == 32 ? SEG_32BIT : 0);
     }
@@ -938,7 +938,7 @@ static int matches(const struct itemplate *t, uint8_t *data,
     /*
      * Check for unused rep or a/o prefixes.
      */
-    for (i = 0; i < t->operands; i++) {
+    for (i = 0; i < t->operands; ++i) {
         if (ins->oprs[i].segment != SEG_RMREG)
             a_used = true;
     }
@@ -1167,7 +1167,7 @@ int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
              * Final check to make sure the types of r/m match up.
              * XXX: Need to make sure this is actually correct.
              */
-            for (i = 0; i < (*p)->operands; i++) {
+            for (i = 0; i < (*p)->operands; ++i) {
                 if (!((*p)->opd[i] & SAME_AS) &&
                     (
                         /* If it's a mem-only EA but we have a
@@ -1203,7 +1203,7 @@ int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
                 int i, nprefix;
                 goodness = ((*p)->flags & IF_PFMASK) ^ prefer;
                 nprefix = 0;
-                for (i = 0; i < MAXPREFIX; i++)
+                for (i = 0; i < MAXPREFIX; ++i)
                     if (tmp_ins.prefixes[i])
                         nprefix++;
                 if (nprefix < best_pref ||
@@ -1235,7 +1235,7 @@ int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
      *      the return value is "sane."  Maybe a macro wrapper could
      *      be used for that purpose.
      */
-    for (i = 0; i < MAXPREFIX; i++) {
+    for (i = 0; i < MAXPREFIX; ++i) {
         const char *prefix = prefix_name(ins.prefixes[i]);
         if (prefix)
             slen += snprintf(output+slen, outbufsize-slen, "%s ", prefix);
@@ -1251,7 +1251,7 @@ int32_t disasm(uint8_t *data, char *output, int outbufsize, int segsize,
 
     colon = false;
     length += (int)(data - origdata);  /* fix up for prefixes */
-    for (i = 0; i < (*p)->operands; i++) {
+    for (i = 0; i < (*p)->operands; ++i) {
         opflags_t t = (*p)->opd[i];
         const operand *o = &ins.oprs[i];
         int64_t offs;

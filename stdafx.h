@@ -18,7 +18,6 @@
 #include <cstring>          // C string
 #include <cassert>          // for assert
 #include <ctime>            // for std::time_t, std::asctime, std::gmtime
-#include <cstdint>
 
 #include <vector>           // for std::vector
 #include <string>           // for std::string

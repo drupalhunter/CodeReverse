@@ -5,6 +5,9 @@
 ## This file is part of CodeReverse.
 ############################################################################
 
+DOTOBJ = .o
+DOTEXE = .exe
+
 CC = gcc
 CXX = g++
 CAPER = ./caper
@@ -21,20 +24,20 @@ CCFLAGS = -std=c99
 CXXFLAGS = -std=c++0x
 
 OBJS = \
-	Coding.o \
-	CodeReverse.o \
-	Dumping.o \
-	Module.o \
-	mzc2mini.o \
-	CodeReverse_res.o \
-	h-ndisasm\disasm.o \
-	h-ndisasm\insnsb.o \
-	h-ndisasm\insnsd.o \
-	h-ndisasm\insnsn.o \
-	h-ndisasm\nasmlib.o \
-	h-ndisasm\regdis.o \
-	h-ndisasm\regs.o \
-	h-ndisasm\ver.o
+	Coding$(DOTOBJ) \
+	CodeReverse$(DOTOBJ) \
+	Dumping$(DOTOBJ) \
+	Module$(DOTOBJ) \
+	mzc2mini$(DOTOBJ) \
+	CodeReverse_res$(DOTOBJ) \
+	h-ndisasm\disasm$(DOTOBJ) \
+	h-ndisasm\insnsb$(DOTOBJ) \
+	h-ndisasm\insnsd$(DOTOBJ) \
+	h-ndisasm\insnsn$(DOTOBJ) \
+	h-ndisasm\nasmlib$(DOTOBJ) \
+	h-ndisasm\regdis$(DOTOBJ) \
+	h-ndisasm\regs$(DOTOBJ) \
+	h-ndisasm\ver$(DOTOBJ)
 
 CR_HEADERS = \
 	stdafx.h \
@@ -65,46 +68,46 @@ H_NDISASM_HEADERS = \
 
 RCFLAGS = -F pe-i386
 
-all: coderev.exe
+all: coderev$(DOTEXE)
 
-coderev.exe: $(OBJS)
-	$(CXX) -o coderev.exe $(CXXFLAGS) $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
+coderev$(DOTEXE): $(OBJS)
+	$(CXX) -o coderev$(DOTEXE) $(CXXFLAGS) $(OPTIONS) $(OBJS) -lkernel32 -limagehlp
 
-CodeReverse.o: $(CR_HEADERS) $(CPARSER_HEADER) CodeReverse.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o CodeReverse.o CodeReverse.cpp
-Coding.o: $(CR_HEADERS) Coding.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Coding.o Coding.cpp
-Dumping.o: $(CR_HEADERS) Dumping.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o Dumping.o Dumping.cpp
-Module.o: $(CR_HEADERS) Module.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o Module.o Module.cpp
-mzc2mini.o: $(CR_HEADERS) mzc2mini.cpp
-	$(CXX) -c $(CXXFLAGS) $(OPTIONS) $(CXXFLAGS) -o mzc2mini.o mzc2mini.cpp
+CodeReverse$(DOTOBJ): $(CR_HEADERS) $(CPARSER_HEADER) CodeReverse.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o CodeReverse$(DOTOBJ) CodeReverse.cpp
+Coding$(DOTOBJ): $(CR_HEADERS) Coding.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Coding$(DOTOBJ) Coding.cpp
+Dumping$(DOTOBJ): $(CR_HEADERS) Dumping.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Dumping$(DOTOBJ) Dumping.cpp
+Module$(DOTOBJ): $(CR_HEADERS) Module.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o Module$(DOTOBJ) Module.cpp
+mzc2mini$(DOTOBJ): $(CR_HEADERS) mzc2mini.cpp
+	$(CXX) -c $(CXXFLAGS) $(OPTIONS) -o mzc2mini$(DOTOBJ) mzc2mini.cpp
 CParser.h: $(CAPER) CParser.cpg
 	$(CAPER) CParser.cpg CParser.h
 
-h-ndisasm\disasm.o: h-ndisasm\disasm.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\disasm.o h-ndisasm\disasm.c
-h-ndisasm\insnsb.o: h-ndisasm\insnsb.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsb.o h-ndisasm\insnsb.c
-h-ndisasm\insnsd.o: h-ndisasm\insnsd.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsd.o h-ndisasm\insnsd.c
-h-ndisasm\insnsn.o: h-ndisasm\insnsn.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsn.o h-ndisasm\insnsn.c
-h-ndisasm\nasmlib.o: h-ndisasm\nasmlib.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\nasmlib.o h-ndisasm\nasmlib.c
-h-ndisasm\regdis.o: h-ndisasm\regdis.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\regdis.o h-ndisasm\regdis.c
-h-ndisasm\regs.o: h-ndisasm\regs.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\regs.o h-ndisasm\regs.c
-h-ndisasm\ver.o: h-ndisasm\ver.c $(H_NDISASM_HEADERS)
-	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\ver.o h-ndisasm\ver.c
+h-ndisasm\disasm$(DOTOBJ): h-ndisasm\disasm.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\disasm$(DOTOBJ) h-ndisasm\disasm.c
+h-ndisasm\insnsb$(DOTOBJ): h-ndisasm\insnsb.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsb$(DOTOBJ) h-ndisasm\insnsb.c
+h-ndisasm\insnsd$(DOTOBJ): h-ndisasm\insnsd.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsd$(DOTOBJ) h-ndisasm\insnsd.c
+h-ndisasm\insnsn$(DOTOBJ): h-ndisasm\insnsn.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\insnsn$(DOTOBJ) h-ndisasm\insnsn.c
+h-ndisasm\nasmlib$(DOTOBJ): h-ndisasm\nasmlib.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\nasmlib$(DOTOBJ) h-ndisasm\nasmlib.c
+h-ndisasm\regdis$(DOTOBJ): h-ndisasm\regdis.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\regdis$(DOTOBJ) h-ndisasm\regdis.c
+h-ndisasm\regs$(DOTOBJ): h-ndisasm\regs.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\regs$(DOTOBJ) h-ndisasm\regs.c
+h-ndisasm\ver$(DOTOBJ): h-ndisasm\ver.c $(H_NDISASM_HEADERS)
+	$(CC) -c $(CCFLAGS) $(OPTIONS) -o h-ndisasm\ver$(DOTOBJ) h-ndisasm\ver.c
 
-CodeReverse_res.o: CodeReverse.rc CodeReverse.ico
-	windres $(RCFLAGS) -i CodeReverse.rc -o CodeReverse_res.o
+CodeReverse_res$(DOTOBJ): CodeReverse.rc CodeReverse.ico
+	windres $(RCFLAGS) -i CodeReverse.rc -o CodeReverse_res$(DOTOBJ)
 
 clean:
-	rm -f *.o
-	rm -f h-ndisasm/*.o
+	rm -f *$(DOTOBJ)
+	rm -f h-ndisasm/*$(DOTOBJ)
 	rm -f *.res
 	rm -f CParser.h

@@ -14,10 +14,6 @@ inline CR_TriBool::CR_TriBool(const CR_TriBool& tb) : m_value(tb.m_value)
 {
 }
 
-inline /*virtual*/ CR_TriBool::~CR_TriBool()
-{
-}
-
 inline void CR_TriBool::operator=(const CR_TriBool& tb)
 {
     m_value = tb.m_value;
@@ -133,7 +129,15 @@ inline void CR_TriBool::NotEqual(const CR_TriBool& tb1, const CR_TriBool& tb2)
     LogicalNot();
 }
 
-inline void CR_TriBool::AssertEqual(const CR_TriBool& tb)
+inline void CR_TriBool::AssumeEqual(CR_TriBool& tb)
+{
+    if (m_value == TB_UNKNOWN)
+        m_value = tb.m_value;
+    else if (tb.m_value == TB_UNKNOWN)
+        tb.m_value = m_value;
+}
+
+inline void CR_TriBool::AssumeEqual(const CR_TriBool& tb)
 {
     if (m_value == TB_UNKNOWN)
         m_value = tb.m_value;

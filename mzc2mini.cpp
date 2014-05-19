@@ -46,7 +46,7 @@ void Join(tstring& s, const std::vector<tstring>& v, LPCTSTR separator)
     if (c > 0)
     {
         s = v[0];
-        for(i = 1; i < c; i++)
+        for(i = 1; i < c; ++i)
         {
             s += separator;
             s += v[i];

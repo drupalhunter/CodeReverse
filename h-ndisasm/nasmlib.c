@@ -71,7 +71,7 @@ const uint8_t zero_buffer[ZERO_BUF_SIZE];
     {
         int i;
 
-        for (i = 0; i < 256; i++)
+        for (i = 0; i < 256; ++i)
             nasm_tolower_tab[i] = tolower(i);
     }
 #endif
@@ -435,13 +435,13 @@ int64_t readstrnum(char *str, int length, bool *warn)
 
     str += length;
     if (globalbits == 64) {
-        for (i = 0; i < length; i++) {
+        for (i = 0; i < length; ++i) {
             if (charconst & UINT64_C(0xFF00000000000000))
                 *warn = true;
             charconst = (charconst << 8) + (uint8_t)*--str;
         }
     } else {
-        for (i = 0; i < length; i++) {
+        for (i = 0; i < length; ++i) {
             if (charconst & 0xFF000000UL)
                 *warn = true;
             charconst = (charconst << 8) + (uint8_t)*--str;

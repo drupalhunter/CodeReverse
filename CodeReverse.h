@@ -32,11 +32,6 @@ typedef unsigned long       CR_Addr32;
 typedef unsigned long long  CR_Addr64;
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_DataByte
-
-typedef unsigned char CR_DataByte;
-
-////////////////////////////////////////////////////////////////////////////
 // CR_TriBool - logical value of three states
 
 class CR_TriBool
@@ -45,7 +40,6 @@ public:
     CR_TriBool();
     CR_TriBool(bool b);
     CR_TriBool(const CR_TriBool& tb);
-    virtual ~CR_TriBool();
 
     void operator=(bool b);
     void operator=(const CR_TriBool& tb);
@@ -64,7 +58,8 @@ public:
     void SetFalse();
     void SetTrue();
     void SetUnknown();
-    void AssertEqual(const CR_TriBool& tb);
+    void AssumeEqual(      CR_TriBool& tb);
+    void AssumeEqual(const CR_TriBool& tb);
 
     void LogicalNot();
     void LogicalAnd(const CR_TriBool& tb);
@@ -78,9 +73,10 @@ public:
     void NotEqual(const CR_TriBool& tb1, const CR_TriBool& tb2);
 
 protected:
-    enum {
-        TB_UNKNOWN, TB_FALSE, TB_TRUE
-    } m_value;
+    static const char TB_UNKNOWN    = -1;
+    static const char TB_FALSE      = 0;
+    static const char TB_TRUE       = 1;
+    char m_value;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -115,7 +111,7 @@ public:
     bool Contains(const ITEM_T& item) const
     {
         const std::size_t siz = this->size();
-        for (std::size_t i = 0; i < siz; i++)
+        for (std::size_t i = 0; i < siz; ++i)
         {
             if (this->at(i) == item)
                 return true;
@@ -126,7 +122,7 @@ public:
     std::size_t Find(const ITEM_T& item) const
     {
         const std::size_t siz = this->size();
-        for (std::size_t i = 0; i < siz; i++)
+        for (std::size_t i = 0; i < siz; ++i)
         {
             if (this->at(i) == item)
                 return i;
@@ -137,13 +133,23 @@ public:
     std::size_t Insert(const ITEM_T& item)
     {
         const std::size_t siz = this->size();
-        for (std::size_t i = 0; i < siz; i++)
+        for (std::size_t i = 0; i < siz; ++i)
         {
             if (this->at(i) == item)
                 return i;
         }
         this->push_back(item);
         return this->size() - 1;
+    }
+
+    void AddHead(const ITEM_T& item)
+    {
+        this->push_front(item);
+    }
+
+    void AddTail(const ITEM_T& item)
+    {
+        this->push_back(item);
     }
 
     void AddHead(const CR_DeqSet<ITEM_T>& items)
@@ -183,7 +189,7 @@ public:
     {
         std::size_t i, j;
         const std::size_t count = this->size();
-        for (i = j = 0; i < count; i++)
+        for (i = j = 0; i < count; ++i)
         {
             if (this->at(i) != item)
             {
@@ -193,6 +199,8 @@ public:
         if (i != j)
             this->resize(j);
     }
+
+    using std::deque<ITEM_T>::erase;
 };
 
 namespace std
@@ -221,9 +229,11 @@ typedef std::string CR_String;
 typedef CR_DeqSet<CR_String> CR_StringSet;
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_Binary
+// CR_DataByte, CR_DataBytes
 
-typedef CR_DeqSet<CR_DataByte> CR_Binary;
+typedef unsigned char CR_DataByte;
+
+typedef CR_DeqSet<CR_DataByte> CR_DataBytes;
 
 ////////////////////////////////////////////////////////////////////////////
 // CR_Map<from, to>, CR_UnorderedMap<from, to>

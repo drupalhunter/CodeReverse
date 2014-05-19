@@ -155,51 +155,51 @@ inline const CR_TriBool& CR_Operand::IsFunction() const
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeInsn32
+// CR_OpCode32
 
-inline CR_CodeInsn32::CR_CodeInsn32()
+inline CR_OpCode32::CR_OpCode32()
 {
     clear();
 }
 
-inline CR_CodeInsn32::CR_CodeInsn32(const CR_CodeInsn32& ac)
+inline CR_OpCode32::CR_OpCode32(const CR_OpCode32& oc)
 {
-    Copy(ac);
+    Copy(oc);
 }
 
-inline /*virtual*/ CR_CodeInsn32::~CR_CodeInsn32()
+inline /*virtual*/ CR_OpCode32::~CR_OpCode32()
 {
 }
 
-inline void CR_CodeInsn32::operator=(const CR_CodeInsn32& ac)
+inline void CR_OpCode32::operator=(const CR_OpCode32& oc)
 {
-    Copy(ac);
+    Copy(oc);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeInsn32 accessors
+// CR_OpCode32 accessors
 
-inline CR_Addr32Set& CR_CodeInsn32::FuncAddrs()
+inline CR_Addr32Set& CR_OpCode32::FuncAddrs()
 {
     return m_funcaddrs;
 }
 
-inline CR_Addr32& CR_CodeInsn32::Addr()
+inline CR_Addr32& CR_OpCode32::Addr()
 {
     return m_addr;
 }
 
-inline CR_String& CR_CodeInsn32::Name()
+inline CR_String& CR_OpCode32::Name()
 {
     return m_name;
 }
 
-inline CR_OperandSet& CR_CodeInsn32::Operands()
+inline CR_OperandSet& CR_OpCode32::Operands()
 {
     return m_operands;
 }
 
-inline CR_Operand* CR_CodeInsn32::Operand(std::size_t index)
+inline CR_Operand* CR_OpCode32::Operand(std::size_t index)
 {
     assert(index < m_operands.size());
     if (m_operands.size() > index)
@@ -208,45 +208,45 @@ inline CR_Operand* CR_CodeInsn32::Operand(std::size_t index)
         return NULL;
 }
 
-inline CR_Binary& CR_CodeInsn32::Codes()
+inline CR_DataBytes& CR_OpCode32::Codes()
 {
     return m_codes;
 }
 
-inline CR_CodeInsnType& CR_CodeInsn32::CodeInsnType()
+inline CR_OpCodeType& CR_OpCode32::OpCodeType()
 {
-    return m_cit;
+    return m_oct;
 }
 
-inline CR_CondCode& CR_CodeInsn32::CondCode()
+inline CR_CondCode& CR_OpCode32::CondCode()
 {
     return m_ccode;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeInsn32 const accessors
+// CR_OpCode32 const accessors
 
-inline const CR_Addr32Set& CR_CodeInsn32::FuncAddrs() const
+inline const CR_Addr32Set& CR_OpCode32::FuncAddrs() const
 {
     return m_funcaddrs;
 }
 
-inline const CR_Addr32& CR_CodeInsn32::Addr() const
+inline const CR_Addr32& CR_OpCode32::Addr() const
 {
     return m_addr;
 }
 
-inline const CR_String& CR_CodeInsn32::Name() const
+inline const CR_String& CR_OpCode32::Name() const
 {
     return m_name;
 }
 
-inline const CR_OperandSet& CR_CodeInsn32::Operands() const
+inline const CR_OperandSet& CR_OpCode32::Operands() const
 {
     return m_operands;
 }
 
-inline const CR_Operand* CR_CodeInsn32::Operand(std::size_t index) const
+inline const CR_Operand* CR_OpCode32::Operand(std::size_t index) const
 {
     assert(m_operands.size() > index);
     if (m_operands.size() > index)
@@ -255,67 +255,67 @@ inline const CR_Operand* CR_CodeInsn32::Operand(std::size_t index) const
         return NULL;
 }
 
-inline const CR_Binary& CR_CodeInsn32::Codes() const
+inline const CR_DataBytes& CR_OpCode32::Codes() const
 {
     return m_codes;
 }
 
-inline const CR_CodeInsnType& CR_CodeInsn32::CodeInsnType() const
+inline const CR_OpCodeType& CR_OpCode32::OpCodeType() const
 {
-    return m_cit;
+    return m_oct;
 }
 
-inline const CR_CondCode& CR_CodeInsn32::CondCode() const
+inline const CR_CondCode& CR_OpCode32::CondCode() const
 {
     return m_ccode;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeInsn64
+// CR_OpCode64
 
-inline CR_CodeInsn64::CR_CodeInsn64()
+inline CR_OpCode64::CR_OpCode64()
 {
     clear();
 }
 
-inline CR_CodeInsn64::CR_CodeInsn64(const CR_CodeInsn64& ac)
+inline CR_OpCode64::CR_OpCode64(const CR_OpCode64& oc)
 {
-    Copy(ac);
+    Copy(oc);
 }
 
-inline /*virtual*/ CR_CodeInsn64::~CR_CodeInsn64()
+inline /*virtual*/ CR_OpCode64::~CR_OpCode64()
 {
 }
 
-inline void CR_CodeInsn64::operator=(const CR_CodeInsn64& ac)
+inline void CR_OpCode64::operator=(const CR_OpCode64& oc)
 {
-    Copy(ac);
+    Copy(oc);
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeInsn64 accessors
+// CR_OpCode64 accessors
 
-inline CR_Addr64Set& CR_CodeInsn64::FuncAddrs()
+inline CR_Addr64Set& CR_OpCode64::FuncAddrs()
 {
     return m_funcaddrs;
 }
 
-inline CR_Addr64& CR_CodeInsn64::Addr()
+inline CR_Addr64& CR_OpCode64::Addr()
 {
     return m_addr;
 }
 
-inline CR_String& CR_CodeInsn64::Name()
+inline CR_String& CR_OpCode64::Name()
 {
     return m_name;
 }
 
-inline CR_OperandSet& CR_CodeInsn64::Operands()
+inline CR_OperandSet& CR_OpCode64::Operands()
 {
     return m_operands;
 }
 
-inline CR_Operand* CR_CodeInsn64::Operand(std::size_t index)
+inline CR_Operand* CR_OpCode64::Operand(std::size_t index)
 {
     assert(index < m_operands.size());
     if (m_operands.size() > index)
@@ -324,45 +324,45 @@ inline CR_Operand* CR_CodeInsn64::Operand(std::size_t index)
         return NULL;
 }
 
-inline CR_Binary& CR_CodeInsn64::Codes()
+inline CR_DataBytes& CR_OpCode64::Codes()
 {
     return m_codes;
 }
 
-inline CR_CodeInsnType& CR_CodeInsn64::CodeInsnType()
+inline CR_OpCodeType& CR_OpCode64::OpCodeType()
 {
-    return m_cit;
+    return m_oct;
 }
 
-inline CR_CondCode& CR_CodeInsn64::CondCode()
+inline CR_CondCode& CR_OpCode64::CondCode()
 {
     return m_ccode;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_CodeInsn64 const accessors
+// CR_OpCode64 const accessors
 
-inline const CR_Addr64Set& CR_CodeInsn64::FuncAddrs() const
+inline const CR_Addr64Set& CR_OpCode64::FuncAddrs() const
 {
     return m_funcaddrs;
 }
 
-inline const CR_Addr64& CR_CodeInsn64::Addr() const
+inline const CR_Addr64& CR_OpCode64::Addr() const
 {
     return m_addr;
 }
 
-inline const CR_String& CR_CodeInsn64::Name() const
+inline const CR_String& CR_OpCode64::Name() const
 {
     return m_name;
 }
 
-inline const CR_OperandSet& CR_CodeInsn64::Operands() const
+inline const CR_OperandSet& CR_OpCode64::Operands() const
 {
     return m_operands;
 }
 
-inline const CR_Operand* CR_CodeInsn64::Operand(std::size_t index) const
+inline const CR_Operand* CR_OpCode64::Operand(std::size_t index) const
 {
     assert(m_operands.size() > index);
     if (m_operands.size() > index)
@@ -371,90 +371,90 @@ inline const CR_Operand* CR_CodeInsn64::Operand(std::size_t index) const
         return NULL;
 }
 
-inline const CR_Binary& CR_CodeInsn64::Codes() const
+inline const CR_DataBytes& CR_OpCode64::Codes() const
 {
     return m_codes;
 }
 
-inline const CR_CodeInsnType& CR_CodeInsn64::CodeInsnType() const
+inline const CR_OpCodeType& CR_OpCode64::OpCodeType() const
 {
-    return m_cit;
+    return m_oct;
 }
 
-inline const CR_CondCode& CR_CodeInsn64::CondCode() const
+inline const CR_CondCode& CR_OpCode64::CondCode() const
 {
     return m_ccode;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// CR_LogByte
+// CR_LogByte -- logical byte
 
-inline CR_LogByte::CR_LogByte()
+inline CR_LogByte::CR_LogByte() : m_is_accessed(false)
 {
+}
+
+inline CR_LogByte::CR_LogByte(const CR_LogByte& lb) :
+    m_is_accessed(lb.m_is_accessed),
+    m_is_alive(lb.m_is_alive),
+    m_is_continuous(lb.m_is_continuous),
+    m_is_integer(lb.m_is_integer),
+    m_is_floating(lb.m_is_floating),
+    m_is_pointer(lb.m_is_pointer)
+{
+}
+
+inline void CR_LogByte::operator=(const CR_LogByte& lb)
+{
+    m_is_accessed = lb.m_is_accessed;
+    m_is_alive = lb.m_is_alive;
+    m_is_continuous = lb.m_is_continuous;
+    m_is_integer = lb.m_is_integer;
+    m_is_floating = lb.m_is_floating;
+    m_is_pointer = lb.m_is_pointer;
 }
 
 inline /*virtual*/ CR_LogByte::~CR_LogByte()
 {
 }
 
-inline CR_TypeSet& CR_LogByte::Types()
+inline bool& CR_LogByte::IsAccessed()
 {
-    return m_types;
+    return m_is_accessed;
 }
 
-inline const CR_TypeSet& CR_LogByte::Types() const
+inline const bool& CR_LogByte::IsAccessed() const
 {
-    return m_types;
+    return m_is_accessed;
 }
 
-inline CR_StringSet& CR_LogByte::Names()
+inline CR_TriBool& CR_LogByte::IsAlive()
 {
-    return m_names;
+    return m_is_alive;
 }
 
-inline const CR_StringSet& CR_LogByte::Names() const
+inline const CR_TriBool& CR_LogByte::IsAlive() const
 {
-    return m_names;
+    return m_is_alive;
 }
 
-inline CR_TriBool& CR_LogByte::IsConst()
+inline CR_TriBool& CR_LogByte::IsContinuous()
 {
-    return m_is_const;
+    return m_is_continuous;
 }
 
-inline const CR_TriBool& CR_LogByte::IsConst() const
+inline const CR_TriBool& CR_LogByte::IsContinuous() const
 {
-    return m_is_const;
-}
-
-inline CR_TriBool& CR_LogByte::IsInput()
-{
-    return m_is_input;
-}
-
-inline const CR_TriBool& CR_LogByte::IsInput() const
-{
-    return m_is_input;
-}
-
-inline CR_TriBool& CR_LogByte::IsOutput()
-{
-    return m_is_output;
-}
-
-inline const CR_TriBool& CR_LogByte::IsOutput() const
-{
-    return m_is_output;
+    return m_is_continuous;
 }
 
 inline CR_TriBool& CR_LogByte::IsInteger()
 {
-    return m_is_pointer;
+    return m_is_integer;
 }
 
 inline const CR_TriBool& CR_LogByte::IsInteger() const
 {
-    return m_is_pointer;
+    return m_is_integer;
 }
 
 inline CR_TriBool& CR_LogByte::IsFloating()
@@ -477,42 +477,27 @@ inline const CR_TriBool& CR_LogByte::IsPointer() const
     return m_is_pointer;
 }
 
-inline CR_TriBool& CR_LogByte::IsFunction()
-{
-    return m_is_function;
-}
-
-inline const CR_TriBool& CR_LogByte::IsFunction() const
-{
-    return m_is_function;
-}
-
-inline CR_TriBool& CR_LogByte::IsContinuous()
-{
-    return m_is_continuous;
-}
-
-inline const CR_TriBool& CR_LogByte::IsContinuous() const
-{
-    return m_is_continuous;
-}
-
 ////////////////////////////////////////////////////////////////////////////
-// CR_LogBinary
+// CR_LogBinary -- logical binary
 
 inline CR_LogBinary::CR_LogBinary()
 {
 }
 
 inline CR_LogBinary::CR_LogBinary(const CR_LogBinary& bin) :
-    m_logbytes(bin.m_logbytes), m_databytes(bin.m_databytes)
+    m_top_offset(bin.m_top_offset),
+    m_logbytes(bin.m_logbytes),
+    m_databytes(bin.m_databytes),
+    m_entries(bin.m_entries)
 {
 }
 
 inline void CR_LogBinary::operator=(const CR_LogBinary& bin)
 {
-    LogBytes() = bin.LogBytes();
-    DataBytes() = bin.DataBytes();
+    m_top_offset = bin.m_top_offset;
+    m_logbytes = bin.m_logbytes;
+    m_databytes = bin.m_databytes;
+    m_entries = bin.m_entries;
 }
 
 inline /*virtual*/ CR_LogBinary::~CR_LogBinary()
@@ -531,134 +516,70 @@ inline std::size_t CR_LogBinary::size() const
     return LogBytes().size();
 }
 
-inline CR_DeqSet<CR_LogByte>& CR_LogBinary::LogBytes()
+inline void CR_LogBinary::resize(std::size_t siz)
+{
+    LogBytes().resize(siz);
+    DataBytes().resize(siz);
+}
+
+inline CR_Operand& CR_LogBinary::TopOffset()
+{
+    return m_top_offset;
+}
+
+inline const CR_Operand& CR_LogBinary::TopOffset() const
+{
+    return m_top_offset;
+}
+
+inline CR_LogBytes& CR_LogBinary::LogBytes()
 {
     return m_logbytes;
 }
 
-inline const CR_DeqSet<CR_LogByte>& CR_LogBinary::LogBytes() const
+inline const CR_LogBytes& CR_LogBinary::LogBytes() const
 {
     return m_logbytes;
 }
 
-inline CR_DeqSet<CR_DataByte>& CR_LogBinary::DataBytes()
+inline CR_DataBytes& CR_LogBinary::DataBytes()
 {
     return m_databytes;
 }
 
-inline const CR_DeqSet<CR_DataByte>& CR_LogBinary::DataBytes() const
+inline const CR_DataBytes& CR_LogBinary::DataBytes() const
 {
     return m_databytes;
 }
 
-inline CR_DataByte *CR_LogBinary::Data()
+inline CR_DataMemberEntries& CR_LogBinary::Entries()
 {
-    return const_cast<CR_DataByte *>(&DataBytes()[0]);
+    return m_entries;
 }
 
-inline const CR_DataByte *CR_LogBinary::Data() const
+inline const CR_DataMemberEntries& CR_LogBinary::Entries() const
 {
-    return const_cast<CR_DataByte *>(&DataBytes()[0]);
+    return m_entries;
 }
 
-inline CR_LogByte& CR_LogBinary::LogByteAt(std::size_t index)
+inline CR_DataByte *CR_LogBinary::DataPtr()
 {
-    return LogBytes()[index];
+    return &(m_databytes[0]);
 }
 
-inline const CR_LogByte& CR_LogBinary::LogByteAt(std::size_t index) const
+inline const CR_DataByte *CR_LogBinary::DataPtr() const
 {
-    return LogBytes()[index];
+    return &(m_databytes[0]);
 }
 
-inline CR_DataByte& CR_LogBinary::DataByteAt(std::size_t index)
+inline CR_DataByte *CR_LogBinary::DataPtrAt(std::size_t index)
 {
-    return DataBytes()[index];
+    return &(DataPtr()[index]);
 }
 
-inline const CR_DataByte& CR_LogBinary::DataByteAt(std::size_t index) const
+inline const CR_DataByte *CR_LogBinary::DataPtrAt(std::size_t index) const
 {
-    return DataBytes()[index];
-}
-
-inline CR_TypeSet& CR_LogBinary::TypesAt(std::size_t index)
-{
-    return LogBytes()[index].Types();
-}
-
-inline const CR_TypeSet& CR_LogBinary::TypesAt(std::size_t index) const
-{
-    return LogBytes()[index].Types();
-}
-
-inline CR_StringSet& CR_LogBinary::NamesAt(std::size_t index)
-{
-    return LogBytes()[index].Names();
-}
-
-inline const CR_StringSet& CR_LogBinary::NamesAt(std::size_t index) const
-{
-    return LogBytes()[index].Names();
-}
-
-inline void CR_LogBinary::AddHead(const CR_LogBinary& cs)
-{
-    LogBytes().AddHead(cs.LogBytes());
-    DataBytes().AddHead(cs.DataBytes());
-}
-
-inline void CR_LogBinary::AddTail(const CR_LogBinary& cs)
-{
-    LogBytes().AddTail(cs.LogBytes());
-    DataBytes().AddTail(cs.DataBytes());
-}
-
-inline char& CR_LogBinary::CharAt(std::size_t index)
-{
-    assert(index + 1 <= size());
-    return reinterpret_cast<char&>(DataByteAt(index));
-}
-
-inline const char& CR_LogBinary::CharAt(std::size_t index) const
-{
-    assert(index + 1 <= size());
-    return reinterpret_cast<const char&>(DataByteAt(index));
-}
-
-inline short& CR_LogBinary::ShortAt(std::size_t index)
-{
-    assert(index + 2 <= size());
-    return reinterpret_cast<short&>(DataByteAt(index));
-}
-
-inline const short& CR_LogBinary::ShortAt(std::size_t index) const
-{
-    assert(index + 2 <= size());
-    return reinterpret_cast<const short&>(DataByteAt(index));
-}
-
-inline long& CR_LogBinary::LongAt(std::size_t index)
-{
-    assert(index + 4 <= size());
-    return reinterpret_cast<long&>(DataByteAt(index));
-}
-
-inline const long& CR_LogBinary::LongAt(std::size_t index) const
-{
-    assert(index + 4 <= size());
-    return reinterpret_cast<const long&>(DataByteAt(index));
-}
-
-inline long long& CR_LogBinary::LongLongAt(std::size_t index)
-{
-    assert(index + 8 <= size());
-    return reinterpret_cast<long long&>(DataByteAt(index));
-}
-
-inline const long long& CR_LogBinary::LongLongAt(std::size_t index) const
-{
-    assert(index + 8 <= size());
-    return reinterpret_cast<const long long&>(DataByteAt(index));
+    return &(DataPtr()[index]);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -918,9 +839,9 @@ inline /*virtual*/ CR_DisAsmInfo32::~CR_DisAsmInfo32()
 {
 }
 
-inline void CR_DisAsmInfo32::MapAddrToAsmCode(CR_Addr32 addr, CR_CodeInsn32 *ac)
+inline void CR_DisAsmInfo32::MapAddrToOpCode(CR_Addr32 addr, CR_OpCode32 *oc)
 {
-    MapAddrToAsmCode()[addr] = CR_SharedCodeInsn32(ac);
+    MapAddrToOpCode()[addr] = CR_SharedOpCode32(oc);
 }
 
 inline void CR_DisAsmInfo32::MapAddrToCodeFunc(CR_Addr32 addr, CR_CodeFunc32* cf)
@@ -931,10 +852,10 @@ inline void CR_DisAsmInfo32::MapAddrToCodeFunc(CR_Addr32 addr, CR_CodeFunc32* cf
 ////////////////////////////////////////////////////////////////////////////
 // CR_DisAsmInfo32 accessors
 
-inline CR_Map<CR_Addr32, CR_SharedCodeInsn32>&
-CR_DisAsmInfo32::MapAddrToAsmCode()
+inline CR_Map<CR_Addr32, CR_SharedOpCode32>&
+CR_DisAsmInfo32::MapAddrToOpCode()
 {
-    return m_mAddrToAsmCode;
+    return m_mAddrToOpCode;
 }
 
 inline CR_Addr32Set& CR_DisAsmInfo32::Entrances()
@@ -951,10 +872,10 @@ CR_DisAsmInfo32::MapAddrToCodeFunc()
 ////////////////////////////////////////////////////////////////////////////
 // CR_DisAsmInfo32 const accessors
 
-inline const CR_Map<CR_Addr32, CR_SharedCodeInsn32>&
-CR_DisAsmInfo32::MapAddrToAsmCode() const
+inline const CR_Map<CR_Addr32, CR_SharedOpCode32>&
+CR_DisAsmInfo32::MapAddrToOpCode() const
 {
-    return m_mAddrToAsmCode;
+    return m_mAddrToOpCode;
 }
 
 inline const CR_Addr32Set& CR_DisAsmInfo32::Entrances() const
@@ -989,9 +910,9 @@ inline /*virtual*/ CR_DisAsmInfo64::~CR_DisAsmInfo64()
 {
 }
 
-inline void CR_DisAsmInfo64::MapAddrToAsmCode(CR_Addr64 addr, CR_CodeInsn64 *ac)
+inline void CR_DisAsmInfo64::MapAddrToOpCode(CR_Addr64 addr, CR_OpCode64 *oc)
 {
-    m_mAddrToAsmCode[addr] = CR_SharedCodeInsn64(ac);
+    m_mAddrToOpCode[addr] = CR_SharedOpCode64(oc);
 }
 
 inline void CR_DisAsmInfo64::MapAddrToCodeFunc(CR_Addr64 addr, CR_CodeFunc64 *cf)
@@ -1002,10 +923,10 @@ inline void CR_DisAsmInfo64::MapAddrToCodeFunc(CR_Addr64 addr, CR_CodeFunc64 *cf
 ////////////////////////////////////////////////////////////////////////////
 // CR_DisAsmInfo64 accessors
 
-inline CR_Map<CR_Addr64, CR_SharedCodeInsn64>&
-CR_DisAsmInfo64::MapAddrToAsmCode()
+inline CR_Map<CR_Addr64, CR_SharedOpCode64>&
+CR_DisAsmInfo64::MapAddrToOpCode()
 {
-    return m_mAddrToAsmCode;
+    return m_mAddrToOpCode;
 }
 
 inline CR_Addr64Set& CR_DisAsmInfo64::Entrances()
@@ -1022,10 +943,10 @@ CR_DisAsmInfo64::MapAddrToCodeFunc()
 ////////////////////////////////////////////////////////////////////////////
 // CR_DisAsmInfo64 const accessors
 
-inline const CR_Map<CR_Addr64, CR_SharedCodeInsn64>&
-CR_DisAsmInfo64::MapAddrToAsmCode() const
+inline const CR_Map<CR_Addr64, CR_SharedOpCode64>&
+CR_DisAsmInfo64::MapAddrToOpCode() const
 {
-    return m_mAddrToAsmCode;
+    return m_mAddrToOpCode;
 }
 
 inline const CR_Addr64Set& CR_DisAsmInfo64::Entrances() const

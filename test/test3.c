@@ -35,7 +35,7 @@ size_t __cdecl func3(size_t n, ...)
     va_list va;
     size_t i, m = 0;
     va_start(va, n);
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; ++i)
     {
         m += va_arg(va, size_t);
     }
