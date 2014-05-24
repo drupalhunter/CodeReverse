@@ -1,0 +1,6785 @@
+////////////////////////////////////////////////////////////////////////////
+// asmpat64.dat
+// Copyright (C) 2013-2014 Katayama Hirofumi MZ.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////
+// This file is part of CodeReverse.
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+// updated
+
+pattern {
+    updated al;
+} code {
+	xsigned long long $n;
+    xsigned int128_t $k;
+    ax := (ah << 8) | al;
+    eax := (eax & 0xFFFF0000) | ax;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated bl;
+} code {
+    bx := (bh << 8) | bl;
+    ebx := (ebx & 0xFFFF0000) | bx;
+    rbx := (rbx & 0xFFFFFFFF00000000) | ebx;
+}
+
+pattern {
+    updated cl;
+} code {
+    cx := (ch << 8) | cl;
+    ecx := (ecx & 0xFFFF0000) | cx;
+    rcx := (rcx & 0xFFFFFFFF00000000) | ecx;
+}
+
+pattern {
+    updated dl;
+} code {
+	xsigned long long $n;
+    xsigned int128_t $k;
+    dx := (dh << 8) | dl;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated spl;
+} code {
+    sp := (sp & 0xFF00) | spl;
+    esp := (esp & 0xFFFF0000) | sp;
+    rsp := (rsp & 0xFFFFFFFF00000000) | esp;
+}
+
+pattern {
+    updated bpl;
+} code {
+    bp := (bp & 0xFF00) | bpl;
+    ebp := (ebp & 0xFFFF0000) | bp;
+    rbp := (rbp & 0xFFFFFFFF00000000) | ebp;
+}
+
+pattern {
+    updated sil;
+} code {
+    si := (si & 0xFF00) | sil;
+    esi := (esi & 0xFFFF0000) | si;
+    rsi := (rsi & 0xFFFFFFFF00000000) | esi;
+}
+
+pattern {
+    updated dil;
+} code {
+    di := (di & 0xFF00) | dil;
+    edi := (edi & 0xFFFF0000) | di;
+    rdi := (rdi & 0xFFFFFFFF00000000) | edi;
+}
+
+pattern {
+    updated r8l;
+} code {
+    r8w := (r8w & 0xFF00) | r8l;
+    r8d := (r8d & 0xFFFF0000) | r8w;
+    r8 := (r8 & 0xFFFFFFFF00000000) | r8d;
+}
+
+pattern {
+    updated r9l;
+} code {
+    r9w := (r9w & 0xFF00) | r9l;
+    r9d := (r9d & 0xFFFF0000) | r9w;
+    r9 := (r9 & 0xFFFFFFFF00000000) | r9d;
+}
+
+pattern {
+    updated r10l;
+} code {
+    r10w := (r10w & 0xFF00) | r10l;
+    r10d := (r10d & 0xFFFF0000) | r10w;
+    r10 := (r10 & 0xFFFFFFFF00000000) | r10d;
+}
+
+pattern {
+    updated r11l;
+} code {
+    r11w := (r11w & 0xFF00) | r11l;
+    r11d := (r11d & 0xFFFF0000) | r11w;
+    r11 := (r11 & 0xFFFFFFFF00000000) | r11d;
+}
+
+pattern {
+    updated r12l;
+} code {
+    r12w := (r12w & 0xFF00) | r12l;
+    r12d := (r12d & 0xFFFF0000) | r12w;
+    r12 := (r12 & 0xFFFFFFFF00000000) | r12d;
+}
+
+pattern {
+    updated r13l;
+} code {
+    r13w := (r13w & 0xFF00) | r13l;
+    r13d := (r13d & 0xFFFF0000) | r13w;
+    r13 := (r13 & 0xFFFFFFFF00000000) | r13d;
+}
+
+pattern {
+    updated r14l;
+} code {
+    r14w := (r14w & 0xFF00) | r14l;
+    r14d := (r14d & 0xFFFF0000) | r14w;
+    r14 := (r14 & 0xFFFFFFFF00000000) | r14d;
+}
+
+pattern {
+    updated r15l;
+} code {
+    r15w := (r15w & 0xFF00) | r15l;
+    r15d := (r15d & 0xFFFF0000) | r15w;
+    r15 := (r15 & 0xFFFFFFFF00000000) | r8d;
+}
+
+pattern {
+    updated ah;
+} code {
+	xsigned long long $n;
+    xsigned int128_t $k;
+    ax := (ah << 8) | al;
+    eax := (eax & 0xFFFF0000) | ax;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated bh;
+} code {
+    bx := (bh << 8) | bl;
+    ebx := (ebx & 0xFFFF0000) | bx;
+    rbx := (rbx & 0xFFFFFFFF00000000) | ebx;
+}
+
+pattern {
+    updated ch;
+} code {
+    cx := (ch << 8) | cl;
+    ecx := (ecx & 0xFFFF0000) | cx;
+    rcx := (rcx & 0xFFFFFFFF00000000) | ecx;
+}
+
+pattern {
+    updated dh;
+} code {
+	xsigned long long $n;
+    xsigned int128_t $k;
+    dx := (dh << 8) | dl;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated ax;
+} code {
+	xsigned long long $n;
+    xsigned int128_t $k;
+    al := ax & 0xFF;
+    ah := (ax >> 8) & 0xFF;
+    eax := (eax & 0xFFFF0000) | ax;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated bx;
+} code {
+    bl := bx & 0xFF;
+    bh := (bx >> 8) & 0xFF;
+    ebx := (ebx & 0xFFFF0000) | bx;
+    rbx := (rbx & 0xFFFFFFFF00000000) | ebx;
+}
+
+pattern {
+    updated cx;
+} code {
+    cl := cx & 0xFF;
+    ch := (cx >> 8) & 0xFF;
+    ecx := (ecx & 0xFFFF0000) | cx;
+    rcx := (rcx & 0xFFFFFFFF00000000) | ecx;
+}
+
+pattern {
+    updated dx;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    dl := dx & 0xFF;
+    dh := (dx >> 8) & 0xFF;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated sp;
+} code {
+    spl := sp & 0xFF;
+    esp := (esp & 0xFFFF0000) | sp;
+    rsp := (rsp & 0xFFFFFFFF00000000) | esp;
+}
+
+pattern {
+    updated bp;
+} code {
+    bpl := bp & 0xFF;
+    ebp := (ebp & 0xFFFF0000) | bp;
+    rbp := (rbp & 0xFFFFFFFF00000000) | ebp;
+}
+
+pattern {
+    updated si;
+} code {
+    sil := si & 0xFF;
+    esi := (esi & 0xFFFF0000) | si;
+    rsi := (rsi & 0xFFFFFFFF00000000) | esi;
+}
+
+pattern {
+    updated di;
+} code {
+    dil := di & 0xFF;
+    edi := (edi & 0xFFFF0000) | di;
+    rdi := (rdi & 0xFFFFFFFF00000000) | edi;
+}
+
+pattern {
+    updated r8w;
+} code {
+    r8l := r8w & 0xFF;
+    r8d := (r8d & 0xFFFF0000) | r8w;
+    r8 := (r8 & 0xFFFFFFFF00000000) | r8d;
+}
+
+pattern {
+    updated r9w;
+} code {
+    r9l := r9w & 0xFF;
+    r9d := (r9d & 0xFFFF0000) | r9w;
+    r9 := (r9 & 0xFFFFFFFF00000000) | r9d;
+}
+
+pattern {
+    updated r10w;
+} code {
+    r10l := r10w & 0xFF;
+    r10d := (r10d & 0xFFFF0000) | r10w;
+    r10 := (r10 & 0xFFFFFFFF00000000) | r10d;
+}
+
+pattern {
+    updated r11w;
+} code {
+    r11l := r11w & 0xFF;
+    r11d := (r11d & 0xFFFF0000) | r11w;
+    r11 := (r11 & 0xFFFFFFFF00000000) | r11d;
+}
+
+pattern {
+    updated r12w;
+} code {
+    r12l := r12w & 0xFF;
+    r12d := (r12d & 0xFFFF0000) | r12w;
+    r12 := (r12 & 0xFFFFFFFF00000000) | r12d;
+}
+
+pattern {
+    updated r13w;
+} code {
+    r13l := r13w & 0xFF;
+    r13d := (r13d & 0xFFFF0000) | r13w;
+    r13 := (r13 & 0xFFFFFFFF00000000) | r13d;
+}
+
+pattern {
+    updated r14w;
+} code {
+    r14l := r14w & 0xFF;
+    r14d := (r14d & 0xFFFF0000) | r14w;
+    r14 := (r14 & 0xFFFFFFFF00000000) | r14d;
+}
+
+pattern {
+    updated r15w;
+} code {
+    r15l := r15w & 0xFF;
+    r15d := (r15d & 0xFFFF0000) | r15w;
+    r15 := (r15 & 0xFFFFFFFF00000000) | r15d;
+}
+
+pattern {
+    updated eax;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    al := eax & 0xFF;
+    ah := (eax >>> 8) & 0xFF;
+    ax := eax & 0xFFFF;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated ebx;
+} code {
+    bl := ebx & 0xFF;
+    bh := (ebx >>> 8) & 0xFF;
+    bx := ebx & 0xFFFF;
+    rbx := (rbx & 0xFFFFFFFF00000000) | ebx;
+}
+
+pattern {
+    updated ecx;
+} code {
+    cl := ecx & 0xFF;
+    ch := (ecx >>> 8) & 0xFF;
+    cx := ecx & 0xFFFF;
+    rcx := (rcx & 0xFFFFFFFF00000000) | ecx;
+}
+
+pattern {
+    updated edx;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    dl := edx & 0xFF;
+    dh := (edx >>> 8) & 0xFF;
+    dx := edx & 0xFFFF;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated esp;
+} code {
+    spl := esp & 0xFF;
+    sp := esp & 0xFFFF;
+    rsp := (rsp & 0xFFFFFFFF00000000) | esp;
+}
+
+pattern {
+    updated ebp;
+} code {
+    bpl := bsp & 0xFF;
+    bp := ebp & 0xFFFF;
+    rbp := (rbp & 0xFFFFFFFF00000000) | ebp;
+}
+
+pattern {
+    updated esi;
+} code {
+    sil := esi & 0xFF;
+    si := esi & 0xFFFF;
+    rsi := (rsi & 0xFFFFFFFF00000000) | esi;
+}
+
+pattern {
+    updated edi;
+} code {
+    dil := edi & 0xFF;
+    di := edi & 0xFFFF;
+    rdi := (rdi & 0xFFFFFFFF00000000) | edi;
+}
+
+pattern {
+    updated r8d;
+} code {
+    r8l := r8d & 0xFF;
+    r8w := r8d & 0xFFFF;
+    r8 := (r8 & 0xFFFFFFFF00000000) | r8d;
+}
+
+pattern {
+    updated r9d;
+} code {
+    r9l := r9d & 0xFF;
+    r9w := r9d & 0xFFFF;
+    r9 := (r9 & 0xFFFFFFFF00000000) | r9d;
+}
+
+pattern {
+    updated r10d;
+} code {
+    r10l := r10d & 0xFF;
+    r10w := r10d & 0xFFFF;
+    r10 := (r10 & 0xFFFFFFFF00000000) | r10d;
+}
+
+pattern {
+    updated r11d;
+} code {
+    r11l := r11d & 0xFF;
+    r11w := r11d & 0xFFFF;
+    r11 := (r11 & 0xFFFFFFFF00000000) | r11d;
+}
+
+pattern {
+    updated r12d;
+} code {
+    r12l := r12d & 0xFF;
+    r12w := r12d & 0xFFFF;
+    r12 := (r12 & 0xFFFFFFFF00000000) | r12d;
+}
+
+pattern {
+    updated r13d;
+} code {
+    r13l := r13d & 0xFF;
+    r13w := r13d & 0xFFFF;
+    r13 := (r13 & 0xFFFFFFFF00000000) | r13d;
+}
+
+pattern {
+    updated r14d;
+} code {
+    r14l := r14d & 0xFF;
+    r14w := r14d & 0xFFFF;
+    r14 := (r14 & 0xFFFFFFFF00000000) | r14d;
+}
+
+pattern {
+    updated r15d;
+} code {
+    r15l := r15d & 0xFF;
+    r15w := r15d & 0xFFFF;
+    r15 := (r15 & 0xFFFFFFFF00000000) | r15d;
+}
+
+pattern {
+    updated rax;
+} code {
+    al := rax & 0xFF;
+    ah := (rax >>> 8) & 0xFF;
+    ax := rax & 0xFFFF;
+    eax := rax & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rbx;
+} code {
+    bl := rbx & 0xFF;
+    bh := (rbx >>> 8) & 0xFF;
+    bx := rbx & 0xFFFF;
+    ebx := rbx & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rcx;
+} code {
+    cl := rcx & 0xFF;
+    ch := (rcx >>> 8) & 0xFF;
+    cx := rcx & 0xFFFF;
+    ecx := rcx & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rdx;
+} code {
+    dl := rdx & 0xFF;
+    dh := (rdx >>> 8) & 0xFF;
+    dx := rdx & 0xFFFF;
+    edx := rdx & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rsp;
+} code {
+    spl := rsp & 0xFF;
+    sp := rsp & 0xFFFF;
+    esp := rsp & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rbp;
+} code {
+    bpl := rbp & 0xFF;
+    bp := rbp & 0xFFFF;
+    ebp := rbp & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rsi;
+} code {
+    sil := rsi & 0xFF;
+    si := rsi & 0xFFFF;
+    esi := rsi & 0xFFFFFFFF;
+}
+
+pattern {
+    updated rdi;
+} code {
+    dil := rdi & 0xFF;
+    di := rdi & 0xFFFF;
+    edi := rdi & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r8;
+} code {
+    r8l := r8 & 0xFF;
+    r8w := r8 & 0xFFFF;
+    r8d := r8 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r9;
+} code {
+    r9l := r9 & 0xFF;
+    r9w := r9 & 0xFFFF;
+    r9d := r9 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r10;
+} code {
+    r10l := r10 & 0xFF;
+    r10w := r10 & 0xFFFF;
+    r10d := r10 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r11;
+} code {
+    r11l := r11 & 0xFF;
+    r11w := r11 & 0xFFFF;
+    r11d := r11 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r12;
+} code {
+    r12l := r12 & 0xFF;
+    r12w := r12 & 0xFFFF;
+    r12d := r12 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r13;
+} code {
+    r13l := r13 & 0xFF;
+    r13w := r13 & 0xFFFF;
+    r13d := r13 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r14;
+} code {
+    r14l := r14 & 0xFF;
+    r14w := r14 & 0xFFFF;
+    r14d := r14 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated r15;
+} code {
+    r15l := r15 & 0xFF;
+    r15w := r15 & 0xFFFF;
+    r15d := r15 & 0xFFFFFFFF;
+}
+
+pattern {
+    updated al, ah;
+} code {
+    xsigned long $n;
+    xsigned long long $m;
+    xsigned int128_t $k;
+    ax := (ah << 8) | al;
+    eax := (eax & 0xFFFF0000) | ax;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    $n := dx;
+    dx:ax := ($n << 16) | ax;
+    $m := edx;
+    edx:eax := ($m << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated bl, bh;
+} code {
+    bx := (bh << 8) | bl;
+    ebx := (ebx & 0xFFFF0000) | bx;
+    rbx := (rbx & 0xFFFFFFFF00000000) | ebx;
+}
+
+pattern {
+    updated cl, ch;
+} code {
+    cx := (ch << 8) | cl;
+    ecx := (ecx & 0xFFFF0000) | cx;
+    rcx := (rcx & 0xFFFFFFFF00000000) | ecx;
+}
+
+pattern {
+    updated dl, dh;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    dx := (dh << 8) | dl;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated ax, dx;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    al := ax & 0xFF;
+    ah := (ax >> 8) & 0xFF;
+    eax := (eax & 0xFFFF0000) | ax;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dl := dx & 0xFF;
+    dh := (dx >> 8) & 0xFF;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated dx:ax;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    al := dx:ax & 0xFF;
+    ah := (dx:ax >> 8) & 0xFF;
+    ax := dx:ax & 0xFFFF;
+    eax := (eax & 0xFFFF0000) | ax;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dl := (dx:ax >> 16) & 0xFF;
+    dh := (dx:ax >> 24) & 0xFF;
+    dx := (dx:ax >> 16) & 0xFFFF;
+    edx := (edx & 0xFFFF0000) | dx;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    $n := edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated eax, edx;
+} code {
+    xsigned long long $n;
+    xsigned int128_t $k;
+    al := eax & 0xFF;
+    ah := (eax >> 8) & 0xFF;
+    ax := eax & 0xFFFF;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dl := dx & 0xFF;
+    dh := (dx >> 8) & 0xFF;
+    dx := edx & 0xFFFF;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $n = edx;
+    edx:eax := ($n << 32) | eax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated edx:eax;
+} code {
+    xsigned int128_t $k;
+    al := ax & 0xFF;
+    ah := (ax >> 8) & 0xFF;
+    eax := edx:eax & 0xFFFFFFFF;
+    rax := (rax & 0xFFFFFFFF00000000) | eax;
+    dl := dx & 0xFF;
+    dh := (dx >> 8) & 0xFF;
+    edx := (edx:eax >> 32) & 0xFFFFFFFF;
+    rdx := (rdx & 0xFFFFFFFF00000000) | edx;
+    dx:ax := (dx << 16) | ax;
+    $k := rdx;
+    $k := $k << 64;
+    $k := $k | rax;
+    rdx:rax := $k;
+}
+
+pattern {
+    updated $1;
+    assume $1 as memory;
+} code {
+}
+
+////////////////////////////////////////////////////////////////////////////
+// technical
+
+pattern {
+    push $1;
+    pop $1;
+} code {
+}
+
+pattern {
+    push $1;
+    push $2;
+    pop $2;
+    pop $1;
+} code {
+}
+
+pattern {
+    push $1;
+    push $2;
+    push $3;
+    pop $3;
+    pop $2;
+    pop $1;
+} code {
+}
+
+pattern {
+    push $1;
+    push $2;
+    push $3;
+    push $4;
+    pop $4;
+    pop $3;
+    pop $2;
+    pop $1;
+} code {
+}
+
+pattern {
+    push $1;
+    pop $2;
+} code {
+    $2 := $1;
+    updated $2;
+}
+
+pattern {
+    push $1;
+    push $2;
+    pop $3;
+    pop $4;
+} code {
+    $3 := $2;
+    $4 := $1;
+    updated $3;
+    updated $4;
+}
+
+pattern {
+    push $1;
+    push $2;
+    push $3;
+    pop $4;
+    pop $5;
+    pop $6;
+} code {
+    $4 := $3;
+    $5 := $2;
+    $6 := $1;
+    updated $4;
+    updated $5;
+    updated $6;
+}
+
+pattern {
+    push $1;
+    push $2;
+    push $3;
+    push $4;
+    pop $5;
+    pop $6;
+    pop $7;
+    pop $8;
+} code {
+    $5 := $4;
+    $6 := $3;
+    $7 := $2;
+    $8 := $1;
+    updated $5;
+    updated $6;
+    updated $7;
+    updated $8;
+}
+
+pattern {
+    push $1;
+    push $2;
+    push $3;
+    push $4;
+    push $5;
+    pop $6;
+    pop $7;
+    pop $8;
+    pop $9;
+    pop $10;
+} code {
+    $6 := $5;
+    $7 := $4;
+    $8 := $3;
+    $9 := $2;
+    $10 := $1;
+    updated $6;
+    updated $5;
+    updated $6;
+    updated $7;
+    updated $8;
+}
+
+pattern {
+    assume rax == 0;
+    assume rcx == 0xFFFFFFFFFFFFFFFF;
+    repne scasb;
+    not rcx;
+    lea $1, [ecx-1];
+} code {
+    assume rdi as char *;
+    assume $1 as size_t;
+    $1 := strlen(edi);
+    rdi := rdi + $1;
+    updated $1;
+    updated rdi;
+    assume rcx == 0;
+}
+
+pattern {
+    cqo;
+    xor rax, rdx;
+    sub rax, rdx;
+} code {
+    rax := _abs64(rax);
+    dead dl;
+    dead dh;
+    dead dx;
+    dead edx;
+    dead rdx;
+    updated rax;
+}
+
+pattern {
+    cdq;
+    xor eax, edx;
+    sub eax, edx;
+} code {
+    eax := abs(eax);
+    dead dl;
+    dead dh;
+    dead dx;
+    dead edx;
+    updated eax;
+}
+
+pattern {
+    push rbp;
+    mov rbp, rsp;
+    sub rsp, $1;
+} code {
+    enter $1, 0;
+}
+
+pattern {
+    push rbp;
+    mov rbp, rsp;
+} code {
+    enter 0, 0;
+}
+
+pattern {
+    mov rsp, rbp;
+    pop rbp;
+} code {
+    leave;
+}
+
+pattern {
+    xor $1, $1;
+    not $1;
+    assume sizeof($1) == 8;
+} code {
+    $1 := 0xFFFFFFFFFFFFFFFF;
+    updated $1;
+}
+
+pattern {
+    xor $1, $1;
+    not $1;
+    assume sizeof($1) == 4;
+} code {
+    $1 := 0xFFFFFFFF;
+    updated $1;
+}
+
+pattern {
+    xor $1, $1;
+    not $1;
+    assume sizeof($1) == 2;
+} code {
+    $1 := 0xFFFF;
+    updated $1;
+    assume $1 as xsigned short;
+}
+
+pattern {
+    xor $1, $1;
+    not $1;
+    assume sizeof($1) == 1;
+} code {
+    $1 := 0xFF;
+    updated $1;
+    assume $1 as xsigned char;
+}
+
+pattern {
+    xor $1, $1;
+    inc $1;
+    assume sizeof($1) == 8;
+} code {
+    $1 := 1;
+    updated $1;
+    assume $1 as xsigned long long;
+}
+
+pattern {
+    xor $1, $1;
+    inc $1;
+    assume sizeof($1) == 4;
+} code {
+    $1 := 1;
+    updated $1;
+    assume $1 as xsigned long;
+}
+
+pattern {
+    xor $1, $1;
+    inc $1;
+    assume sizeof($1) == 2;
+} code {
+    $1 := 1;
+    updated $1;
+    assume $1 as xsigned short;
+}
+
+pattern {
+    xor $1, $1;
+    inc $1;
+    assume sizeof($1) == 1;
+} code {
+    $1 := 1;
+    updated $1;
+    assume $1 as xsigned char;
+}
+
+pattern {
+    xor $1, $1;
+    dec $1;
+    assume sizeof($1) == 8;
+} code {
+    $1 := 0xFFFFFFFFFFFFFFFF;
+    updated $1;
+    dead OF;
+    SF := 1;
+    ZF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    xor $1, $1;
+    dec $1;
+    assume sizeof($1) == 4;
+} code {
+    $1 := 0xFFFFFFFF;
+    updated $1;
+    dead OF;
+    SF := 1;
+    ZF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    xor $1, $1;
+    dec $1;
+    assume sizeof($1) == 2;
+} code {
+    $1 := 0xFFFF;
+    updated $1;
+    assume $1 as xsigned short;
+    dead OF;
+    SF := 1;
+    ZF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    xor $1, $1;
+    dec $1;
+    assume sizeof($1) == 1;
+} code {
+    $1 := 0xFF;
+    updated $1;
+    assume $1 as xsigned char;
+    dead OF;
+    SF := 1;
+    ZF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    xor $1, $1;
+} code {
+    $1 := 0;
+    updated $1;
+    SF := 0;
+    ZF := 1;
+    OF := 0;
+    CF := 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    and $1, $1;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $n := $1;
+    ZF := $n == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $1;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $n := $1;
+    ZF := $n == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $1;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $n := $1;
+    ZF := $n == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $1;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    $n := $1;
+    ZF := $n == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    mov $1, $1;
+} code {
+}
+
+pattern {
+    movnti $1, $1;
+} code {
+}
+
+pattern {
+    or $1, $1;
+} code {
+    SF := 0;
+    dead PF;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $1;
+    assume sizeof($1) == 8;
+} code {
+    long long $temp;
+    ZF := $1 == 0;
+    $temp := $1;
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $1;
+    assume sizeof($1) == 4;
+} code {
+    long $temp;
+    ZF := $1 == 0;
+    $temp := $1;
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $1;
+    assume sizeof($1) == 2;
+} code {
+    short $temp;
+    ZF := $1 == 0;
+    $temp := $1;
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $1;
+    assume sizeof($1) == 1;
+} code {
+    char $temp;
+    ZF := $1 == 0;
+    $temp := $1;
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    shr $1, 1;
+    shr $1, 1;
+    shr $1, 1;
+    shr $1, 1;
+    shr $1, 1;
+} code {
+    shr $1, 5;
+}
+
+pattern {
+    shr $1, 1;
+    shr $1, 1;
+    shr $1, 1;
+    shr $1, 1;
+} code {
+    shr $1, 4;
+}
+
+pattern {
+    shr $1, 1;
+    shr $1, 1;
+    shr $1, 1;
+} code {
+    shr $1, 3;
+}
+
+pattern {
+    shr $1, 1;
+    shr $1, 1;
+} code {
+    shr $1, 2;
+}
+
+pattern {
+    bsr $1, $2;
+    cmovz $3, $1;
+    assume sizeof($1) == 8;
+} code {
+    long long $temp;
+    ZF := 0;
+    $temp := 63;
+$loop:
+    if (($2 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp - 1;
+    goto $loop;
+$skip:
+    $3 := $temp;
+    updated $3;
+    dead $1;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsr $1, $2;
+    cmovz $3, $1;
+    assume sizeof($1) == 4;
+} code {
+    long $temp;
+    ZF := 0;
+    $temp := 31;
+$loop:
+    if (($2 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp - 1;
+    goto $loop;
+$skip:
+    $3 := $temp;
+    updated $3;
+    dead $1;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsr $1, $2;
+    cmovz $3, $1;
+    assume sizeof($1) == 2;
+} code {
+    short $temp;
+    ZF := 0;
+    $temp := 15;
+$loop:
+    if (($2 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp - 1;
+    goto $loop;
+$skip:
+    $3 := $temp;
+    updated $3;
+    dead $1;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+////////////////////////////////////////////////////////////////////////////
+// instructions
+
+pattern {
+    adc $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n1;
+    long long $n2;
+    long long $n3;
+    unsigned long long $m1;
+    unsigned long long $m2;
+    unsigned long long $m3;
+    $n1 := $1;
+    $n2 := $2 + CF;
+    $m1 := $1
+    $m2 := $2 + CF;
+    $1 := $1 + $2 + CF;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := ($m1 > $m3 - CF) || ($m1 > $m3);
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    adc $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n1;
+    long $n2;
+    long $n3;
+    unsigned long $m1;
+    unsigned long $m2;
+    unsigned long $m3;
+    $n1 := $1;
+    $n2 := $2 + CF;
+    $m1 := $1
+    $m2 := $2 + CF;
+    $1 := $1 + $2 + CF;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := ($m1 > $m3 - CF) || ($m1 > $m3);
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    adc $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n1;
+    short $n2;
+    short $n3;
+    unsigned short $m1;
+    unsigned short $m2;
+    unsigned short $m3;
+    $n1 := $1;
+    $n2 := $2 + CF;
+    $m1 := $1
+    $m2 := $2 + CF;
+    $1 := $1 + $2 + CF;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := ($m1 > $m3 - CF) || ($m1 > $m3);
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    adc $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n1;
+    char $n2;
+    char $n3;
+    unsigned char $m1;
+    unsigned char $m2;
+    unsigned char $m3;
+    $n1 := $1;
+    $n2 := $2 + CF;
+    $m1 := $1
+    $m2 := $2 + CF;
+    $1 := $1 + $2 + CF;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := ($m1 > $m3 - CF) || ($m1 > $m3);
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    add $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n1;
+    long long $n2;
+    long long $n3;
+    unsigned long long $m1;
+    unsigned long long $m2;
+    unsigned long long $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $m1 := $1;
+    $m2 := $2;
+    $1 := $1 + $2;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    add $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n1;
+    long $n2;
+    long $n3;
+    unsigned long $m1;
+    unsigned long $m2;
+    unsigned long $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $m1 := $1;
+    $m2 := $2;
+    $1 := $1 + $2;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    add $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n1;
+    short $n2;
+    short $n3;
+    unsigned short $m1;
+    unsigned short $m2;
+    unsigned short $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $m1 := $1;
+    $m2 := $2;
+    $1 := $1 + $2;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    add $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n1;
+    char $n2;
+    char $n3;
+    unsigned char $m1;
+    unsigned char $m2;
+    unsigned char $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $m1 := $1;
+    $m2 := $2;
+    $1 := $1 + $2;
+    updated $1;
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $1 == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $1 := $1 & $2;
+    updated $1;
+    $n := $1;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $1 := $1 & $2;
+    updated $1;
+    $n := $1;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $1 := $1 & $2;
+    updated $1;
+    $n := $1;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    and $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    $1 := $1 & $2;
+    updated $1;
+    $n := $1;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    CF := 0;
+    OF := 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsf $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $temp;
+    if ($2 == 0) goto $error;
+    ZF := 0;
+    $temp := 0;
+$loop:
+    if (($1 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp + 1;
+    goto $loop;
+$skip:
+    $1 := $temp;
+    updated $1;
+    goto $end;
+$error:
+    ZF := 1;
+    dead $1;
+$end:
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsf $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $temp;
+    if ($2 == 0) goto $error;
+    ZF := 0;
+    $temp := 0;
+$loop:
+    if (($1 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp + 1;
+    goto $loop;
+$skip:
+    $1 := $temp;
+    updated $1;
+    goto $end;
+$error:
+    ZF := 1;
+    dead $1;
+$end:
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsf $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $temp;
+    if ($2 == 0) goto $error;
+    ZF := 0;
+    $temp := 0;
+$loop:
+    if (($1 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp + 1;
+    goto $loop;
+$skip:
+    $1 := $temp;
+    updated $1;
+    goto $end;
+$error:
+    ZF := 1;
+    dead $1;
+$end:
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsr $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $temp;
+    if ($2 == 0) goto $error;
+    ZF := 0;
+    $temp := 63;
+$loop:
+    if (($2 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp - 1;
+    goto $loop;
+$skip:
+    $1 := $temp;
+    updated $1;
+    goto $end;
+$error:
+    ZF := 1;
+    dead $1;
+$end:
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsr $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $temp;
+    if ($2 == 0) goto $error;
+    ZF := 0;
+    $temp := 31;
+$loop:
+    if (($2 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp - 1;
+    goto $loop;
+$skip:
+    $1 := $temp;
+    updated $1;
+    goto $end;
+$error:
+    ZF := 1;
+    dead $1;
+$end:
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bsr $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $temp;
+    if ($2 == 0) goto $error;
+    ZF := 0;
+    $temp := 15;
+$loop:
+    if (($2 & (1 << $temp)) == 0) goto $skip;
+    $temp := $temp - 1;
+    goto $loop;
+$skip:
+    $1 := $temp;
+    updated $1;
+    goto $end;
+$error:
+    ZF := 1;
+    dead $1;
+$end:
+    dead CF;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bswap $1;
+    assume sizeof($1) == 8;
+} code {
+    $1 := _bswap64($1);
+    updated $1;
+}
+
+pattern {
+    bswap $1;
+    assume sizeof($1) == 4;
+} code {
+    $1 := _bswap($1);
+    updated $1;
+}
+
+pattern {
+    bt $1, $2;
+} code {
+    CF := ($1 & (1 << $2)) != 0;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    btc $1, $2;
+} code {
+    CF := ($1 & (1 << $2)) != 0;
+    if (CF) goto $reset;
+    $1 := $1 | (1 << $2);
+    goto $join;
+$reset:
+    $1 := $1 & ~(1 << $2);
+$join:
+    updated $1;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    btr $1, $2;
+} code {
+    CF := ($1 & (1 << $2)) != 0;
+    $1 := $1 & ~(1 << $2);
+    updated $1;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    bts $1, $2;
+} code {
+    CF := ($1 & (1 << $2)) != 0;
+    $1 := $1 | (1 << $2);
+    updated $1;
+    dead OF;
+    dead SF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    cbw;
+} code {
+    assume al as char;
+    ax := al;
+    updated ax;
+    assume ax as short;
+}
+
+pattern {
+    cwde;
+} code {
+    assume ax as short;
+    eax := ax;
+    updated eax;
+    assume eax as int;
+}
+
+pattern {
+    cdqe;
+} code {
+    assume eax as long;
+    rax := eax;
+    updated rax;
+    assume rax as long long;
+}
+
+pattern {
+    clc
+} code {
+    CF := 0;
+}
+
+pattern {
+    cld;
+} code {
+    DF := 0;
+}
+
+// clflush($m8);
+
+pattern {
+    cli;
+} code {
+    IF := 0;
+}
+
+// clts();
+
+pattern {
+    cmc;
+} code {
+    CF := !CF;
+}
+
+pattern {
+    cmova $1, $2;
+} code {
+    if (CF || ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovae $1, $2;
+} code {
+    if (CF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovb $1, $2;
+} code {
+    if (!CF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovbe $1, $2;
+} code {
+    if (!CF && !ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovc $1, $2;
+} code {
+    if (!CF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmove $1, $2;
+} code {
+    if (!ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovg $1, $2;
+} code {
+    if (ZF || SF != OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovge $1, $2;
+} code {
+    if (SF != OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovl $1, $2;
+} code {
+    if (SF == OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovle $1, $2;
+} code {
+    if (!ZF && SF == OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovna $1, $2;
+} code {
+    if (!CF && !ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnae $1, $2;
+} code {
+    if (!CF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnb $1, $2;
+} code {
+    if (CF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnbe $1, $2;
+} code {
+    if (CF || ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnc $1, $2;
+} code {
+    if (CF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovne $1, $2;
+} code {
+    if (ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovng $1, $2;
+} code {
+    if (!ZF && SF == OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnge $1, $2;
+} code {
+    if (SF == OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnl $1, $2;
+} code {
+    if (SF != OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnle $1, $2;
+} code {
+    if (ZF || SF != OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovno $1, $2;
+} code {
+    if (OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnp $1, $2;
+} code {
+    if (PF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovns $1, $2;
+} code {
+    if (SF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovnz $1, $2;
+} code {
+    if (ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovo $1, $2;
+} code {
+    if (!OF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovp $1, $2;
+} code {
+    if (!PF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovpe $1, $2;
+} code {
+    if (!PF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovpo $1, $2;
+} code {
+    if (PF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovs $1, $2;
+} code {
+    if (!SF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmovz $1, $2;
+} code {
+    if (!ZF) goto $skip;
+    $1 := $2;
+    updated $1;
+$skip:
+}
+
+pattern {
+    cmp $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    ZF := $1 == $2;
+    SF := $n1 < $n2;
+    dead OF;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    cmp $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    ZF := $1 == $2;
+    SF := $n1 < $n2;
+    dead OF;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    cmp $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    ZF := $1 == $2;
+    SF := $n1 < $n2;
+    dead OF;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    cmp $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    ZF := $1 == $2;
+    SF := $n1 < $n2;
+    dead OF;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    assume !DF;
+    cmpsb;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi + 1;
+    rdi := rdi + 1;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    cmpsb;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi - 1;
+    rdi := rdi - 1;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    cmpsw;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi + 2;
+    rdi := rdi + 2;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    cmpsw;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi - 2;
+    rdi := rdi - 2;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    cmpsd;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi + 4;
+    rdi := rdi + 4;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    cmpsd;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi - 4;
+    rdi := rdi - 4;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    cmpsq;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi + 8;
+    rdi := rdi + 8;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    cmpsq;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    ZF := *rsi == *rdi;
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    dead OF;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    dead AF;
+    dead PF;
+    rsi := rsi - 8;
+    rdi := rdi - 8;
+    updated rsi;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    repe cmpsb;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi + 1;
+    rdi := rdi + 1;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repe cmpsb;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi - 1;
+    rdi := rdi - 1;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume !DF;
+    repe cmpsw;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi + 2;
+    rdi := rdi + 2;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repe cmpsw;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi - 2;
+    rdi := rdi - 2;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume !DF;
+    repe cmpsd;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi + 4;
+    rdi := rdi + 4;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repe cmpsd;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi - 4;
+    rdi := rdi - 4;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume !DF;
+    repe cmpsq;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    assume rcx as unsigned long long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi + 8;
+    rdi := rdi + 8;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repe cmpsq;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    assume rcx as unsigned long long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (!ZF) goto $end;
+    rsi := rsi - 8;
+    rdi := rdi - 8;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+alias repz cmpsb = repe cmpsb;
+alias repz cmpsw = repe cmpsw;
+alias repz cmpsd = repe cmpsd;
+alias repz cmpsq = repe cmpsq;
+
+pattern {
+    assume !DF;
+    repne cmpsb;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi + 1;
+    rdi := rdi + 1;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repne cmpsb;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi - 1;
+    rdi := rdi - 1;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume !DF;
+    repne cmpsw;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi + 2;
+    rdi := rdi + 2;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repne cmpsw;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi - 2;
+    rdi := rdi - 2;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume !DF;
+    repne cmpsd;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi + 4;
+    rdi := rdi + 4;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repne cmpsd;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    assume rcx as unsigned long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi - 4;
+    rdi := rdi - 4;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume !DF;
+    repne cmpsq;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    assume rcx as unsigned long long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi + 4;
+    rdi := rdi + 4;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+pattern {
+    assume DF;
+    repne cmpsq;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    assume rcx as unsigned long long;
+$loop:
+    $n1 := *rsi;
+    $n2 := *rdi;
+    SF := $n1 < $n2;
+    $u1 := *rsi;
+    $u2 := *rdi;
+    CF := $u1 > $u1 + $u2;
+    ZF := *rsi == *rdi;
+    if (ZF) goto $end;
+    rsi := rsi - 4;
+    rdi := rdi - 4;
+    rcx := rcx - 1;
+    if (rcx == 0) goto $end;
+    goto $loop;
+$end:
+    updated rsi;
+    updated rdi;
+    updated rcx;
+    dead AF;
+    dead PF;
+    dead OF;
+}
+
+alias repnz cmpsb = repne cmpsb;
+alias repnz cmpsw = repne cmpsw;
+alias repnz cmpsd = repne cmpsd;
+alias repnz cmpsq = repne cmpsq;
+
+pattern {
+    cmpxchg al, $1
+} code {
+    char $s;
+    al := $1;
+    updated al;
+    ZF := 1;
+    $s := al;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg ax, $1
+} code {
+    short $s;
+    ax := $1;
+    updated ax;
+    ZF := 1;
+    $s := ax;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg eax, $1
+} code {
+    long $s;
+    eax := $1;
+    updated eax;
+    ZF := 1;
+    $s := eax;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg rax, $1
+} code {
+    long long $s;
+    rax := $1;
+    updated rax;
+    ZF := 1;
+    $s := rax;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg $1, $2
+    assume sizeof($1) == 8;
+} code {
+    long long $s;
+    rax := $2;
+    ZF := 0;
+    $s := rax;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg $1, $2
+    assume sizeof($1) == 4;
+} code {
+    long $s;
+    eax := $2;
+    ZF := 0;
+    $s := eax;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg $1, $2
+    assume sizeof($1) == 2;
+} code {
+    short $s;
+    ax := $2;
+    ZF := 0;
+    $s := ax;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    cmpxchg $1, $2
+    assume sizeof($1) == 1;
+} code {
+    char $s;
+    al := $2;
+    ZF := 0;
+    $s := al;
+    SF := $s < 0;
+    dead CF;
+    dead PF;
+    dead AF;
+}
+
+// cmpxchg8b(void *$m64);
+// cmpxchg16b(void *$m128);
+// cpuid();
+// crc32($dest, $src);
+
+pattern {
+    cwd;
+} code {
+    assume ax as short;
+    dx:ax := ax;
+    assume dx:ax as long;
+    updated dx;
+}
+
+pattern {
+    cdq;
+} code {
+    assume eax as long;
+    edx:eax := eax;
+    assume edx:eax as long long;
+    updated edx;
+}
+
+
+pattern {
+    cqo;
+} code {
+    assume rax as long long;
+    rdx:rax := rax;
+    assume rdx:rax as __m128i;
+    updated edx;
+}
+
+pattern {
+    dec $1;
+    assume sizeof($1) == 8;
+} code {
+    long long $s;
+    $1 := $1 - 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $s == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    dec $1;
+    assume sizeof($1) == 4;
+} code {
+    long $s;
+    $1 := $1 - 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $s == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    dec $1;
+    assume sizeof($1) == 2;
+} code {
+    short $s;
+    $1 := $1 - 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $s == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    dec $1;
+    assume sizeof($1) == 1;
+} code {
+    char $s;
+    $1 := $1 - 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $s == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    div $1;
+    assume sizeof($1) == 8;
+} code {
+    assume rdx:rax as unsigned int128_t;
+    rax := rdx:rax / $1;
+    rdx := rdx:rax % $1;
+    updated rax, rdx;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    div $1;
+    assume sizeof($1) == 4;
+} code {
+    assume edx:eax as unsigned long long;
+    eax := edx:eax / $1;
+    edx := edx:eax % $1;
+    updated eax, edx;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    div $1;
+    assume sizeof($1) == 2;
+} code {
+    assume dx:ax as unsigned long;
+    ax := dx:ax / $1;
+    dx := dx:ax % $1;
+    updated ax, dx;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    div $1;
+    assume sizeof($1) == 1;
+} code {
+    assume ax as unsigned short;
+    al := ax / $1;
+    ah := ax % $1;
+    updated al, ah;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+// emms();
+// enter(WORD $a, UCHAR $b);
+// hlt();
+
+pattern {
+    idiv $1;
+    assume sizeof($1) == 8;
+} code {
+    assume rdx:rax as int128_t;
+    rax := rdx:rax / $1;
+    rdx := rdx:rax % $1;
+    assume rax as long long;
+    assume rdx as long long;
+    updated rax, rdx;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    idiv $1;
+    assume sizeof($1) == 4;
+} code {
+    assume edx:eax as long long;
+    eax := edx:eax / $1;
+    edx := edx:eax % $1;
+    assume eax as long;
+    assume edx as long;
+    updated eax, edx;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    idiv $1;
+    assume sizeof($1) == 2;
+} code {
+    assume dx:ax as long;
+    ax := dx:ax / $1;
+    dx := dx:ax % $1;
+    assume ax as short;
+    assume dx as short;
+    updated ax, dx;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    idiv $1;
+    assume sizeof($1) == 1;
+} code {
+    assume ax as short;
+    al := ax / $1;
+    ah := ax % $1;
+    assume al as char;
+    assume ah as char;
+    updated al, ah;
+    dead CF;
+    dead OF;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    assume rax as long long;
+    assume rdx:rax as int128_t;
+    $n := rax;
+    rdx:rax := rax * $1;
+    CF := $1 != 0 && rdx:rax / $1 != $n;
+    OF := $1 != 0 && rdx:rax / $1 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    assume eax as long;
+    assume edx:eax as long long;
+    $n := eax;
+    edx:eax := eax * $1;
+    CF := $1 != 0 && edx:eax / $1 != $n;
+    OF := $1 != 0 && edx:eax / $1 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    assume ax as short;
+    assume dx:ax as long;
+    $n := ax;
+    dx:ax := ax * $1;
+    CF := $1 != 0 && dx:ax / $1 != $n;
+    OF := $1 != 0 && dx:ax / $1 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    assume al as short;
+    assume ax as long;
+    $n := al;
+    ax := al * $1;
+    CF := $1 != 0 && ax / $1 != $n;
+    OF := $1 != 0 && ax / $1 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    $1 := $1 * $2;
+    assume $1 as long long;
+    updated $1;
+    CF := $2 != 0 && $1 / $2 != $n;
+    OF := $2 != 0 && $1 / $2 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    $1 := $1 * $2;
+    assume $1 as long;
+    updated $1;
+    CF := $2 != 0 && $1 / $2 != $n;
+    OF := $2 != 0 && $1 / $2 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    $1 := $1 * $2;
+    assume $1 as short;
+    updated $1;
+    CF := $2 != 0 && $1 / $2 != $n;
+    OF := $2 != 0 && $1 / $2 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    $1 := $1 * $2;
+    assume $1 as char;
+    updated $1;
+    CF := $2 != 0 && $1 / $2 != $n;
+    OF := $2 != 0 && $1 / $2 != $n;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2, $3;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $n := $2;
+    $1 := $n * $3;
+    assume $1 as long long;
+    updated $1;
+    CF := $3 != 0 && $1 / $3 != $2;
+    OF := $3 != 0 && $1 / $3 != $2;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2, $3;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $n := $2;
+    $1 := $n * $3;
+    assume $1 as long;
+    updated $1;
+    CF := $3 != 0 && $1 / $3 != $2;
+    OF := $3 != 0 && $1 / $3 != $2;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2, $3;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $n := $2;
+    $1 := $n * $3;
+    updated $1;
+    CF := $3 != 0 && $1 / $3 != $2;
+    OF := $3 != 0 && $1 / $3 != $2;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    imul $1, $2, $3;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    $n := $2;
+    $1 := $n * $3;
+    updated $1;
+    CF := $3 != 0 && $1 / $3 != $2;
+    OF := $3 != 0 && $1 / $3 != $2;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+// in($dest, $src);
+
+pattern {
+    inc $1;
+    assume sizeof($1) == 8;
+} code {
+    long $s;
+    assume $1 as xsigned long long;
+    $1 := $1 + 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    inc $1;
+    assume sizeof($1) == 4;
+} code {
+    long $s;
+    assume $1 as xsigned long;
+    $1 := $1 + 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    inc $1;
+    assume sizeof($1) == 2;
+} code {
+    short $s;
+    assume $1 as xsigned short;
+    $1 := $1 + 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    inc $1;
+    assume sizeof($1) == 1;
+} code {
+    char $s;
+    assume $1 as xsigned char;
+    $1 := $1 + 1;
+    updated $1;
+    $s := $1;
+    dead OF;
+    SF := $s < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+// insb();
+// insw();
+// insd();
+// int3();
+// int($a);
+// into();
+// invd();
+// invlpg($m);
+// invpcid($dest, $src);
+// iret();
+// iretd();
+
+pattern {
+    ja $1;
+} code {
+    if (!ZF && !CF) goto $1;
+}
+
+pattern {
+    jae $1;
+} code {
+    if (!CF) goto $1;
+}
+
+pattern {
+    jb $1;
+} code {
+    if (CF) goto $1;
+}
+
+pattern {
+    jbe $1;
+} code {
+    if (ZF || CF) goto $1;
+}
+
+pattern {
+    jc $1;
+} code {
+    if (CF) goto $1;
+}
+
+pattern {
+    jcxz $1;
+} code {
+    if (cx == 0) goto $1;
+}
+
+pattern {
+    jecxz $1;
+} code {
+    if (ecx == 0) goto $1;
+}
+
+pattern {
+    jrcxz $1;
+} code {
+    if (rcx == 0) goto $1;
+}
+
+pattern {
+    je $1;
+} code {
+    if (ZF) goto $1;
+}
+
+pattern {
+    jg $1;
+} code {
+    if (!ZF && SF == OF) goto $1;
+}
+
+pattern {
+    jge $1;
+} code {
+    if (SF == OF) goto $1;
+}
+
+pattern {
+    jl $1;
+} code {
+    if (SF != OF) goto $1;
+}
+
+pattern {
+    jle $1;
+} code {
+    if (ZF && SF != OF) goto $1;
+}
+
+pattern {
+    jmp $1;
+} code {
+    goto $1;
+}
+
+pattern {
+    jna $1;
+} code {
+    if (ZF || CF) goto $1;
+}
+
+pattern {
+    jnae $1;
+} code {
+    if (CF) goto $1;
+}
+
+pattern {
+    jnb $1;
+} code {
+    if (!CF) goto $1;
+}
+
+pattern {
+    jnb $e1;
+} code {
+    if (!ZF && !CF) goto $1;
+}
+
+pattern {
+    jnc $e1;
+} code {
+    if (!CF) goto $1;
+}
+
+pattern {
+    jne $e1;
+} code {
+    if (!ZF) goto $1;
+}
+
+pattern {
+    jng $e1;
+} code {
+    if (ZF || SF != OF) goto $1;
+}
+
+pattern {
+    jnge $e1;
+} code {
+    if (SF != OF) goto $1;
+}
+
+pattern {
+    jnl $e1;
+} code {
+    if (SF == OF) goto $1;
+}
+
+pattern {
+    jnle $e1;
+} code {
+    if (!ZF && SF == OF) goto $1;
+}
+
+pattern {
+    jno $e1;
+} code {
+    if (!OF) goto $1;
+}
+
+pattern {
+    jnp $e1;
+} code {
+    if (!PF) goto $1;
+}
+
+pattern {
+    jns $e1;
+} code {
+    if (!SF) goto $1;
+}
+
+pattern {
+    jnz $e1;
+} code {
+    if (!ZF) goto $1;
+}
+
+pattern {
+    jo $e1;
+} code {
+    if (OF) goto $1;
+}
+
+pattern {
+    jp $e1;
+} code {
+    if (PF) goto $1;
+}
+
+pattern {
+    jpe $e1;
+} code {
+    if (PF) goto $1;
+}
+
+pattern {
+    jpo $e1;
+} code {
+    if (!PF) goto $1;
+}
+
+pattern {
+    js $e1;
+} code {
+    if (SF) goto $1;
+}
+
+pattern {
+    jz $e1;
+} code {
+    if (ZF) goto $1;
+}
+
+// lar($dest, $src);
+// lfs(void *$dest, void *$src);
+// lgs(void *$dest, void *$src);
+
+pattern {
+    lea $1, $2;
+} code {
+    $1 := &$2;
+}
+
+// leave();
+// lfence();
+// lgdt($m1632);
+// lidt($m1632);
+// lldt($src);
+// lmsw($src);
+// lock();
+
+pattern {
+    lodsb;
+    assume !DF;
+} code {
+    assume rsi as xsigned char *;
+    assume al as xsigned char;
+    al := *rsi;
+    rsi := rsi + 1;
+    updated al;
+    updated rsi;
+}
+
+pattern {
+    lodsb;
+    assume DF;
+} code {
+    assume rsi as xsigned char *;
+    assume al as xsigned char;
+    al := *rsi;
+    rsi := rsi - 1;
+    updated al;
+    updated rsi;
+}
+
+pattern {
+    lodsw;
+    assume !DF;
+} code {
+    assume rsi as xsigned short *;
+    assume ax as xsigned short;
+    ax := *rsi;
+    rsi := rsi + 2;
+    updated ax;
+    updated rsi;
+}
+
+pattern {
+    lodsw;
+    assume DF;
+} code {
+    assume rsi as xsigned short *;
+    assume ax as xsigned short;
+    ax := *rsi;
+    rsi := rsi - 2;
+    updated ax;
+    updated rsi;
+}
+
+pattern {
+    lodsd;
+    assume !DF;
+} code {
+    assume rsi as xsigned long *;
+    assume eax as xsigned long;
+    eax := *rsi;
+    rsi := rsi + 4;
+    updated eax;
+    updated rsi;
+}
+
+pattern {
+    lodsd;
+    assume DF;
+} code {
+    assume rsi as xsigned long *;
+    assume eax as xsigned long;
+    eax := *rsi;
+    rsi := rsi - 4;
+    updated eax;
+    updated rsi;
+}
+
+pattern {
+    lodsq;
+    assume !DF;
+} code {
+    assume rsi as xsigned long long *;
+    assume rax as xsigned long long;
+    rax := *rsi;
+    rsi := rsi + 8;
+    updated rax;
+    updated rsi;
+}
+
+pattern {
+    lodsq;
+    assume DF;
+} code {
+    assume rsi as xsigned long long *;
+    assume rax as xsigned long long;
+    rax := *rsi;
+    rsi := rsi - 8;
+    updated rax;
+    updated rsi;
+}
+
+pattern {
+    rep lodsb;
+    assume !DF
+} code {
+    assume rsi as xsigned char *;
+    assume al as xsigned char;
+    assume rcx as unsigned long;
+$loop:
+    al := *rsi;
+    rsi := rsi + 1;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated al;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsb;
+    assume DF
+} code {
+    assume rsi as xsigned char *;
+    assume al as xsigned char;
+    assume rcx as unsigned long;
+$loop:
+    al := *rsi;
+    rsi := rsi - 1;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated al;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsw;
+    assume !DF
+} code {
+    assume rsi as xsigned short *;
+    assume ax as xsigned short;
+    assume rcx as unsigned long;
+$loop:
+    ax := *rsi;
+    rsi := rsi + 2;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated ax;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsw;
+    assume DF
+} code {
+    assume rsi as xsigned short *;
+    assume ax as xsigned short;
+    assume rcx as unsigned long;
+$loop:
+    ax := *rsi;
+    rsi := rsi - 2;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated ax;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsd;
+    assume !DF
+} code {
+    assume rsi as xsigned long *;
+    assume eax as xsigned long;
+    assume rcx as unsigned long;
+$loop:
+    eax := *rsi;
+    rsi := rsi + 4;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated eax;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsd;
+    assume DF
+} code {
+    assume rsi as xsigned long *;
+    assume eax as xsigned long;
+    assume rcx as unsigned long;
+$loop:
+    eax := *rsi;
+    rsi := rsi - 4;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated eax;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsq;
+    assume !DF
+} code {
+    assume rsi as xsigned long long *;
+    assume rax as xsigned long long;
+    assume rcx as unsigned long long;
+$loop:
+    rax := *rsi;
+    rsi := rsi + 8;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated rax;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep lodsq;
+    assume DF
+} code {
+    assume rsi as xsigned long long *;
+    assume rax as xsigned long long;
+    assume rcx as unsigned long long;
+$loop:
+    rax := *rsi;
+    rsi := rsi - 8;
+    rcx := rcx - 1;
+    if (rcx) goto $loop;
+    assume rcx == 0;
+    updated rax;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    loop $1;
+} code {
+    assume rcx as unsigned long;
+    rcx := rcx - 1;
+    updated rcx;
+    if (rcx) goto $1;
+    assume rcx == 0;
+    updated rcx;
+}
+
+pattern {
+    loope $1;
+} code {
+    assume rcx as unsigned long;
+    rcx := rcx - 1;
+    updated rcx;
+    if (ZF && rcx) goto $1;
+}
+
+pattern {
+    loopne $1;
+} code {
+    assume rcx as unsigned long;
+    rcx := rcx - 1;
+    updated rcx;
+    if (!ZF && rcx) goto $1;
+}
+
+pattern {
+    loopnz $1;
+} code {
+    assume rcx as unsigned long;
+    rcx := rcx - 1;
+    updated rcx;
+    if (!ZF && rcx) goto $1;
+}
+
+pattern {
+    loopz $1;
+} code {
+    assume rcx as unsigned long;
+    rcx := rcx - 1;
+    updated rcx;
+    if (ZF && rcx) goto $1;
+}
+
+// lsl($dest, $src);
+// ltr($src);
+// mfence();
+// monitor();
+
+pattern {
+    mov $1, $2;
+} code {
+    $1 := $2;
+    updated $1;
+}
+
+pattern {
+    movbe $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    unsigned char $b1;
+    unsigned char $b2;
+    unsigned char $b3;
+    unsigned char $b4;
+    unsigned char $b5;
+    unsigned char $b6;
+    unsigned char $b7;
+    unsigned char $b8;
+    unsigned short $w1;
+    unsigned short $w2;
+    unsigned short $w3;
+    unsigned short $w4;
+    unsigned long $d1;
+    unsigned long $d2;
+    unsigned long long $q;
+    $b1 := $2 & 0xFF;
+    $b2 := ($2 >>> 8) & 0xFF;
+    $b3 := ($2 >>> 16) & 0xFF;
+    $b4 := ($2 >>> 24) & 0xFF;
+    $b5 := ($2 >>> 32) & 0xFF;
+    $b6 := ($2 >>> 40) & 0xFF;
+    $b7 := ($2 >>> 48) & 0xFF;
+    $b8 := ($2 >>> 56) & 0xFF;
+    $w1 := ($b1 << 8) | $b2;
+    $w2 := ($b3 << 8) | $b4;
+    $w3 := ($b5 << 8) | $b6;
+    $w4 := ($b7 << 8) | $b8;
+    $d1 := ($w1 << 16) | $w2;
+    $d2 := ($w3 << 16) | $w4;
+    $q := $d1;
+    $q := $q << 32;
+    $q := $q | $d2;
+    $1 := $q;
+    updated $1;
+}
+
+pattern {
+    movbe $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    unsigned char $b1;
+    unsigned char $b2;
+    unsigned char $b3;
+    unsigned char $b4;
+    unsigned short $w1;
+    unsigned short $w2;
+    $b1 := $2 & 0xFF;
+    $b2 := ($2 >>> 8) & 0xFF;
+    $b3 := ($2 >>> 16) & 0xFF;
+    $b4 := ($2 >>> 24) & 0xFF;
+    $w1 := ($b1 << 8) | $b2;
+    $w2 := ($b3 << 8) | $b4;
+    $1 := ($w1 << 16) | $w2;
+    updated $1;
+}
+
+pattern {
+    movbe $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    unsigned char $b1;
+    unsigned char $b2;
+    unsigned short $w1;
+    $b1 := $2 & 0xFF;
+    $b2 := ($2 >>> 8) & 0xFF;
+    $1 := ($b1 << 8) | $b2;
+    updated $1;
+}
+
+pattern {
+    movnti $1, $2;
+} code {
+    $1 := $2;
+    updated $1;
+}
+
+pattern {
+    movsb;
+    assume !DF;
+} code {
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    *rdi := *rsi;
+    rdi := rdi + 1;
+    rsi := rsi + 1;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsb;
+    assume DF;
+} code {
+    assume rdi as xsigned char *;
+    assume rsi as xsigned char *;
+    *rdi := *rsi;
+    rdi := rdi - 1;
+    rsi := rsi - 1;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsw;
+    assume !DF;
+} code {
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    *rdi := *rsi;
+    rdi := rdi + 2;
+    rsi := rsi + 2;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsw;
+    assume DF;
+} code {
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    *rdi := *rsi;
+    rdi := rdi - 2;
+    rsi := rsi - 2;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsd;
+    assume !DF;
+} code {
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    *rdi := *rsi;
+    rdi := rdi + 4;
+    rsi := rsi + 4;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsd;
+    assume DF;
+} code {
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    *rdi := *rsi;
+    rdi := rdi - 4;
+    rsi := rsi - 4;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsq;
+    assume !DF;
+} code {
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    *rdi := *rsi;
+    rdi := rdi + 8;
+    rsi := rsi + 8;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    movsq;
+    assume DF;
+} code {
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    *rdi := *rsi;
+    rdi := rdi - 8;
+    rsi := rsi - 8;
+    updated rdi;
+    updated rsi;
+}
+
+pattern {
+    rep movsb;
+    assume !DF;
+} code {
+    assume rdi as pointer;
+    assume rsi as pointer;
+    assume rcx as unsigned long;
+    memcpy(rdi, rsi, rcx);
+    rdi := rdi + rcx;
+    rsi := rsi + rcx;
+    rcx := 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsb;
+    assume DF;
+} code {
+    assume rdi as pointer;
+    assume rsi as pointer;
+    assume rcx as unsigned long;
+    memcpy(rdi - rcx, rsi - rcx, rcx);
+    rdi := rdi - rcx;
+    rsi := rsi - rcx;
+    rcx := 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsw;
+    assume !DF;
+} code {
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    assume rcx as unsigned long;
+$loop:
+    if (rcx == 0) goto $skip;
+    *rdi := *rsi;
+    rdi := rdi + 2;
+    rsi := rsi + 2;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsw;
+    assume DF;
+} code {
+    assume rdi as xsigned short *;
+    assume rsi as xsigned short *;
+    assume rcx as unsigned long;
+$loop:
+    if (rcx == 0) goto $skip;
+    *rdi := *rsi;
+    rdi := rdi - 2;
+    rsi := rsi - 2;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsd;
+    assume !DF;
+} code {
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    assume rcx as unsigned long;
+$loop:
+    if (rcx == 0) goto $skip;
+    *rdi := *rsi;
+    rdi := rdi + 4;
+    rsi := rsi + 4;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsd;
+    assume DF;
+} code {
+    assume rdi as xsigned long *;
+    assume rsi as xsigned long *;
+    assume rcx as unsigned long;
+$loop:
+    if (rcx == 0) goto $skip;
+    *rdi := *rsi;
+    rdi := rdi - 4;
+    rsi := rsi - 4;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsq;
+    assume !DF;
+} code {
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    assume rcx as unsigned long long;
+$loop:
+    if (rcx == 0) goto $skip;
+    *rdi := *rsi;
+    rdi := rdi + 8;
+    rsi := rsi + 8;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    rep movsq;
+    assume DF;
+} code {
+    assume rdi as xsigned long long *;
+    assume rsi as xsigned long long *;
+    assume rcx as unsigned long long;
+$loop:
+    if (rcx == 0) goto $skip;
+    *rdi := *rsi;
+    rdi := rdi - 8;
+    rsi := rsi - 8;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rsi;
+    updated rcx;
+}
+
+pattern {
+    movsx $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $n := $2;
+    $1 := $n;
+    updated $1;
+}
+
+pattern {
+    movsx $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $n := $2;
+    $1 := $n;
+    updated $1;
+}
+
+pattern {
+    movsx $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $n := $2;
+    $1 := $n;
+    updated $1;
+}
+
+pattern {
+    movzx $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    unsigned long long $n;
+    $n := $2;
+    $1 := $n;
+    updated $1;
+}
+
+pattern {
+    movzx $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    unsigned long $n;
+    $n := $2;
+    $1 := $n;
+    updated $1;
+}
+
+pattern {
+    movzx $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    unsigned short $n;
+    $n := $2;
+    $1 := $n;
+    updated $1;
+}
+
+pattern {
+    mul $1;
+    assume sizeof($1) == 8;
+} code {
+    unsigned int128_t $n;
+    $n := rax;
+    rdx:rax := $n * $1;
+    OF := rdx:rax != rax;
+    CF := rdx:rax != rax;
+    updated rdx:rax;
+    assume rdx:rax as unsigned int128_t;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    mul $1;
+    assume sizeof($1) == 4;
+} code {
+    unsigned long long $n;
+    $n := eax;
+    edx:eax := $n * $1;
+    OF := edx:eax != eax;
+    CF := edx:eax != eax;
+    updated edx:eax;
+    assume edx:eax as unsigned long long;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    mul $1;
+    assume sizeof($1) == 2;
+} code {
+    unsigned long $n;
+    $n := ax;
+    dx:ax := $n * $1;
+    OF := dx:ax != ax;
+    CF := dx:ax != ax;
+    updated dx:ax;
+    assume dx:ax as unsigned long;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    mul $1;
+    assume sizeof($1) == 1;
+} code {
+    unsigned short $n;
+    $n := al;
+    ax := $n * $1;
+    OF := ax != al;
+    CF := ax != al;
+    updated ax;
+    assume ax as unsigned short;
+    dead SF;
+    dead ZF;
+    dead AF;
+    dead PF;
+}
+
+// mwait();
+
+pattern {
+    neg $1;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $n := $1;
+    $n := -$n;
+    $1 := $n;
+    updated $1;
+    CF := $1 != 0;
+    OF := 0;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    neg $1;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $n := $1;
+    $n := -$n;
+    $1 := $n;
+    updated $1;
+    CF := $1 != 0;
+    OF := 0;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    neg $1;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $n := $1;
+    $n := -$n;
+    $1 := $n;
+    updated $1;
+    CF := $1 != 0;
+    OF := 0;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    neg $1;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    $n := $1;
+    $n := -$n;
+    $1 := $n;
+    updated $1;
+    CF := $1 != 0;
+    OF := 0;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    nop;
+} code {
+}
+
+pattern {
+    nop $1;
+} code {
+}
+
+pattern {
+    not $1;
+} code {
+    $1 := ~$1;
+    updated $1;
+}
+
+pattern {
+    or $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $1 := $1 | $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    dead PF;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead AF;
+}
+
+pattern {
+    or $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $1 := $1 | $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    dead PF;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead AF;
+}
+
+pattern {
+    or $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $1 := $1 | $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    dead PF;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead AF;
+}
+
+pattern {
+    or $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    $1 := $1 | $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    dead PF;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead AF;
+}
+
+// out($dest, $src);
+// outsb();
+// outsw();
+// outsd();
+// rep outsb();
+// rep outsw();
+// rep outsd();
+// pause();
+
+pattern {
+    pop $1;
+} code {
+    pop $1;
+}
+
+pattern {
+    popa;
+} code {
+    pop di;
+    pop si;
+    pop bp;
+    sp := sp + 2;
+    pop bx;
+    pop dx;
+    pop cx;
+    pop ax;
+}
+
+pattern {
+    popad;
+} code {
+    pop edi;
+    pop esi;
+    pop ebp;
+    esp := esp + 4;
+    pop ebx;
+    pop edx;
+    pop ecx;
+    pop eax;
+}
+
+pattern {
+    popcnt $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    unsigned long long $i;
+    unsigned long long $count;
+    $count := 0;
+    $i := 0;
+$loop:
+    if ($i >= 64) goto $skip2;
+    if (($2 & (1 << $i)) == 0) goto $skip1;
+    $count := $count + 1;
+$skip1:
+    $i := $i + 1;
+    goto $loop;
+$skip2:
+    $1 := $count;
+    updated $1;
+}
+
+pattern {
+    popcnt $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    unsigned long $i;
+    unsigned long $count;
+    $count := 0;
+    $i := 0;
+$loop:
+    if ($i >= 32) goto $skip2;
+    if (($2 & (1 << $i)) == 0) goto $skip1;
+    $count := $count + 1;
+$skip1:
+    $i := $i + 1;
+    goto $loop;
+$skip2:
+    $1 := $count;
+    updated $1;
+}
+
+pattern {
+    popcnt $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    unsigned short $i;
+    unsigned short $count;
+    $count := 0;
+    $i := 0;
+$loop:
+    if ($i >= 32) goto $skip2;
+    if (($2 & (1 << $i)) == 0) goto $skip1;
+    $count := $count + 1;
+$skip1:
+    $i := $i + 1;
+    goto $loop;
+$skip2:
+    $1 := $count;
+    updated $1;
+}
+
+// popf();
+// popfq();
+// prefetch0($m8);
+// prefetch1($m8);
+// prefetch2($m8);
+// prefetchnta($m8);
+
+pattern {
+    push $1;
+} code {
+    push $1;
+}
+
+pattern {
+    pusha;
+} code {
+    short $temp;
+    $temp := sp;
+    push ax;
+    push cx;
+    push dx;
+    push bx;
+    push $temp;
+    push bp;
+    push si;
+    push di;
+}
+
+pattern {
+    pushad;
+} code {
+    long $temp;
+    $temp := esp;
+    push eax;
+    push ecx;
+    push edx;
+    push ebx;
+    push $temp;
+    push ebp;
+    push esi;
+    push edi;
+}
+
+// pushf();
+// pushfq();
+// rcl(XSIGNED $dest, XSIGNED $src);
+// rcr(XSIGNED $dest, XSIGNED $src);
+
+pattern {
+    rol $1, $2;
+    assume sizeof($1) <= 4;
+} code {
+    $1 := _rotl($1, $2);
+    updated $1;
+}
+
+pattern {
+    rol $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    $1 := _rotl64($1, $2);
+    updated $1;
+}
+
+pattern {
+    ror $1, $2;
+    assume sizeof($1) <= 4;
+} code {
+    $1 := _rotr($1, $2);
+    updated $1;
+}
+
+pattern {
+    ror $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    $1 := _rotr64($1, $2);
+    updated $1;
+}
+
+// rdfsbase($dest);
+// rdgsbase($dest);
+// rdmsr();
+// rdpmc();
+// rdrand($dest);
+// rdtsc();
+// rdtscp();
+
+pattern {
+    sal $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    assume $1 as long long;
+    $1 := $1 << $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sal $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    assume $1 as long;
+    $1 := $1 << $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sal $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    assume $1 as short;
+    $1 := $1 << $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sal $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    assume $1 as char;
+    $1 := $1 << $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sar $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    assume $1 as long long;
+    $1 := $1 >> $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sar $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    assume $1 as long;
+    $1 := $1 >> $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sar $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    assume $1 as short;
+    $1 := $1 >> $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sar $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    assume $1 as char;
+    $1 := $1 >> $2;
+    updated $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $1 < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shl $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    assume $1 as unsigned long long;
+    $1 := $1 << $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shl $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    assume $1 as unsigned long;
+    $1 := $1 << $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shl $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    assume $1 as unsigned short;
+    $1 := $1 << $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shr $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    assume $1 as unsigned long long;
+    $1 := $1 >> $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shr $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    assume $1 as unsigned long;
+    $1 := $1 >> $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shr $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    assume $1 as unsigned short;
+    $1 := $1 >> $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    shr $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    assume $1 as unsigned char;
+    $1 := $1 >> $2;
+    updated $1;
+    $n := $1;
+    dead CF;
+    dead OF;
+    ZF := $1 == 0;
+    SF := $n < 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    sbb $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n1;
+    long long $n2;
+    long long $n3;
+    unsigned long long $m1;
+    unsigned long long $m2;
+    unsigned long long $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $n2 := $n2 + CF;
+    $m1 := $1;
+    $m2 := $2;
+    $m2 := $m2 + CF;
+    $1 := $1 - ($2 + CF);
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $dest == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3 + CF || $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    sbb $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n1;
+    long $n2;
+    long $n3;
+    unsigned long $m1;
+    unsigned long $m2;
+    unsigned long $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $n2 := $n2 + CF;
+    $m1 := $1;
+    $m2 := $2;
+    $m2 := $m2 + CF;
+    $1 := $1 - ($2 + CF);
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $dest == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3 + CF || $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    sbb $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n1;
+    short $n2;
+    short $n3;
+    unsigned short $m1;
+    unsigned short $m2;
+    unsigned short $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $n2 := $n2 + CF;
+    $m1 := $1;
+    $m2 := $2;
+    $m2 := $m2 + CF;
+    $1 := $1 - ($2 + CF);
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $dest == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3 + CF || $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    sbb $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n1;
+    char $n2;
+    char $n3;
+    unsigned char $m1;
+    unsigned char $m2;
+    unsigned char $m3;
+    $n1 := $1;
+    $n2 := $2;
+    $n2 := $n2 + CF;
+    $m1 := $1;
+    $m2 := $2;
+    $m2 := $m2 + CF;
+    $1 := $1 - ($2 + CF);
+    $n3 := $1;
+    $m3 := $1;
+    OF := ($n1 >= 0 && $n2 >= 0 && $n3 < 0) || ($n1 < 0 && $n2 < 0 && $n3 >= 0);
+    ZF := $dest == 0;
+    SF := $n3 < 0;
+    CF := $m1 > $m3 + CF || $m1 > $m3;
+    dead AF;
+    dead PF;
+}
+
+pattern {
+    scasb;
+    assume !DF;
+} code {
+    char $s1;
+    char $s2;
+    unsigned char $u;
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+    $s1 := al;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := al == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi + 1;
+    updated rdi;
+}
+
+pattern {
+    scasb;
+    assume DF;
+} code {
+    char $s1;
+    char $s2;
+    unsigned char $u;
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+    $s1 := al;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := al == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi - 1;
+    updated rdi;
+}
+
+pattern {
+    scasw;
+    assume !DF;
+} code {
+    short $s1;
+    short $s2;
+    unsigned short $u;
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+    $s1 := ax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := ax == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi + 2;
+    updated rdi;
+}
+
+pattern {
+    scasw;
+    assume DF;
+} code {
+    short $s1;
+    short $s2;
+    unsigned short $u;
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+    $s1 := ax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := ax == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi - 2;
+    updated rdi;
+}
+
+pattern {
+    scasd;
+    assume !DF;
+} code {
+    long $s1;
+    long $s2;
+    unsigned long $u;
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+    $s1 := eax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := eax == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi + 4;
+    updated rdi;
+}
+
+pattern {
+    scasd;
+    assume DF;
+} code {
+    long $s1;
+    long $s2;
+    unsigned long $u;
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+    $s1 := eax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := eax == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi - 4;
+    updated rdi;
+}
+
+pattern {
+    scasq;
+    assume !DF;
+} code {
+    long long $s1;
+    long long $s2;
+    unsigned long long $u;
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+    $s1 := rax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := rax == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi + 8;
+    updated rdi;
+}
+
+pattern {
+    scasq;
+    assume DF;
+} code {
+    long long $s1;
+    long long $s2;
+    unsigned long long $u;
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+    $s1 := rax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := rax == *rdi;
+    SF := $s1 < $s2;
+    dead AF;
+    dead PF;
+    dead CF;
+    rdi := rdi - 8;
+    updated rdi;
+}
+
+pattern {
+    repe scasb;
+    assume !DF;
+} code {
+    char $s1;
+    char $s2;
+    unsigned char $u;
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+$loop:
+    $s1 := al;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := al == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 1;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasb;
+    assume DF;
+} code {
+    char $s1;
+    char $s2;
+    unsigned char $u;
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+$loop:
+    $s1 := al;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := al == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 1;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasw;
+    assume !DF;
+} code {
+    short $s1;
+    short $s2;
+    unsigned short $u;
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+$loop:
+    $s1 := ax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := ax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 2;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasw;
+    assume DF;
+} code {
+    short $s1;
+    short $s2;
+    unsigned short $u;
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+$loop:
+    $s1 := ax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := ax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 2;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasd;
+    assume !DF;
+} code {
+    long $s1;
+    long $s2;
+    unsigned long $u;
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+$loop:
+    $s1 := eax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := eax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 4;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasd;
+    assume DF;
+} code {
+    long $s1;
+    long $s2;
+    unsigned long $u;
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+$loop:
+    $s1 := eax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := eax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 4;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasq;
+    assume DF;
+} code {
+    long long $s1;
+    long long $s2;
+    unsigned long long $u;
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+$loop:
+    $s1 := rax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := rax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 8;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repe scasd;
+    assume !DF;
+} code {
+    long long $s1;
+    long long $s2;
+    unsigned long long $u;
+    assume rdi as xsigned long *;
+    assume rax as xsigned long;
+$loop:
+    $s1 := rax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := rax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 8;
+    if (!ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+alias repz scasb = repe scasb;
+alias repz scasw = repe scasw;
+alias repz scasd = repe scasd;
+alias repz scasq = repe scasq;
+
+pattern {
+    repne scasb;
+    assume !DF;
+} code {
+    char $s1;
+    char $s2;
+    unsigned char $u;
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+$loop:
+    $s1 := al;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := al == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 1;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasb;
+    assume DF;
+} code {
+    char $s1;
+    char $s2;
+    unsigned char $u;
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+$loop:
+    $s1 := al;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := al == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 1;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasw;
+    assume !DF;
+} code {
+    short $s1;
+    short $s2;
+    unsigned short $u;
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+$loop:
+    $s1 := ax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := ax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 2;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasw;
+    assume DF;
+} code {
+    short $s1;
+    short $s2;
+    unsigned short $u;
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+$loop:
+    $s1 := ax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := ax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 2;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasd;
+    assume !DF;
+} code {
+    long $s1;
+    long $s2;
+    unsigned long $u;
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+$loop:
+    $s1 := eax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := eax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 4;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasd;
+    assume DF;
+} code {
+    long $s1;
+    long $s2;
+    unsigned long $u;
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+$loop:
+    $s1 := eax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := eax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 4;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasq;
+    assume !DF;
+} code {
+    long long $s1;
+    long long $s2;
+    unsigned long long $u;
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+$loop:
+    $s1 := rax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := rax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi + 8;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+pattern {
+    repne scasq;
+    assume DF;
+} code {
+    long long $s1;
+    long long $s2;
+    unsigned long long $u;
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+$loop:
+    $s1 := rax;
+    $s2 := *rdi;
+    OF := $s < 0 && $s2 > 0;
+    ZF := rax == *rdi;
+    SF := $s1 < $s2;
+    rdi := rdi - 8;
+    if (ZF) goto $skip;
+    goto $loop;
+$skip:
+    updated rdi;
+    dead AF;
+    dead PF;
+    dead CF;
+}
+
+alias repnz scasb = repne scasb;
+alias repnz scasw = repne scasw;
+alias repnz scasd = repne scasd;
+alias repnz scasq = repne scasq;
+
+pattern {
+    seta $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !ZF && !CF;
+    updated $1;
+}
+
+pattern {
+    setae $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !CF;
+    updated $1;
+}
+
+pattern {
+    setb $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := CF;
+    updated $1;
+}
+
+pattern {
+    setbe $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := ZF || CF;
+    updated $1;
+}
+
+pattern {
+    setc $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := CF;
+    updated $1;
+}
+
+pattern {
+    sete $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := ZF;
+    updated $1;
+}
+
+pattern {
+    setg $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !ZF && SF == OF;
+    updated $1;
+}
+
+pattern {
+    setge $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := SF == OF;
+    updated $1;
+}
+
+pattern {
+    setl $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := SF != OF;
+    updated $1;
+}
+
+pattern {
+    setle $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := ZF && SF != OF;
+    updated $1;
+}
+
+pattern {
+    setna $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := ZF || CF;
+    updated $1;
+}
+
+pattern {
+    setnae $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := CF;
+    updated $1;
+}
+
+pattern {
+    setnb $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !CF;
+    updated $1;
+}
+
+pattern {
+    setnbe $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !ZF && !CF;
+    updated $1;
+}
+
+pattern {
+    setnc $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !CF;
+    updated $1;
+}
+
+pattern {
+    setne $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !ZF;
+    updated $1;
+}
+
+pattern {
+    setng $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := ZF || SF != OF;
+    updated $1;
+}
+
+pattern {
+    setnge $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := SF != OF;
+    updated $1;
+}
+
+pattern {
+    setnl $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := SF == OF;
+    updated $1;
+}
+
+pattern {
+    setnle $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !ZF && SF == OF;
+    updated $1;
+}
+
+pattern {
+    setno $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !OF;
+    updated $1;
+}
+
+pattern {
+    setnp $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !PF;
+    updated $1;
+}
+
+pattern {
+    setns $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !SF;
+    updated $1;
+}
+
+pattern {
+    setnz $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !ZF;
+    updated $1;
+}
+
+pattern {
+    seto $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := OF;
+    updated $1;
+}
+
+pattern {
+    setp $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := PF;
+    updated $1;
+}
+
+pattern {
+    setpe $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := PF;
+    updated $1;
+}
+
+pattern {
+    setpo $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !PF;
+    updated $1;
+}
+
+
+pattern {
+    sets $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := !SF;
+    updated $1;
+}
+
+pattern {
+    setz $1;
+} code {
+    assume $1 as xsigned char;
+    $1 := ZF;
+    updated $1;
+}
+
+// sfence();
+// sgdt();
+// shld($dest, $src, $count);   // TODO:
+// shrd($dest, $src, $count);   // TODO:
+// sidt($m);
+// sldt($rm16);
+// smsw($rm);
+
+pattern {
+    stc;
+} code {
+    CF := 1;
+}
+
+pattern {
+    std;
+} code {
+    DF := 1;
+}
+
+pattern {
+    sti;
+} code {
+    IF := 1;
+}
+
+pattern {
+    assume !DF;
+    stosb;
+} code {
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+    *rdi := al;
+    rdi := rdi + 1;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    stosb;
+} code {
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+    *rdi := al;
+    rdi := rdi - 1;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    stosw;
+} code {
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+    *rdi := ax;
+    rdi := rdi + 2;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    stosw;
+} code {
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+    *rdi := ax;
+    rdi := rdi - 2;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    stosd;
+} code {
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+    *rdi := eax;
+    rdi := rdi + 4;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    stosd;
+} code {
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+    *rdi := eax;
+    rdi := rdi - 4;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    stosq;
+} code {
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+    *rdi := rax;
+    rdi := rdi + 8;
+    updated rdi;
+}
+
+pattern {
+    assume DF;
+    stosd;
+} code {
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+    *rdi := rax;
+    rdi := rdi - 8;
+    updated rdi;
+}
+
+pattern {
+    assume !DF;
+    rep stosb;
+} code {
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+    assume rcx as integer;
+    memset(rdi, al, rcx);
+    rdi := rdi + rcx;
+    rcx := 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume DF;
+    rep stosb;
+} code {
+    assume rdi as xsigned char *;
+    assume al as xsigned char;
+    assume rcx as integer;
+    memset(rdi - rcx, al, rcx);
+    rdi := rdi - rcx;
+    rcx := 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume !DF;
+    rep stosw;
+} code {
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+$loop:
+    if (!rcx) goto $skip;
+    *rdi := ax;
+    rdi := rdi + 2;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume DF;
+    rep stosw;
+} code {
+    assume rdi as xsigned short *;
+    assume ax as xsigned short;
+$loop:
+    if (!rcx) goto $skip;
+    *rdi := ax;
+    rdi := rdi - 2;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume !DF;
+    rep stosd;
+} code {
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+$loop:
+    if (!rcx) goto $skip;
+    *rdi := eax;
+    rdi := rdi + 4;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume DF;
+    rep stosd;
+} code {
+    assume rdi as xsigned long *;
+    assume eax as xsigned long;
+$loop:
+    if (!rcx) goto $skip;
+    *rdi := eax;
+    rdi := rdi - 4;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume !DF;
+    rep stosq;
+} code {
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+$loop:
+    if (!rcx) goto $skip;
+    *rdi := rax;
+    rdi := rdi + 8;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rcx;
+}
+
+pattern {
+    assume DF;
+    rep stosq;
+} code {
+    assume rdi as xsigned long long *;
+    assume rax as xsigned long long;
+$loop:
+    if (!rcx) goto $skip;
+    *rdi := rax;
+    rdi := rdi - 8;
+    rcx := rcx - 1;
+    goto $loop;
+$skip:
+    assume rcx == 0;
+    updated rdi;
+    updated rcx;
+}
+
+// str($rm16);
+
+pattern {
+    sub $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $1 := $1 - $2;
+    ZF := $1 == 0;
+    SF := $n1 < $n2;
+    CF := $u1 < $u1 - $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+}
+
+pattern {
+    sub $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $1 := $1 - $2;
+    ZF := $1 == 0;
+    SF := $n1 < $n2;
+    CF := $u1 < $u1 - $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+}
+
+pattern {
+    sub $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $1 := $1 - $2;
+    ZF := $1 == 0;
+    SF := $n1 < $n2;
+    CF := $u1 < $u1 - $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+}
+
+pattern {
+    sub $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $1 := $1 - $2;
+    ZF := $1 == 0;
+    SF := $n1 < $n2;
+    CF := $u1 < $u1 - $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+}
+
+// syscall();
+// sysenter();
+// sysexit();
+// sysret();
+
+pattern {
+    test $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $temp;
+    ZF := ($1 & $2) == 0;
+    $temp := ($1 & $2);
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $temp;
+    ZF := ($1 & $2) == 0;
+    $temp := ($1 & $2);
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $temp;
+    ZF := ($1 & $2) == 0;
+    $temp := ($1 & $2);
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+pattern {
+    test $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $temp;
+    ZF := ($1 & $2) == 0;
+    $temp := ($1 & $2);
+    SF := $temp < 0;
+    dead PF;
+    CF := 0;
+    OF := 0;
+    dead AF;
+}
+
+// ud2();
+// verr($rm16);
+// verw($rm16);
+// wait();
+// fwait();
+// wbinvd();
+// wrfsbase();
+// wrgsbase();
+// wrmsr();
+
+pattern {
+    xadd $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n1;
+    long long $n2;
+    unsigned long long $u1;
+    unsigned long long $u2;
+    xsigned long long $k;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $k := $1 + $2;
+    $2 := $1;
+    $1 := $k;
+    ZF := $k == 0;
+    SF := $n1 < $n2;
+    CF := $u1 > $u1 + $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xadd $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n1;
+    long $n2;
+    unsigned long $u1;
+    unsigned long $u2;
+    xsigned long $k;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $k := $1 + $2;
+    $2 := $1;
+    $1 := $k;
+    ZF := $k == 0;
+    SF := $n1 < $n2;
+    CF := $u1 > $u1 + $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xadd $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n1;
+    short $n2;
+    unsigned short $u1;
+    unsigned short $u2;
+    xsigned short $k;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $k := $1 + $2;
+    $2 := $1;
+    $1 := $k;
+    ZF := $k == 0;
+    SF := $n1 < $n2;
+    CF := $u1 > $u1 + $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xadd $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n1;
+    char $n2;
+    unsigned char $u1;
+    unsigned char $u2;
+    xsigned char $k;
+    $n1 := $1;
+    $n2 := $2;
+    $u1 := $1;
+    $u2 := $2;
+    $k := $1 + $2;
+    $2 := $1;
+    $1 := $k;
+    ZF := $k == 0;
+    SF := $n1 < $n2;
+    CF := $u1 > $u1 + $u2;
+    dead OF;
+    dead AF;
+    dead PF;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xchg $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    unknown_t $x;
+    $x := $1;
+    $1 := $2;
+    $2 := $x;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xchg $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    xsigned long $x;
+    $x := $1;
+    $1 := $2;
+    $2 := $x;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xchg $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    xsigned short $x;
+    $x := $1;
+    $1 := $2;
+    $2 := $x;
+    updated $1;
+    updated $2;
+}
+
+pattern {
+    xchg $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    xsigned char $x;
+    $x := $1;
+    $1 := $2;
+    $2 := $x;
+    updated $1;
+    updated $2;
+}
+
+// xgetbv();
+
+pattern {
+    xlat $1;
+} code {
+    assume $1 as xsigned char *;
+    al := $1[al];
+    updated al;
+}
+
+pattern {
+    xlatb $1;
+} code {
+    assume $1 as xsigned char *;
+    al := $1[al];
+    updated al;
+}
+
+pattern {
+    xor $1, $2;
+    assume sizeof($1) == 8;
+} code {
+    long long $n;
+    $1 := $1 ^ $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    xor $1, $2;
+    assume sizeof($1) == 4;
+} code {
+    long $n;
+    $1 := $1 ^ $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    xor $1, $2;
+    assume sizeof($1) == 2;
+} code {
+    short $n;
+    $1 := $1 ^ $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead PF;
+    dead AF;
+}
+
+pattern {
+    xor $1, $2;
+    assume sizeof($1) == 1;
+} code {
+    char $n;
+    $1 := $1 ^ $2;
+    updated $1;
+    $n := $1;
+    SF := $n < 0;
+    ZF := $1 == 0;
+    OF := 0;
+    CF := 0;
+    dead PF;
+    dead AF;
+}
+
+// xrstor($mem);
+// xsave($mem);
+// xsaveopt($mem);
+// xsetbv();
